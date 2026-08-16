@@ -1,6 +1,6 @@
 # INK RUN
 
-A focused kanji reading game for frequency words 41–150, plus separate extra vocabulary decks.
+A focused kanji reading game for frequency words 41–150, plus 60 words in separate Extra 1 vocabulary decks.
 
 ## Study loop
 

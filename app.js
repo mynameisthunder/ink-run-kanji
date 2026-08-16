@@ -649,6 +649,206 @@ const KANJI = [
     breakdown: [["実", "じつ", "truth; reality"], ["は", "は", "topic particle, pronounced わ"]],
     memory: "実 is じつ; add the written particle は: じつは, pronounced じつわ.",
   },
+  {
+    word: "十分", reading: "じゅうぶん", romaji: ["juubun", "jubun"], meaning: "enough; sufficient; ample; fully",
+    breakdown: [["十", "じゅう", "ten; complete"], ["分", "ぶん", "part; amount"]],
+    memory: "十 is じゅう and 分 is ぶん: じゅう + ぶん = じゅうぶん.",
+  },
+  {
+    word: "気付く", reading: "きづく", romaji: ["kizuku", "kiduku"], meaning: "to notice; to realize; to become aware",
+    breakdown: [["気", "き", "attention; feeling"], ["付く", "づく", "attach; notice, with sound change"]],
+    memory: "気 is き and 付く becomes づく: き + づく = きづく.",
+  },
+  {
+    word: "一部", reading: "いちぶ", romaji: ["ichibu"], meaning: "one part; a portion; a section; some",
+    breakdown: [["一", "いち", "one"], ["部", "ぶ", "part; section"]],
+    memory: "一 is いち and 部 is ぶ: いち + ぶ = いちぶ.",
+  },
+  {
+    word: "四百", reading: "よんひゃく", romaji: ["yonhyaku"], meaning: "four hundred",
+    breakdown: [["四", "よん", "four"], ["百", "ひゃく", "hundred"]],
+    memory: "Four is よん and hundred is ひゃく: よんひゃく.",
+  },
+  {
+    word: "業", reading: "ぎょう", romaji: ["gyou", "gyo"], meaning: "business; industry; work; karma",
+    breakdown: [["業", "ぎょう", "business; industry; work"]],
+    memory: "Business or industry gets the reading ぎょう (gyou).",
+  },
+  {
+    word: "様子", reading: "ようす", romaji: ["yousu", "yosu"], meaning: "state; appearance; situation; manner",
+    breakdown: [["様", "よう", "appearance; manner"], ["子", "す", "state element here"]],
+    memory: "様 is よう and 子 is す here: よう + す = ようす.",
+  },
+  {
+    word: "十月", reading: "じゅうがつ", romaji: ["juugatsu", "jugatsu"], meaning: "October",
+    breakdown: [["十", "じゅう", "ten"], ["月", "がつ", "month"]],
+    memory: "The tenth month is じゅう + がつ = じゅうがつ.",
+  },
+  {
+    word: "上がる", reading: "あがる", romaji: ["agaru"], meaning: "to rise; to go up; to increase",
+    breakdown: [["上", "あ", "up; rise"], ["がる", "がる", "verb ending"]],
+    memory: "上 gives あ; add がる: あ + がる = あがる.",
+  },
+  {
+    word: "学", reading: "がく", romaji: ["gaku"], meaning: "learning; study; scholarship",
+    breakdown: [["学", "がく", "learning; study"]],
+    memory: "Learning or study gets the reading がく (gaku).",
+  },
+  {
+    word: "何方", reading: "どなた", romaji: ["donata"], meaning: "who; which person (polite)",
+    breakdown: [["何", "ど", "what; which"], ["方", "なた", "person element in this polite word"]],
+    memory: "The polite way to ask who is どなた (donata).",
+  },
+  {
+    word: "九月", reading: "くがつ", romaji: ["kugatsu"], meaning: "September",
+    breakdown: [["九", "く", "nine"], ["月", "がつ", "month"]],
+    memory: "The ninth month is く + がつ = くがつ.",
+  },
+  {
+    word: "四月", reading: "しがつ", romaji: ["shigatsu", "sigatsu"], meaning: "April",
+    breakdown: [["四", "し", "four"], ["月", "がつ", "month"]],
+    memory: "The fourth month uses し: し + がつ = しがつ.",
+  },
+  {
+    word: "事実", reading: "じじつ", romaji: ["jijitsu"], meaning: "fact; truth; reality",
+    breakdown: [["事", "じ", "matter; thing"], ["実", "じつ", "truth; reality"]],
+    memory: "事 is じ and 実 is じつ: じ + じつ = じじつ.",
+  },
+  {
+    word: "同様", reading: "どうよう", romaji: ["douyou", "doyo"], meaning: "the same; similar; likewise",
+    breakdown: [["同", "どう", "same"], ["様", "よう", "manner; way"]],
+    memory: "同 is どう and 様 is よう: どう + よう = どうよう.",
+  },
+  {
+    word: "十二月", reading: "じゅうにがつ", romaji: ["juunigatsu", "junigatsu"], meaning: "December",
+    breakdown: [["十", "じゅう", "ten"], ["二", "に", "two"], ["月", "がつ", "month"]],
+    memory: "The twelfth month is じゅう + に + がつ = じゅうにがつ.",
+  },
+  {
+    word: "日本人", reading: "にほんじん", romaji: ["nihonjin"], meaning: "a Japanese person; Japanese people",
+    breakdown: [["日", "に", "sun; Japan here"], ["本", "ほん", "origin; Japan here"], ["人", "じん", "person; nationality suffix"]],
+    memory: "日本 is にほん; add 人 じん: にほんじん.",
+  },
+  {
+    word: "年間", reading: "ねんかん", romaji: ["nenkan"], meaning: "yearly; annual; a period of years",
+    breakdown: [["年", "ねん", "year"], ["間", "かん", "interval; period"]],
+    memory: "年 is ねん and 間 is かん: ねん + かん = ねんかん.",
+  },
+  {
+    word: "動く", reading: "うごく", romaji: ["ugoku"], meaning: "to move; to operate; to work",
+    breakdown: [["動", "うご", "move; operate"], ["く", "く", "verb ending"]],
+    memory: "動 gives うご; add く: うご + く = うごく.",
+  },
+  {
+    word: "一月", reading: "いちがつ", romaji: ["ichigatsu"], meaning: "January",
+    breakdown: [["一", "いち", "one"], ["月", "がつ", "month"]],
+    memory: "The first month is いち + がつ = いちがつ.",
+  },
+  {
+    word: "六月", reading: "ろくがつ", romaji: ["rokugatsu"], meaning: "June",
+    breakdown: [["六", "ろく", "six"], ["月", "がつ", "month"]],
+    memory: "The sixth month is ろく + がつ = ろくがつ.",
+  },
+  {
+    word: "行動", reading: "こうどう", romaji: ["koudou", "kodo"], meaning: "action; conduct; behavior",
+    breakdown: [["行", "こう", "go; act"], ["動", "どう", "move; action"]],
+    memory: "行 is こう and 動 is どう: こう + どう = こうどう.",
+  },
+  {
+    word: "意見", reading: "いけん", romaji: ["iken"], meaning: "opinion; view; point of view",
+    breakdown: [["意", "い", "idea; intention"], ["見", "けん", "view; see"]],
+    memory: "意 is い and 見 is けん: い + けん = いけん.",
+  },
+  {
+    word: "自動", reading: "じどう", romaji: ["jidou", "jido"], meaning: "automatic; self-operating",
+    breakdown: [["自", "じ", "self"], ["動", "どう", "move; operate"]],
+    memory: "Self-moving is 自 じ + 動 どう = じどう.",
+  },
+  {
+    word: "大変", reading: "たいへん", romaji: ["taihen"], meaning: "serious; difficult; terrible; very",
+    breakdown: [["大", "たい", "great; major"], ["変", "へん", "change; unusual"]],
+    memory: "大 is たい and 変 is へん: たい + へん = たいへん.",
+  },
+  {
+    word: "所謂", reading: "いわゆる", romaji: ["iwayuru"], meaning: "so-called; what is called",
+    breakdown: [["所謂", "いわゆる", "idiomatic whole-word reading; so-called"]],
+    memory: "This is a special whole-word reading: 所謂 = いわゆる.",
+  },
+  {
+    word: "八月", reading: "はちがつ", romaji: ["hachigatsu"], meaning: "August",
+    breakdown: [["八", "はち", "eight"], ["月", "がつ", "month"]],
+    memory: "The eighth month is はち + がつ = はちがつ.",
+  },
+  {
+    word: "関わる", reading: "かかわる", romaji: ["kakawaru"], meaning: "to be involved; to relate; to concern",
+    breakdown: [["関", "かか", "connect; relate"], ["わる", "わる", "verb ending"]],
+    memory: "関 gives かか; add わる: かか + わる = かかわる.",
+  },
+  {
+    word: "十一月", reading: "じゅういちがつ", romaji: ["juuichigatsu", "juichigatsu"], meaning: "November",
+    breakdown: [["十", "じゅう", "ten"], ["一", "いち", "one"], ["月", "がつ", "month"]],
+    memory: "The eleventh month is じゅう + いち + がつ = じゅういちがつ.",
+  },
+  {
+    word: "今度", reading: "こんど", romaji: ["kondo"], meaning: "this time; next time; recently",
+    breakdown: [["今", "こん", "now; this"], ["度", "ど", "time; occurrence"]],
+    memory: "今 is こん and 度 is ど: こん + ど = こんど.",
+  },
+  {
+    word: "経つ", reading: "たつ", romaji: ["tatsu", "tatu"], meaning: "to pass; to elapse (time)",
+    breakdown: [["経", "た", "pass; elapse"], ["つ", "つ", "verb ending"]],
+    memory: "経 gives た; add つ: た + つ = たつ.",
+  },
+  {
+    word: "人生", reading: "じんせい", romaji: ["jinsei"], meaning: "life; human life; one's life",
+    breakdown: [["人", "じん", "person; human"], ["生", "せい", "life; living"]],
+    memory: "人 is じん and 生 is せい: じん + せい = じんせい.",
+  },
+  {
+    word: "二月", reading: "にがつ", romaji: ["nigatsu"], meaning: "February",
+    breakdown: [["二", "に", "two"], ["月", "がつ", "month"]],
+    memory: "The second month is に + がつ = にがつ.",
+  },
+  {
+    word: "無", reading: "む", romaji: ["mu"], meaning: "nothing; absence; without; non-",
+    breakdown: [["無", "む", "nothing; absence; without"]],
+    memory: "Nothing or absence gets the reading む (mu).",
+  },
+  {
+    word: "立場", reading: "たちば", romaji: ["tachiba"], meaning: "position; standpoint; situation",
+    breakdown: [["立", "たち", "stand; position"], ["場", "ば", "place; situation"]],
+    memory: "立 is たち and 場 is ば: たち + ば = たちば.",
+  },
+  {
+    word: "決まる", reading: "きまる", romaji: ["kimaru"], meaning: "to be decided; to be determined; to be settled",
+    breakdown: [["決", "き", "decide; settle"], ["まる", "まる", "intransitive verb ending"]],
+    memory: "決 gives き; add まる: き + まる = きまる.",
+  },
+  {
+    word: "表わす", reading: "あらわす", romaji: ["arawasu"], meaning: "to express; to represent; to show",
+    breakdown: [["表", "あらわ", "express; reveal"], ["す", "す", "verb ending"]],
+    memory: "表 gives あらわ; add す: あらわ + す = あらわす.",
+  },
+  {
+    word: "今後", reading: "こんご", romaji: ["kongo"], meaning: "from now on; hereafter; in the future",
+    breakdown: [["今", "こん", "now"], ["後", "ご", "after; later"]],
+    memory: "今 is こん and 後 is ご: こん + ご = こんご.",
+  },
+  {
+    word: "一日", reading: "いちにち、ついたち", kana: ["いちにち", "ついたち"], romaji: ["ichinichi", "tsuitachi"], meaning: "one day; all day; the first day of the month",
+    breakdown: [["一", "いち／つい", "one; first"], ["日", "にち／たち", "day"]],
+    memory: "一日 is いちにち for one day, but ついたち for the first of the month.",
+  },
+  {
+    word: "何度", reading: "なんど", romaji: ["nando"], meaning: "how many times; how often; how many degrees",
+    breakdown: [["何", "なん", "what; how many"], ["度", "ど", "time; degree"]],
+    memory: "何 is なん and 度 is ど: なん + ど = なんど.",
+  },
+  {
+    word: "市場", reading: "いちば", romaji: ["ichiba"], meaning: "market; marketplace",
+    breakdown: [["市", "いち", "market; city"], ["場", "ば", "place"]],
+    memory: "市 is いち and 場 is ば here: いち + ば = いちば.",
+  },
 ];
 
 const DECKS = {
@@ -666,6 +866,10 @@ const DECKS = {
   "141-150": { label: "141—150", setLabel: "SET 141—150", start: 100, end: 110 },
   "extra-1-10": { label: "EXTRA 01—10", setLabel: "EXTRA 1 · 01—10", start: 110, end: 120 },
   "extra-11-20": { label: "EXTRA 11—20", setLabel: "EXTRA 1 · 11—20", start: 120, end: 130 },
+  "extra-21-30": { label: "EXTRA 21—30", setLabel: "EXTRA 1 · 21—30", start: 130, end: 140 },
+  "extra-31-40": { label: "EXTRA 31—40", setLabel: "EXTRA 1 · 31—40", start: 140, end: 150 },
+  "extra-41-50": { label: "EXTRA 41—50", setLabel: "EXTRA 1 · 41—50", start: 150, end: 160 },
+  "extra-51-60": { label: "EXTRA 51—60", setLabel: "EXTRA 1 · 51—60", start: 160, end: 170 },
 };
 
 const BATCH_SIZE = 3;

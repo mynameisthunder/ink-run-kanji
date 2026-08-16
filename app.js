@@ -99,6 +99,106 @@ const KANJI = [
     breakdown: [["当", "あ", "hit; correct; correspond"], ["たる", "たる", "verb ending"]],
     memory: "当 starts with あ; add たる: あ + たる = あたる.",
   },
+  {
+    word: "同じ", reading: "おなじ", romaji: ["onaji"], meaning: "same; identical; equal",
+    breakdown: [["同", "おな", "same; identical"], ["じ", "じ", "adjectival ending"]],
+    memory: "同 gives おな; add じ: おな + じ = おなじ.",
+  },
+  {
+    word: "十", reading: "じゅう", romaji: ["juu", "ju", "jyu", "jyuu"], meaning: "ten",
+    breakdown: [["十", "じゅう", "ten"]],
+    memory: "The number ten is じゅう (juu).",
+  },
+  {
+    word: "成る", reading: "なる", romaji: ["naru"], meaning: "to become; to result in; to consist of",
+    breakdown: [["成", "な", "become; accomplish"], ["る", "る", "verb ending"]],
+    memory: "成 gives な; add る: な + る = なる.",
+  },
+  {
+    word: "開発", reading: "かいはつ", romaji: ["kaihatsu"], meaning: "development; exploitation; opening up",
+    breakdown: [["開", "かい", "open; unfold; develop"], ["発", "はつ", "departure; emit; start"]],
+    memory: "開 is かい and 発 is はつ: かい + はつ = かいはつ.",
+  },
+  {
+    word: "長い", reading: "ながい", romaji: ["nagai"], meaning: "long; lengthy; lasting",
+    breakdown: [["長", "なが", "long; leader"], ["い", "い", "adjective ending"]],
+    memory: "長 gives なが; add い: なが + い = ながい.",
+  },
+  {
+    word: "金", reading: "かね", romaji: ["kane"], meaning: "money; metal; gold",
+    breakdown: [["金", "かね", "money; metal; gold"]],
+    memory: "Money or metal is かね (kane).",
+  },
+  {
+    word: "時代", reading: "じだい", romaji: ["jidai", "zidai"], meaning: "era; period; age; generation",
+    breakdown: [["時", "じ", "time; hour"], ["代", "だい", "era; generation; substitute"]],
+    memory: "時 is じ and 代 is だい: じ + だい = じだい.",
+  },
+  {
+    word: "作る", reading: "つくる", romaji: ["tsukuru", "tukuru"], meaning: "to make; to create; to produce",
+    breakdown: [["作", "つく", "make; create; produce"], ["る", "る", "verb ending"]],
+    memory: "作 gives つく; add る: つく + る = つくる.",
+  },
+  {
+    word: "彼女", reading: "かのじょ", romaji: ["kanojo"], meaning: "she; her; girlfriend",
+    breakdown: [["彼", "かの", "he; that person"], ["女", "じょ", "woman; female"]],
+    memory: "彼 is かの here and 女 is じょ: かの + じょ = かのじょ.",
+  },
+  {
+    word: "心", reading: "こころ", romaji: ["kokoro"], meaning: "heart; mind; spirit; feelings",
+    breakdown: [["心", "こころ", "heart; mind; spirit"]],
+    memory: "Heart and mind are both こころ (kokoro).",
+  },
+  {
+    word: "彼", reading: "かれ", romaji: ["kare"], meaning: "he; him; boyfriend",
+    breakdown: [["彼", "かれ", "he; him; boyfriend"]],
+    memory: "He or him is かれ (kare).",
+  },
+  {
+    word: "文化", reading: "ぶんか", romaji: ["bunka"], meaning: "culture; civilization",
+    breakdown: [["文", "ぶん", "writing; sentence; culture"], ["化", "か", "change; transform"]],
+    memory: "文 is ぶん and 化 is か: ぶん + か = ぶんか.",
+  },
+  {
+    word: "何", reading: "なに・なん", kana: ["なに", "なん"], romaji: ["nani", "nan"], meaning: "what; which; how many",
+    breakdown: [["何", "なに・なん", "what; which"]],
+    memory: "何 can be read なに or なん depending on what follows.",
+  },
+  {
+    word: "月", reading: "つき", romaji: ["tsuki", "tuki"], meaning: "moon; month",
+    breakdown: [["月", "つき", "moon; month"]],
+    memory: "The moon or a month is つき (tsuki).",
+  },
+  {
+    word: "高い", reading: "たかい", romaji: ["takai"], meaning: "high; tall; expensive",
+    breakdown: [["高", "たか", "high; tall; expensive"], ["い", "い", "adjective ending"]],
+    memory: "高 gives たか; add い: たか + い = たかい.",
+  },
+  {
+    word: "書く", reading: "かく", romaji: ["kaku"], meaning: "to write; to compose; to draw",
+    breakdown: [["書", "か", "write; book"], ["く", "く", "verb ending"]],
+    memory: "書 gives か; add く: か + く = かく.",
+  },
+  {
+    word: "取る", reading: "とる", romaji: ["toru"], meaning: "to take; to get; to remove; to obtain",
+    breakdown: [["取", "と", "take; get; obtain"], ["る", "る", "verb ending"]],
+    memory: "取 gives と; add る: と + る = とる.",
+  },
+  {
+    word: "内", reading: "うち", romaji: ["uchi", "uti"], meaning: "inside; within; among; home",
+    breakdown: [["内", "うち", "inside; within; home"]],
+    memory: "Inside or home is うち (uchi).",
+  },
+  {
+    word: "現在", reading: "げんざい", romaji: ["genzai"], meaning: "the present; current; currently; now",
+    breakdown: [["現", "げん", "present; actual; appear"], ["在", "ざい", "exist; be located"]],
+    memory: "現 is げん and 在 is ざい: げん + ざい = げんざい.",
+  },
+  {
+    word: "通り", reading: "とおり", romaji: ["toori", "tori"], meaning: "way; street; passage; as; in accordance with",
+    breakdown: [["通", "とお", "pass through; way; commute"], ["り", "り", "noun ending"]],
+    memory: "通 gives とお; add り: とお + り = とおり.",
+  },
 ];
 
 const BATCH_SIZE = 3;
@@ -382,7 +482,8 @@ function normalizeAnswer(value) {
 
 function answerIsCorrect(value, item) {
   const answer = normalizeAnswer(value);
-  return answer === normalizeAnswer(item.reading) || item.romaji.some((version) => answer === normalizeAnswer(version));
+  const acceptedKana = item.kana ?? [item.reading];
+  return acceptedKana.some((version) => answer === normalizeAnswer(version)) || item.romaji.some((version) => answer === normalizeAnswer(version));
 }
 
 function checkRecall(event) {

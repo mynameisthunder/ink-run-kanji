@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f2eddf" />
+    <meta name="description" content="A fast kanji reading game for frequency level 1, words 41–60." />
+    <title>INK RUN — Kanji 41–60</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="wordmark" href="#" aria-label="Ink Run home">
+        <span class="wordmark-mark">墨</span>
+        <span>INK RUN</span>
+      </a>
+      <div class="top-actions">
+        <button class="text-button" id="deckButton" type="button">DECK <span>20</span></button>
+        <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen intro active" id="introScreen" aria-labelledby="introTitle">
+        <div class="edition-tag"><span></span> FREQUENCY / LEVEL 1</div>
+        <h1 id="introTitle">READ<br /><em>ON SIGHT.</em></h1>
+        <p class="intro-copy">See the kanji. Type the reading. Misses come back until you get them.</p>
+
+        <div class="start-row">
+          <button class="primary-button" id="startButton" type="button">
+            <span>START THE RUN</span>
+            <span class="arrow">↗</span>
+          </button>
+          <div class="best-score">
+            <span>INPUT</span>
+            <strong id="bestScore">TYPE ONLY</strong>
+          </div>
+        </div>
+
+        <div class="intro-footer">
+          <span>SET 041—060</span>
+          <span>TYPE HIRAGANA OR ROMAJI</span>
+        </div>
+      </section>
+
+      <section class="screen game" id="gameScreen" aria-label="Kanji quiz">
+        <div class="game-status">
+          <div class="status-block">
+            <span class="status-label">MASTERED</span>
+            <strong id="score">0/20</strong>
+          </div>
+          <div class="status-block status-block-center">
+            <span class="status-label" id="roundLabel">MAIN RUN</span>
+            <div class="progress-track" aria-label="Run progress"><span id="progressBar"></span></div>
+          </div>
+          <div class="status-block status-block-right">
+            <span class="status-label">RECALL CHAIN</span>
+            <strong><span id="streak">0</span><small>×</small></strong>
+          </div>
+        </div>
+
+        <div class="playfield" id="playfield">
+          <div class="prompt-zone">
+            <span class="question-count" id="questionCount">01 / 10</span>
+            <div class="kanji-wrap">
+              <span class="accent-shape" aria-hidden="true"></span>
+              <a class="kanji-link" id="jishoLink" href="https://jisho.org/search/%E4%B8%89" target="_blank" rel="noopener noreferrer" aria-label="Look up 三 on Jisho">
+                <h2 id="kanjiPrompt">三</h2>
+              </a>
+            </div>
+            <button class="hint-button hidden" id="hintButton" type="button"><kbd>H</kbd> TEACH ME</button>
+            <p class="meaning" id="meaning" aria-live="polite"></p>
+          </div>
+
+          <div class="interaction-panel" id="answers">
+            <article class="study-card" id="studyCard">
+              <span class="panel-eyebrow">FIRST, MAKE A MEMORY</span>
+              <div class="study-reading" id="studyReading"></div>
+              <p class="study-meaning" id="studyMeaning"></p>
+              <div class="study-breakdown" id="studyBreakdown"></div>
+              <p class="memory-hook" id="memoryHook"></p>
+              <button class="study-next" id="studyNextButton" type="button">PUT IT IN MEMORY <span>→</span></button>
+            </article>
+
+            <form class="recall-form hidden" id="recallForm">
+              <label for="readingInput">TYPE THE READING</label>
+              <input id="readingInput" name="reading" type="text" lang="ja" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="hiragana or romaji" />
+              <button class="check-button" type="submit">CHECK MY RECALL <span>↗</span></button>
+              <p>Hiragana or romaji works. Seeing the answer does not count.</p>
+            </form>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback" aria-live="assertive">
+          <div class="feedback-head">
+            <strong id="feedbackTitle"></strong>
+            <span id="feedbackReading"></span>
+          </div>
+          <p class="feedback-meaning" id="feedbackMeaning"></p>
+          <div class="breakdown" id="feedbackBreakdown"></div>
+          <button class="feedback-next" id="nextButton" type="button">NEXT <span>→</span></button>
+        </div>
+      </section>
+
+      <section class="screen result" id="resultScreen" aria-labelledby="resultTitle">
+        <div class="result-burst" aria-hidden="true">完</div>
+        <div class="edition-tag"><span></span> RUN COMPLETE</div>
+        <h2 id="resultTitle">PROVED.<br /><em>NOT GUESSED.</em></h2>
+
+        <div class="result-grid">
+          <div><span>MASTERED</span><strong id="finalScore">20/20</strong></div>
+          <div><span>TYPED RECALLS</span><strong id="accuracy">0</strong></div>
+          <div><span>BEST CHAIN</span><strong id="bestStreak">0×</strong></div>
+          <div><span>RETEACHES</span><strong id="hintsUsed">0</strong></div>
+        </div>
+
+        <div class="result-actions">
+          <button class="primary-button" id="replayButton" type="button">
+            <span>RUN IT BACK</span><span class="arrow">↗</span>
+          </button>
+          <button class="secondary-button" id="reviewButton" type="button">REVIEW THE DECK</button>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="deck-dialog" id="deckDialog">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow">YOUR LOADOUT</span>
+          <h2>SET 041—060</h2>
+        </div>
+        <button class="close-button" id="closeDeckButton" type="button" aria-label="Close deck">×</button>
+      </div>
+      <div class="deck-list" id="deckList"></div>
+      <p class="deck-note">Tap anywhere outside this card to close.</p>
+    </dialog>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

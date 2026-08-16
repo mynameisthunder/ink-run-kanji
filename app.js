@@ -223,7 +223,7 @@ const elements = {
   selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
-  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
+  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
@@ -350,6 +350,7 @@ function showStudyCard() {
   elements.roundLabel.textContent = `STUDY ${DECKS[state.selectedDeckKey].label}`;
   elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
   elements.studyReading.textContent = item.reading;
+  elements.studyPronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
@@ -601,8 +602,9 @@ function showFeedback(title, item, includeBreakdown) {
 }
 
 let pronunciationAudio;
+let activePronounceButton;
 
-function speakWithBrowserVoice(reading) {
+function speakWithBrowserVoice(reading, button) {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
   const utterance = new SpeechSynthesisUtterance(reading);
   const japaneseVoice = window.speechSynthesis.getVoices().find((voice) => /^ja(?:-|_)/i.test(voice.lang));
@@ -610,28 +612,32 @@ function speakWithBrowserVoice(reading) {
   utterance.rate = 0.78;
   utterance.pitch = 1;
   if (japaneseVoice) utterance.voice = japaneseVoice;
-  utterance.addEventListener("start", () => elements.pronounce.classList.add("speaking"));
-  utterance.addEventListener("end", () => elements.pronounce.classList.remove("speaking"));
-  utterance.addEventListener("error", () => elements.pronounce.classList.remove("speaking"));
+  utterance.addEventListener("start", () => button.classList.add("speaking"));
+  utterance.addEventListener("end", () => button.classList.remove("speaking"));
+  utterance.addEventListener("error", () => button.classList.remove("speaking"));
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
 
-function pronounceCurrentWord() {
-  if (!state.current) return;
-  const item = state.current;
+function pronounceItem(item, button) {
+  if (!item) return;
   const reading = (item.kana ?? [item.reading])[0];
   const audioNumber = KANJI.indexOf(item) + 41;
   pronunciationAudio?.pause();
+  activePronounceButton?.classList.remove("speaking");
+  activePronounceButton = button;
   pronunciationAudio = new Audio(`audio/${audioNumber}.wav`);
-  pronunciationAudio.addEventListener("play", () => elements.pronounce.classList.add("speaking"));
-  pronunciationAudio.addEventListener("ended", () => elements.pronounce.classList.remove("speaking"));
+  pronunciationAudio.addEventListener("play", () => button.classList.add("speaking"));
+  pronunciationAudio.addEventListener("ended", () => button.classList.remove("speaking"));
   pronunciationAudio.addEventListener("error", () => {
-    elements.pronounce.classList.remove("speaking");
-    speakWithBrowserVoice(reading);
+    button.classList.remove("speaking");
+    speakWithBrowserVoice(reading, button);
   }, { once: true });
-  pronunciationAudio.play().catch(() => speakWithBrowserVoice(reading));
+  pronunciationAudio.play().catch(() => speakWithBrowserVoice(reading, button));
 }
+
+function pronounceCurrentWord() { pronounceItem(state.current, elements.pronounce); }
+function pronounceStudyWord() { pronounceItem(state.current, elements.studyPronounce); }
 
 function updateStatus() {
   const completed = state.mode === "finalRecall" ? state.finalMastered.size : state.mastered.size;
@@ -709,6 +715,7 @@ elements.recallForm.addEventListener("submit", checkRecall);
 elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
 elements.pronounce.addEventListener("click", pronounceCurrentWord);
+elements.studyPronounce.addEventListener("click", pronounceStudyWord);
 elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.dialogStudy.addEventListener("click", startStudyDeck);

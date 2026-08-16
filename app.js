@@ -199,14 +199,167 @@ const KANJI = [
     breakdown: [["通", "とお", "pass through; way; commute"], ["り", "り", "noun ending"]],
     memory: "通 gives とお; add り: とお + り = とおり.",
   },
+  {
+    word: "説明", reading: "せつめい", romaji: ["setsumei"], meaning: "explanation; description; exposition",
+    breakdown: [["説", "せつ", "explain; theory"], ["明", "めい", "bright; clear"]],
+    memory: "説 is せつ and 明 is めい: せつ + めい = せつめい.",
+  },
+  {
+    word: "考える", reading: "かんがえる", romaji: ["kangaeru"], meaning: "to think; to consider; to reflect on",
+    breakdown: [["考", "かんが", "think; consider"], ["える", "える", "verb ending"]],
+    memory: "考 gives かんが; add える: かんが + える = かんがえる.",
+  },
+  {
+    word: "知る", reading: "しる", romaji: ["shiru", "siru"], meaning: "to know; to understand; to learn",
+    breakdown: [["知", "し", "know; wisdom"], ["る", "る", "verb ending"]],
+    memory: "知 gives し; add る: し + る = しる.",
+  },
+  {
+    word: "話", reading: "はなし", romaji: ["hanashi"], meaning: "talk; story; conversation; speech",
+    breakdown: [["話", "はなし", "talk; story; conversation"]],
+    memory: "A talk, story, or conversation is はなし (hanashi).",
+  },
+  {
+    word: "所", reading: "ところ", romaji: ["tokoro"], meaning: "place; spot; point; part",
+    breakdown: [["所", "ところ", "place; point; part"]],
+    memory: "A place or point is ところ (tokoro).",
+  },
+  {
+    word: "小", reading: "しょう", romaji: ["shou", "sho", "syou"], meaning: "small; little; minor",
+    breakdown: [["小", "しょう", "small; little; minor"]],
+    memory: "The on-reading for small is しょう (shou).",
+  },
+  {
+    word: "主義", reading: "しゅぎ", romaji: ["shugi", "syugi"], meaning: "principle; doctrine; ideology",
+    breakdown: [["主", "しゅ", "main; master; principal"], ["義", "ぎ", "justice; principle; meaning"]],
+    memory: "主 is しゅ and 義 is ぎ: しゅ + ぎ = しゅぎ.",
+  },
+  {
+    word: "持つ", reading: "もつ", romaji: ["motsu", "motu"], meaning: "to hold; to have; to carry; to possess",
+    breakdown: [["持", "も", "hold; have; possess"], ["つ", "つ", "verb ending"]],
+    memory: "持 gives も; add つ: も + つ = もつ.",
+  },
+  {
+    word: "来る", reading: "くる", romaji: ["kuru"], meaning: "to come; to arrive; to approach",
+    breakdown: [["来", "く", "come; arrive"], ["る", "る", "verb ending"]],
+    memory: "来 gives く here; add る: く + る = くる.",
+  },
+  {
+    word: "感じる", reading: "かんじる", romaji: ["kanjiru"], meaning: "to feel; to sense; to experience",
+    breakdown: [["感", "かん", "feeling; sensation"], ["じる", "じる", "verb ending"]],
+    memory: "感 is かん; add じる: かん + じる = かんじる.",
+  },
+  {
+    word: "多い", reading: "おおい", romaji: ["ooi"], meaning: "many; numerous; a lot",
+    breakdown: [["多", "おお", "many; much"], ["い", "い", "adjective ending"]],
+    memory: "多 gives おお; add い: おお + い = おおい.",
+  },
+  {
+    word: "不安", reading: "ふあん", romaji: ["fuan"], meaning: "anxiety; uneasiness; insecurity",
+    breakdown: [["不", "ふ", "not; non-; negative"], ["安", "あん", "peace; safety; ease"]],
+    memory: "不 is ふ and 安 is あん: ふ + あん = ふあん.",
+  },
+  {
+    word: "教える", reading: "おしえる", romaji: ["oshieru", "osieru"], meaning: "to teach; to tell; to inform",
+    breakdown: [["教", "おし", "teach; instruct"], ["える", "える", "verb ending"]],
+    memory: "教 gives おし; add える: おし + える = おしえる.",
+  },
+  {
+    word: "最初", reading: "さいしょ", romaji: ["saisho", "saisyo"], meaning: "the beginning; first; outset",
+    breakdown: [["最", "さい", "most; utmost"], ["初", "しょ", "first; beginning"]],
+    memory: "最 is さい and 初 is しょ: さい + しょ = さいしょ.",
+  },
+  {
+    word: "全く", reading: "まったく", romaji: ["mattaku"], meaning: "entirely; completely; truly; not at all",
+    breakdown: [["全", "まった", "all; whole; complete"], ["く", "く", "adverb ending"]],
+    memory: "全 becomes まった here; add く: まった + く = まったく.",
+  },
+  {
+    word: "数", reading: "かず", romaji: ["kazu"], meaning: "number; amount; quantity",
+    breakdown: [["数", "かず", "number; amount; quantity"]],
+    memory: "A number or amount is かず (kazu).",
+  },
+  {
+    word: "今", reading: "いま", romaji: ["ima"], meaning: "now; the present; this moment",
+    breakdown: [["今", "いま", "now; present"]],
+    memory: "Right now is いま (ima).",
+  },
+  {
+    word: "文字", reading: "もじ", romaji: ["moji"], meaning: "letter; character; writing",
+    breakdown: [["文", "も", "writing; sentence"], ["字", "じ", "character; letter"]],
+    memory: "文 is も here and 字 is じ: も + じ = もじ.",
+  },
+  {
+    word: "表", reading: "ひょう", romaji: ["hyou", "hyo"], meaning: "table; chart; list; surface",
+    breakdown: [["表", "ひょう", "table; chart; surface"]],
+    memory: "A table, chart, or surface is ひょう (hyou).",
+  },
+  {
+    word: "第一", reading: "だいいち", romaji: ["daiichi", "daiiti"], meaning: "first; foremost; number one",
+    breakdown: [["第", "だい", "ordinal-number prefix"], ["一", "いち", "one"]],
+    memory: "第 is だい and 一 is いち: だい + いち = だいいち.",
+  },
+  {
+    word: "五", reading: "ご", romaji: ["go"], meaning: "five",
+    breakdown: [["五", "ご", "five"]],
+    memory: "The number five is ご (go).",
+  },
+  {
+    word: "新しい", reading: "あたらしい", romaji: ["atarashii", "atarasii"], meaning: "new; fresh; novel",
+    breakdown: [["新", "あたら", "new; fresh"], ["しい", "しい", "adjective ending"]],
+    memory: "新 gives あたら; add しい: あたら + しい = あたらしい.",
+  },
+  {
+    word: "以降", reading: "いこう", romaji: ["ikou", "iko"], meaning: "after; from then on; since",
+    breakdown: [["以", "い", "from; by means of"], ["降", "こう", "descend; afterward"]],
+    memory: "以 is い and 降 is こう: い + こう = いこう.",
+  },
+  {
+    word: "世界", reading: "せかい", romaji: ["sekai"], meaning: "the world; society; sphere",
+    breakdown: [["世", "せ", "world; generation"], ["界", "かい", "world; boundary"]],
+    memory: "世 is せ and 界 is かい: せ + かい = せかい.",
+  },
+  {
+    word: "変わる", reading: "かわる", romaji: ["kawaru"], meaning: "to change; to be transformed; to vary",
+    breakdown: [["変", "か", "change; unusual"], ["わる", "わる", "verb ending"]],
+    memory: "変 starts with か here; add わる: か + わる = かわる.",
+  },
+  {
+    word: "外", reading: "そと", romaji: ["soto"], meaning: "outside; exterior; outdoors",
+    breakdown: [["外", "そと", "outside; exterior"]],
+    memory: "Outside is そと (soto).",
+  },
+  {
+    word: "機", reading: "き", romaji: ["ki"], meaning: "machine; mechanism; opportunity; occasion",
+    breakdown: [["機", "き", "machine; opportunity; occasion"]],
+    memory: "A machine or opportunity gets the reading き (ki).",
+  },
+  {
+    word: "問題", reading: "もんだい", romaji: ["mondai"], meaning: "problem; question; issue",
+    breakdown: [["問", "もん", "question; ask"], ["題", "だい", "topic; title; problem"]],
+    memory: "問 is もん and 題 is だい: もん + だい = もんだい.",
+  },
+  {
+    word: "四", reading: "し", kana: ["し", "よん"], romaji: ["shi", "si", "yon"], meaning: "four",
+    breakdown: [["四", "し", "four"]],
+    memory: "The on-reading for four is し (shi); よん is also common.",
+  },
+  {
+    word: "経済", reading: "けいざい", romaji: ["keizai"], meaning: "economy; economics; finance",
+    breakdown: [["経", "けい", "manage; pass through"], ["済", "ざい", "settle; finish; economy"]],
+    memory: "経 is けい and 済 is ざい: けい + ざい = けいざい.",
+  },
 ];
 
 const DECKS = {
-  all: { label: "ALL 40", setLabel: "SET 041—080", start: 0, end: 40 },
+  all: { label: "ALL 70", setLabel: "SET 041—110", start: 0, end: 70 },
   "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
   "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
   "61-70": { label: "61—70", setLabel: "SET 061—070", start: 20, end: 30 },
   "71-80": { label: "71—80", setLabel: "SET 071—080", start: 30, end: 40 },
+  "81-90": { label: "81—90", setLabel: "SET 081—090", start: 40, end: 50 },
+  "91-100": { label: "91—100", setLabel: "SET 091—100", start: 50, end: 60 },
+  "101-110": { label: "101—110", setLabel: "SET 101—110", start: 60, end: 70 },
 };
 
 const BATCH_SIZE = 3;

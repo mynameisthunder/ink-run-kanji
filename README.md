@@ -1,12 +1,14 @@
 # INK RUN
 
-A focused kanji reading game for frequency words 41–60.
+A focused kanji reading game for frequency words 41–110.
 
 ## Study loop
 
 - See the kanji and type its reading in hiragana or romaji.
 - Correct answers reveal the full meaning.
 - Missed answers reveal the reading and character breakdown, then return later.
+- Study focused ten-word decks before testing recall.
+- Hear every word pronounced in Japanese.
 - Click any displayed kanji to open its Jisho entry.
 
 ## Run locally

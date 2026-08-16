@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f2eddf" />
-    <meta name="description" content="A fast kanji reading game for frequency level 1, words 41–110." />
-    <title>INK RUN — Kanji 41–110</title>
+    <meta name="description" content="A fast kanji reading game for frequency level 1, words 41–150." />
+    <title>INK RUN — Kanji 41–150</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -16,7 +16,7 @@
         <span>INK RUN</span>
       </a>
       <div class="top-actions">
-        <button class="text-button" id="deckButton" type="button">DECK <span>70</span></button>
+        <button class="text-button" id="deckButton" type="button">DECK <span>110</span></button>
         <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
       </div>
     </header>
@@ -30,7 +30,7 @@
         <div class="deck-picker" aria-labelledby="deckPickerLabel">
           <span class="picker-label" id="deckPickerLabel">CHOOSE YOUR DECK</span>
           <div class="deck-options">
-            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>70</small></button>
+            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
             <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
             <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
             <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -38,6 +38,10 @@
             <button class="deck-option" type="button" data-deck-choice="81-90" aria-pressed="false">81—90</button>
             <button class="deck-option" type="button" data-deck-choice="91-100" aria-pressed="false">91—100</button>
             <button class="deck-option" type="button" data-deck-choice="101-110" aria-pressed="false">101—110</button>
+            <button class="deck-option" type="button" data-deck-choice="111-120" aria-pressed="false">111—120</button>
+            <button class="deck-option" type="button" data-deck-choice="121-130" aria-pressed="false">121—130</button>
+            <button class="deck-option" type="button" data-deck-choice="131-140" aria-pressed="false">131—140</button>
+            <button class="deck-option" type="button" data-deck-choice="141-150" aria-pressed="false">141—150</button>
           </div>
         </div>
 
@@ -51,12 +55,12 @@
           </div>
           <div class="best-score">
             <span>SELECTED</span>
-            <strong id="selectedDeckSummary">ALL 70</strong>
+            <strong id="selectedDeckSummary">ALL 110</strong>
           </div>
         </div>
 
         <div class="intro-footer">
-          <span id="introSetLabel">SET 041—110</span>
+          <span id="introSetLabel">SET 041—150</span>
           <span>TYPE HIRAGANA OR ROMAJI</span>
         </div>
       </section>
@@ -65,7 +69,7 @@
         <div class="game-status">
           <div class="status-block">
             <span class="status-label">MASTERED</span>
-            <strong id="score">0/70</strong>
+            <strong id="score">0/110</strong>
           </div>
           <div class="status-block status-block-center">
             <span class="status-label" id="roundLabel">MAIN RUN</span>
@@ -79,7 +83,7 @@
 
         <div class="playfield" id="playfield">
           <div class="prompt-zone">
-            <span class="question-count" id="questionCount">0 / 70 PROVED</span>
+            <span class="question-count" id="questionCount">0 / 110 PROVED</span>
             <div class="kanji-wrap">
               <span class="accent-shape" aria-hidden="true"></span>
               <a class="kanji-link" id="jishoLink" href="https://jisho.org/search/%E4%B8%89" target="_blank" rel="noopener noreferrer" aria-label="Look up 三 on Jisho">
@@ -142,7 +146,7 @@
         <h2 id="resultTitle">PROVED.<br /><em>NOT GUESSED.</em></h2>
 
         <div class="result-grid">
-          <div><span>MASTERED</span><strong id="finalScore">70/70</strong></div>
+          <div><span>MASTERED</span><strong id="finalScore">110/110</strong></div>
           <div><span>TYPED RECALLS</span><strong id="accuracy">0</strong></div>
           <div><span>BEST CHAIN</span><strong id="bestStreak">0×</strong></div>
           <div><span>RETEACHES</span><strong id="hintsUsed">0</strong></div>
@@ -161,12 +165,12 @@
       <div class="dialog-head">
         <div>
           <span class="eyebrow">YOUR LOADOUT</span>
-          <h2 id="deckDialogTitle">SET 041—110</h2>
+          <h2 id="deckDialogTitle">SET 041—150</h2>
         </div>
         <button class="close-button" id="closeDeckButton" type="button" aria-label="Close deck">×</button>
       </div>
       <div class="dialog-deck-options" aria-label="Choose a deck to review">
-        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>70</small></button>
+        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
         <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
         <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
         <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -174,6 +178,10 @@
         <button class="deck-option" type="button" data-deck-choice="81-90" aria-pressed="false">81—90</button>
         <button class="deck-option" type="button" data-deck-choice="91-100" aria-pressed="false">91—100</button>
         <button class="deck-option" type="button" data-deck-choice="101-110" aria-pressed="false">101—110</button>
+        <button class="deck-option" type="button" data-deck-choice="111-120" aria-pressed="false">111—120</button>
+        <button class="deck-option" type="button" data-deck-choice="121-130" aria-pressed="false">121—130</button>
+        <button class="deck-option" type="button" data-deck-choice="131-140" aria-pressed="false">131—140</button>
+        <button class="deck-option" type="button" data-deck-choice="141-150" aria-pressed="false">141—150</button>
       </div>
       <div class="deck-list" id="deckList"></div>
       <div class="deck-dialog-actions">

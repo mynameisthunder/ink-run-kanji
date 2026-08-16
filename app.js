@@ -349,10 +349,210 @@ const KANJI = [
     breakdown: [["経", "けい", "manage; pass through"], ["済", "ざい", "settle; finish; economy"]],
     memory: "経 is けい and 済 is ざい: けい + ざい = けいざい.",
   },
+  {
+    word: "使う", reading: "つかう", romaji: ["tsukau", "tukau"], meaning: "to use; to employ; to spend",
+    breakdown: [["使", "つか", "use; employ"], ["う", "う", "verb ending"]],
+    memory: "使 gives つか; add う: つか + う = つかう.",
+  },
+  {
+    word: "名前", reading: "なまえ", romaji: ["namae"], meaning: "name; full name; given name",
+    breakdown: [["名", "な", "name; reputation"], ["前", "まえ", "front; before"]],
+    memory: "名 is な here and 前 is まえ: な + まえ = なまえ.",
+  },
+  {
+    word: "九", reading: "きゅう", romaji: ["kyuu", "kyu"], meaning: "nine",
+    breakdown: [["九", "きゅう", "nine"]],
+    memory: "The number nine is きゅう (kyuu).",
+  },
+  {
+    word: "先ず", reading: "まず", romaji: ["mazu"], meaning: "first of all; to begin with; probably",
+    breakdown: [["先", "ま", "first; ahead"], ["ず", "ず", "adverb ending"]],
+    memory: "先 is read ま here; add ず: ま + ず = まず.",
+  },
+  {
+    word: "保険", reading: "ほけん", romaji: ["hoken"], meaning: "insurance; guarantee",
+    breakdown: [["保", "ほ", "protect; preserve"], ["険", "けん", "risk; danger"]],
+    memory: "保 is ほ and 険 is けん: ほ + けん = ほけん.",
+  },
+  {
+    word: "可能", reading: "かのう", romaji: ["kanou", "kano"], meaning: "possible; feasible; potential",
+    breakdown: [["可", "か", "possible; permitted"], ["能", "のう", "ability; capability"]],
+    memory: "可 is か and 能 is のう: か + のう = かのう.",
+  },
+  {
+    word: "身", reading: "み", romaji: ["mi"], meaning: "body; oneself; one's position",
+    breakdown: [["身", "み", "body; oneself"]],
+    memory: "Your body or self is one short sound: み (mi).",
+  },
+  {
+    word: "面白い", reading: "おもしろい", romaji: ["omoshiroi", "omosiroi"], meaning: "interesting; amusing; enjoyable",
+    breakdown: [["面白", "おもしろ", "interesting; amusing"], ["い", "い", "adjective ending"]],
+    memory: "面白 gives おもしろ; add い: おもしろ + い = おもしろい.",
+  },
+  {
+    word: "開く", reading: "ひらく、あく", kana: ["ひらく", "あく"], romaji: ["hiraku", "aku"], meaning: "to open; to unfold; to become open",
+    breakdown: [["開", "ひら・あ", "open; unfold"], ["く", "く", "verb ending"]],
+    memory: "開く can be read ひらく or あく depending on how something opens.",
+  },
+  {
+    word: "相手", reading: "あいて", romaji: ["aite"], meaning: "companion; partner; opponent; the other party",
+    breakdown: [["相", "あい", "mutual; together"], ["手", "て", "hand; person"]],
+    memory: "相 is あい and 手 is て: あい + て = あいて.",
+  },
+  {
+    word: "結果", reading: "けっか", romaji: ["kekka"], meaning: "result; outcome; consequence",
+    breakdown: [["結", "けっ", "tie; conclude"], ["果", "か", "result; fruit"]],
+    memory: "結 becomes けっ before 果 (か): けっ + か = けっか.",
+  },
+  {
+    word: "戦争", reading: "せんそう", romaji: ["sensou", "senso"], meaning: "war; warfare",
+    breakdown: [["戦", "せん", "war; battle"], ["争", "そう", "conflict; contend"]],
+    memory: "戦 is せん and 争 is そう: せん + そう = せんそう.",
+  },
+  {
+    word: "理解", reading: "りかい", romaji: ["rikai"], meaning: "understanding; comprehension",
+    breakdown: [["理", "り", "reason; logic"], ["解", "かい", "solve; understand"]],
+    memory: "理 is り and 解 is かい: り + かい = りかい.",
+  },
+  {
+    word: "向かう", reading: "むかう", romaji: ["mukau"], meaning: "to face; to head toward; to oppose",
+    breakdown: [["向", "むか", "face; head toward"], ["う", "う", "verb ending"]],
+    memory: "向 gives むか; add う: むか + う = むかう.",
+  },
+  {
+    word: "必ず", reading: "かならず", romaji: ["kanarazu"], meaning: "always; certainly; without fail",
+    breakdown: [["必", "かなら", "certain; inevitable"], ["ず", "ず", "adverb ending"]],
+    memory: "必 gives かなら; add ず: かなら + ず = かならず.",
+  },
+  {
+    word: "時期", reading: "じき", romaji: ["jiki", "ziki"], meaning: "time; season; period",
+    breakdown: [["時", "じ", "time; hour"], ["期", "き", "period; term"]],
+    memory: "時 is じ and 期 is き: じ + き = じき.",
+  },
+  {
+    word: "活用", reading: "かつよう", romaji: ["katsuyou", "katuyou", "katsuyo"], meaning: "practical use; application; conjugation",
+    breakdown: [["活", "かつ", "active; live"], ["用", "よう", "use; purpose"]],
+    memory: "活 is かつ and 用 is よう: かつ + よう = かつよう.",
+  },
+  {
+    word: "道", reading: "みち", romaji: ["michi", "miti"], meaning: "road; path; way",
+    breakdown: [["道", "みち", "road; path; way"]],
+    memory: "A road, path, or way is みち (michi).",
+  },
+  {
+    word: "権利", reading: "けんり", romaji: ["kenri"], meaning: "right; privilege",
+    breakdown: [["権", "けん", "right; authority"], ["利", "り", "benefit; advantage"]],
+    memory: "権 is けん and 利 is り: けん + り = けんり.",
+  },
+  {
+    word: "山", reading: "やま", romaji: ["yama"], meaning: "mountain; hill",
+    breakdown: [["山", "やま", "mountain; hill"]],
+    memory: "A mountain or hill is やま (yama).",
+  },
+  {
+    word: "少し", reading: "すこし", romaji: ["sukoshi", "sukosi"], meaning: "a little; a few; a short time",
+    breakdown: [["少", "すこ", "few; little"], ["し", "し", "word ending"]],
+    memory: "少 gives すこ; add し: すこ + し = すこし.",
+  },
+  {
+    word: "政府", reading: "せいふ", romaji: ["seifu"], meaning: "government; administration",
+    breakdown: [["政", "せい", "government; politics"], ["府", "ふ", "government office; administration"]],
+    memory: "政 is せい and 府 is ふ: せい + ふ = せいふ.",
+  },
+  {
+    word: "生産", reading: "せいさん", romaji: ["seisan"], meaning: "production; manufacture",
+    breakdown: [["生", "せい", "life; produce"], ["産", "さん", "produce; give birth"]],
+    memory: "生 is せい and 産 is さん: せい + さん = せいさん.",
+  },
+  {
+    word: "語", reading: "ご", romaji: ["go"], meaning: "language; word; speech",
+    breakdown: [["語", "ご", "language; word"]],
+    memory: "A language or word gets the short on-reading ご (go).",
+  },
+  {
+    word: "重要", reading: "じゅうよう", romaji: ["juuyou", "juyou", "jyuuyou"], meaning: "important; essential; significant",
+    breakdown: [["重", "じゅう", "heavy; important"], ["要", "よう", "need; essential"]],
+    memory: "重 is じゅう and 要 is よう: じゅう + よう = じゅうよう.",
+  },
+  {
+    word: "正しい", reading: "ただしい", romaji: ["tadashii", "tadasii"], meaning: "correct; right; proper",
+    breakdown: [["正", "ただ", "correct; right"], ["しい", "しい", "adjective ending"]],
+    memory: "正 gives ただ; add しい: ただ + しい = ただしい.",
+  },
+  {
+    word: "神", reading: "かみ", romaji: ["kami"], meaning: "god; deity; spirit",
+    breakdown: [["神", "かみ", "god; deity; spirit"]],
+    memory: "A god, deity, or spirit is かみ (kami).",
+  },
+  {
+    word: "受ける", reading: "うける", romaji: ["ukeru"], meaning: "to receive; to accept; to take",
+    breakdown: [["受", "う", "receive; accept"], ["ける", "ける", "verb ending"]],
+    memory: "受 gives う; add ける: う + ける = うける.",
+  },
+  {
+    word: "食べる", reading: "たべる", romaji: ["taberu"], meaning: "to eat",
+    breakdown: [["食", "た", "eat; food"], ["べる", "べる", "verb ending"]],
+    memory: "食 gives た; add べる: た + べる = たべる.",
+  },
+  {
+    word: "美味しい", reading: "おいしい", romaji: ["oishii", "oisii"], meaning: "delicious; tasty",
+    breakdown: [["美味", "おい", "delicious; tasty"], ["しい", "しい", "adjective ending"]],
+    memory: "美味しい is the everyday word おいしい: delicious or tasty.",
+  },
+  {
+    word: "切る", reading: "きる", romaji: ["kiru"], meaning: "to cut; to sever; to turn off",
+    breakdown: [["切", "き", "cut; sever"], ["る", "る", "verb ending"]],
+    memory: "切 gives き; add る: き + る = きる.",
+  },
+  {
+    word: "回", reading: "かい", romaji: ["kai"], meaning: "time; occurrence; round; counter for times",
+    breakdown: [["回", "かい", "time; round; occurrence"]],
+    memory: "A round or occurrence is かい (kai).",
+  },
+  {
+    word: "国民", reading: "こくみん", romaji: ["kokumin"], meaning: "citizens; people of a country; nation",
+    breakdown: [["国", "こく", "country; nation"], ["民", "みん", "people; citizens"]],
+    memory: "国 is こく and 民 is みん: こく + みん = こくみん.",
+  },
+  {
+    word: "決める", reading: "きめる", romaji: ["kimeru"], meaning: "to decide; to determine; to set",
+    breakdown: [["決", "き", "decide; determine"], ["める", "める", "verb ending"]],
+    memory: "決 gives き; add める: き + める = きめる.",
+  },
+  {
+    word: "原因", reading: "げんいん", romaji: ["genin", "gennin"], meaning: "cause; origin; source",
+    breakdown: [["原", "げん", "origin; source"], ["因", "いん", "cause; factor"]],
+    memory: "原 is げん and 因 is いん: げん + いん = げんいん.",
+  },
+  {
+    word: "課題", reading: "かだい", romaji: ["kadai"], meaning: "task; assignment; issue; challenge",
+    breakdown: [["課", "か", "lesson; section; task"], ["題", "だい", "topic; problem"]],
+    memory: "課 is か and 題 is だい: か + だい = かだい.",
+  },
+  {
+    word: "特に", reading: "とくに", romaji: ["tokuni"], meaning: "especially; particularly",
+    breakdown: [["特", "とく", "special; particular"], ["に", "に", "adverb ending"]],
+    memory: "特 is とく; add に: とく + に = とくに.",
+  },
+  {
+    word: "存在", reading: "そんざい", romaji: ["sonzai"], meaning: "existence; being",
+    breakdown: [["存", "そん", "exist; preserve"], ["在", "ざい", "exist; be located"]],
+    memory: "存 is そん and 在 is ざい: そん + ざい = そんざい.",
+  },
+  {
+    word: "最近", reading: "さいきん", romaji: ["saikin"], meaning: "recently; lately; most recent",
+    breakdown: [["最", "さい", "most; utmost"], ["近", "きん", "near; recent"]],
+    memory: "最 is さい and 近 is きん: さい + きん = さいきん.",
+  },
+  {
+    word: "情報", reading: "じょうほう", romaji: ["jouhou", "joho", "jyouhou"], meaning: "information; news; intelligence",
+    breakdown: [["情", "じょう", "feeling; circumstances"], ["報", "ほう", "report; information"]],
+    memory: "情 is じょう and 報 is ほう: じょう + ほう = じょうほう.",
+  },
 ];
 
 const DECKS = {
-  all: { label: "ALL 70", setLabel: "SET 041—110", start: 0, end: 70 },
+  all: { label: "ALL 110", setLabel: "SET 041—150", start: 0, end: 110 },
   "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
   "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
   "61-70": { label: "61—70", setLabel: "SET 061—070", start: 20, end: 30 },
@@ -360,6 +560,10 @@ const DECKS = {
   "81-90": { label: "81—90", setLabel: "SET 081—090", start: 40, end: 50 },
   "91-100": { label: "91—100", setLabel: "SET 091—100", start: 50, end: 60 },
   "101-110": { label: "101—110", setLabel: "SET 101—110", start: 60, end: 70 },
+  "111-120": { label: "111—120", setLabel: "SET 111—120", start: 70, end: 80 },
+  "121-130": { label: "121—130", setLabel: "SET 121—130", start: 80, end: 90 },
+  "131-140": { label: "131—140", setLabel: "SET 131—140", start: 90, end: 100 },
+  "141-150": { label: "141—150", setLabel: "SET 141—150", start: 100, end: 110 },
 };
 
 const BATCH_SIZE = 3;

@@ -201,6 +201,14 @@ const KANJI = [
   },
 ];
 
+const DECKS = {
+  all: { label: "ALL 40", setLabel: "SET 041—080", start: 0, end: 40 },
+  "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
+  "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
+  "61-70": { label: "61—70", setLabel: "SET 061—070", start: 20, end: 30 },
+  "71-80": { label: "71—80", setLabel: "SET 071—080", start: 30, end: 40 },
+};
+
 const BATCH_SIZE = 3;
 const RECALLS_PER_WORD = 2;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
@@ -209,8 +217,10 @@ const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
-  start: $("#startButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
+  selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
@@ -221,6 +231,8 @@ const elements = {
 };
 
 const state = {
+  selectedDeckKey: "all",
+  deck: KANJI,
   mode: "study",
   batchIndex: 0,
   studyIndex: 0,
@@ -247,6 +259,27 @@ function shuffle(items) {
   return copy;
 }
 
+function selectedDeck() {
+  const deck = DECKS[state.selectedDeckKey];
+  return KANJI.slice(deck.start, deck.end);
+}
+
+function selectDeck(key) {
+  if (!DECKS[key]) return;
+  state.selectedDeckKey = key;
+  const deck = DECKS[key];
+  document.querySelectorAll("[data-deck-choice]").forEach((button) => {
+    const active = button.dataset.deckChoice === key;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  elements.selectedDeckSummary.textContent = deck.label;
+  elements.introSetLabel.textContent = deck.setLabel;
+  elements.deckDialogTitle.textContent = deck.setLabel;
+  elements.deckButton.innerHTML = `DECK <span>${deck.end - deck.start}</span>`;
+  populateDeck();
+}
+
 function showScreen(target) {
   screens.forEach((screen) => screen.classList.toggle("active", screen === target));
 }
@@ -262,16 +295,27 @@ function renderWord(item) {
   elements.kanji.parentElement.classList.add("swap");
 }
 
-function startGame() {
+function prepareRun(mode) {
+  const deck = selectedDeck();
   Object.assign(state, {
-    mode: "finalRecall", batchIndex: 0, studyIndex: 0, batch: [], queue: shuffle(KANJI), current: null,
-    mastery: new Map(KANJI.map((item) => [item.word, 0])), mastered: new Set(), finalMastered: new Set(),
+    mode, deck, batchIndex: 0, studyIndex: 0, batch: deck, queue: mode === "finalRecall" ? shuffle(deck) : [], current: null,
+    mastery: new Map(deck.map((item) => [item.word, 0])), mastered: new Set(), finalMastered: new Set(),
     streak: 0, bestStreak: 0, recalls: 0, reteaches: 0, locked: false,
   });
   elements.progress.style.background = "var(--red)";
   elements.feedback.classList.remove("show");
   showScreen(elements.game);
+}
+
+function startGame() {
+  prepareRun("finalRecall");
   nextRecall();
+}
+
+function startStudyDeck() {
+  if (elements.deckDialog.open) elements.deckDialog.close();
+  prepareRun("study");
+  showStudyCard();
 }
 
 function startBatch() {
@@ -296,27 +340,28 @@ function buildParts(item, target, className) {
 }
 
 function showStudyCard() {
-  const item = state.batch[state.studyIndex];
+  const item = state.deck[state.studyIndex];
   renderWord(item);
   elements.feedback.classList.remove("show");
   elements.studyCard.classList.remove("hidden");
   elements.recallForm.classList.add("hidden");
   elements.hint.classList.add("hidden");
   elements.meaning.textContent = "";
-  elements.roundLabel.textContent = `LEARN ${state.batchIndex + 1}/${TOTAL_BATCHES}`;
-  elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.batch.length).padStart(2, "0")}`;
+  elements.roundLabel.textContent = `STUDY ${DECKS[state.selectedDeckKey].label}`;
+  elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
   elements.studyReading.textContent = item.reading;
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
+  elements.studyNext.firstChild.textContent = state.studyIndex === state.deck.length - 1 ? "START DECK RECALL " : "NEXT STUDY CARD ";
   updateStatus();
 }
 
 function advanceStudy() {
   if (state.mode !== "study") return;
   state.studyIndex += 1;
-  if (state.studyIndex < state.batch.length) showStudyCard();
-  else beginBatchRecall();
+  if (state.studyIndex < state.deck.length) showStudyCard();
+  else beginFinalRecall();
 }
 
 function beginBatchRecall() {
@@ -327,7 +372,7 @@ function beginBatchRecall() {
 
 function beginFinalRecall() {
   state.mode = "finalRecall";
-  state.queue = shuffle(KANJI);
+  state.queue = shuffle(state.deck);
   state.finalMastered = new Set();
   elements.progress.style.background = "var(--red)";
   nextRecall();
@@ -367,7 +412,7 @@ function nextRecall() {
     elements.questionCount.textContent = `${remainingBatchRecalls()} RECALLS LEFT`;
   } else {
     elements.roundLabel.textContent = "RECALL RUN";
-    elements.questionCount.textContent = `${state.finalMastered.size} / ${KANJI.length} PROVED`;
+    elements.questionCount.textContent = `${state.finalMastered.size} / ${state.deck.length} PROVED`;
   }
   updateStatus();
   requestAnimationFrame(() => elements.readingInput.focus({ preventScroll: true }));
@@ -556,13 +601,13 @@ function showFeedback(title, item, includeBreakdown) {
 
 function updateStatus() {
   const completed = state.mode === "finalRecall" ? state.finalMastered.size : state.mastered.size;
-  elements.score.textContent = `${completed}/${KANJI.length}`;
+  elements.score.textContent = `${completed}/${state.deck.length}`;
   elements.streak.textContent = state.streak;
-  elements.progress.style.width = `${(completed / KANJI.length) * 100}%`;
+  elements.progress.style.width = `${(completed / state.deck.length) * 100}%`;
 }
 
 function finishGame() {
-  elements.finalScore.textContent = `${state.finalMastered.size}/${KANJI.length}`;
+  elements.finalScore.textContent = `${state.finalMastered.size}/${state.deck.length}`;
   elements.accuracy.textContent = String(state.recalls);
   elements.bestStreak.textContent = `${state.bestStreak}×`;
   elements.hintsUsed.textContent = String(state.reteaches);
@@ -608,7 +653,7 @@ function playTone(kind) {
 }
 
 function populateDeck() {
-  elements.deckList.replaceChildren(...KANJI.map((item) => {
+  elements.deckList.replaceChildren(...selectedDeck().map((item) => {
     const row = document.createElement("div");
     const hasCharacterBreakdown = item.breakdown.length > 1;
     row.className = `deck-item${hasCharacterBreakdown ? " deck-item-detailed" : ""}`;
@@ -620,15 +665,18 @@ function populateDeck() {
   }));
 }
 
+document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => selectDeck(button.dataset.deckChoice)));
 elements.start.addEventListener("click", startGame);
+elements.study.addEventListener("click", startStudyDeck);
 elements.replay.addEventListener("click", startGame);
 elements.studyNext.addEventListener("click", advanceStudy);
 elements.readingInput.addEventListener("input", convertReadingInput);
 elements.recallForm.addEventListener("submit", checkRecall);
 elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
-elements.review.addEventListener("click", () => elements.deckDialog.showModal());
-elements.deckButton.addEventListener("click", () => elements.deckDialog.showModal());
+elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
+elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
+elements.dialogStudy.addEventListener("click", startStudyDeck);
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
   if (event.target === elements.deckDialog) elements.deckDialog.close();
@@ -652,4 +700,4 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-populateDeck();
+selectDeck("all");

@@ -140,13 +140,31 @@ main { min-height: calc(100vh - 82px); }
 
 .intro-copy {
   width: min(430px, 85%);
-  margin: clamp(26px, 4vw, 52px) 0 26px;
+  margin: clamp(20px, 3vw, 38px) 0 18px;
   font-size: clamp(17px, 2vw, 22px);
   font-weight: 500;
   line-height: 1.35;
 }
 
+.deck-picker { position: relative; z-index: 1; width: min(680px, 100%); margin-bottom: 18px; }
+.picker-label { display: block; margin-bottom: 8px; font: 600 9px var(--mono); letter-spacing: .08em; }
+.deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.deck-option {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font: 600 10px var(--mono);
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.deck-option small { color: var(--red); font: inherit; }
+.deck-option:hover { transform: translateY(-2px); }
+.deck-option.active { background: var(--blue); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
+.deck-option.active small { color: var(--yellow); }
 .start-row { display: flex; align-items: stretch; gap: 18px; }
+.start-actions { display: flex; align-items: stretch; gap: 10px; }
 
 .primary-button {
   min-width: 260px;
@@ -167,6 +185,17 @@ main { min-height: calc(100vh - 82px); }
 .primary-button:hover { transform: translate(-2px, -2px); box-shadow: 9px 9px 0 var(--blue); }
 .primary-button:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--blue); }
 .arrow { font-size: 24px; line-height: 1; }
+
+.study-button {
+  padding: 16px 18px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  font: 600 11px var(--mono);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.study-button span { margin-left: 10px; color: var(--red); }
+.study-button:hover { background: var(--yellow); transform: translateY(-2px); }
 
 .best-score {
   min-width: 150px;
@@ -459,6 +488,7 @@ kbd { font: inherit; color: var(--red); }
 .eyebrow { font: 600 9px var(--mono); color: var(--red); }
 .dialog-head h2 { margin: 4px 0 0; font-size: 32px; letter-spacing: -.06em; }
 .close-button { padding: 0; border: 0; background: transparent; font: 400 42px/1 var(--sans); cursor: pointer; }
+.dialog-deck-options { padding: 14px 28px; border-bottom: 1px solid var(--line); }
 .deck-list { display: grid; grid-template-columns: 1fr 1fr; }
 
 .deck-item {
@@ -481,6 +511,7 @@ kbd { font: inherit; color: var(--red); }
 .deck-breakdown-part { padding: 6px 8px; border: 1px solid var(--line); font: 600 11px var(--jp); }
 .deck-breakdown-part b { font-size: 15px; }
 .deck-breakdown-part small { display: block; margin-top: 2px; color: rgba(23,23,20,.56); font: 500 7px/1.35 var(--mono); text-transform: uppercase; }
+.deck-dialog-actions { padding: 18px 28px 0; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }
 
 .confetti { position: fixed; z-index: 30; width: 9px; height: 20px; pointer-events: none; animation: confetti-fall 900ms ease-in forwards; }
@@ -498,9 +529,12 @@ kbd { font: inherit; color: var(--red); }
   .intro { justify-content: flex-start; padding-top: 12vh; }
   .intro h1 { font-size: clamp(58px, 20vw, 100px); }
   .intro::after { right: -14vw; bottom: 4vh; font-size: 88vw; opacity: .26; }
-  .start-row { flex-direction: column; align-items: flex-start; }
+  .deck-options { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .deck-option { padding: 8px; }
+  .start-row, .start-actions { flex-direction: column; align-items: flex-start; }
+  .study-button { min-width: 260px; }
   .best-score { border: 0; padding-left: 0; }
-  .intro-footer { right: 20px; left: 20px; }
+  .intro-footer { position: static; width: 100%; margin-top: 24px; }
   .game { padding-top: 20px; }
   .game-status { grid-template-columns: 1fr 1.6fr 1fr; }
   .status-block-center { padding: 0 12px; }
@@ -527,6 +561,8 @@ kbd { font: inherit; color: var(--red); }
   .result-actions { align-items: flex-start; flex-direction: column; }
   .deck-list { grid-template-columns: 1fr; }
   .deck-item:nth-child(odd) { border-right: 0; }
+  .dialog-deck-options { padding: 12px 18px; }
+  .dialog-deck-options .deck-option { flex: 1 1 28%; }
 }
 
 @media (max-height: 720px) and (min-width: 761px) {

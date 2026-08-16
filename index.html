@@ -25,21 +25,35 @@
       <section class="screen intro active" id="introScreen" aria-labelledby="introTitle">
         <div class="edition-tag"><span></span> FREQUENCY / LEVEL 1</div>
         <h1 id="introTitle">READ<br /><em>ON SIGHT.</em></h1>
-        <p class="intro-copy">See the kanji. Type the reading. Misses come back until you get them.</p>
+        <p class="intro-copy">Pick ten words to study, or run the full set. Then type every reading from memory.</p>
+
+        <div class="deck-picker" aria-labelledby="deckPickerLabel">
+          <span class="picker-label" id="deckPickerLabel">CHOOSE YOUR DECK</span>
+          <div class="deck-options">
+            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>40</small></button>
+            <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
+            <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
+            <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
+            <button class="deck-option" type="button" data-deck-choice="71-80" aria-pressed="false">71—80</button>
+          </div>
+        </div>
 
         <div class="start-row">
-          <button class="primary-button" id="startButton" type="button">
-            <span>START THE RUN</span>
-            <span class="arrow">↗</span>
-          </button>
+          <div class="start-actions">
+            <button class="primary-button" id="startButton" type="button">
+              <span>START THE RUN</span>
+              <span class="arrow">↗</span>
+            </button>
+            <button class="study-button" id="studyButton" type="button">STUDY THIS DECK <span>→</span></button>
+          </div>
           <div class="best-score">
-            <span>INPUT</span>
-            <strong id="bestScore">TYPE ONLY</strong>
+            <span>SELECTED</span>
+            <strong id="selectedDeckSummary">ALL 40</strong>
           </div>
         </div>
 
         <div class="intro-footer">
-          <span>SET 041—080</span>
+          <span id="introSetLabel">SET 041—080</span>
           <span>TYPE HIRAGANA OR ROMAJI</span>
         </div>
       </section>
@@ -128,11 +142,21 @@
       <div class="dialog-head">
         <div>
           <span class="eyebrow">YOUR LOADOUT</span>
-          <h2>SET 041—080</h2>
+          <h2 id="deckDialogTitle">SET 041—080</h2>
         </div>
         <button class="close-button" id="closeDeckButton" type="button" aria-label="Close deck">×</button>
       </div>
+      <div class="dialog-deck-options" aria-label="Choose a deck to review">
+        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>40</small></button>
+        <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
+        <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
+        <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
+        <button class="deck-option" type="button" data-deck-choice="71-80" aria-pressed="false">71—80</button>
+      </div>
       <div class="deck-list" id="deckList"></div>
+      <div class="deck-dialog-actions">
+        <button class="study-button" id="dialogStudyButton" type="button">STUDY THIS DECK <span>→</span></button>
+      </div>
       <p class="deck-note">Tap anywhere outside this card to close.</p>
     </dialog>
 

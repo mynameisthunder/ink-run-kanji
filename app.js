@@ -226,7 +226,7 @@ const elements = {
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"),
-  feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
+  pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
 
@@ -589,6 +589,7 @@ function reteachCurrent() {
 function showFeedback(title, item, includeBreakdown) {
   elements.feedbackTitle.textContent = title;
   elements.feedbackReading.textContent = item.reading;
+  elements.pronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.feedbackMeaning.textContent = item.meaning;
   elements.feedback.classList.toggle("detailed", includeBreakdown);
   buildParts(item, elements.feedbackBreakdown, "breakdown-item");
@@ -597,6 +598,39 @@ function showFeedback(title, item, includeBreakdown) {
   elements.next.firstChild.textContent = includeBreakdown ? "STUDY, THEN TRY AGAIN LATER " : "NEXT RECALL ";
   elements.feedback.classList.add("show");
   elements.next.focus({ preventScroll: true });
+}
+
+let pronunciationAudio;
+
+function speakWithBrowserVoice(reading) {
+  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+  const utterance = new SpeechSynthesisUtterance(reading);
+  const japaneseVoice = window.speechSynthesis.getVoices().find((voice) => /^ja(?:-|_)/i.test(voice.lang));
+  utterance.lang = "ja-JP";
+  utterance.rate = 0.78;
+  utterance.pitch = 1;
+  if (japaneseVoice) utterance.voice = japaneseVoice;
+  utterance.addEventListener("start", () => elements.pronounce.classList.add("speaking"));
+  utterance.addEventListener("end", () => elements.pronounce.classList.remove("speaking"));
+  utterance.addEventListener("error", () => elements.pronounce.classList.remove("speaking"));
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function pronounceCurrentWord() {
+  if (!state.current) return;
+  const item = state.current;
+  const reading = (item.kana ?? [item.reading])[0];
+  const audioNumber = KANJI.indexOf(item) + 41;
+  pronunciationAudio?.pause();
+  pronunciationAudio = new Audio(`audio/${audioNumber}.wav`);
+  pronunciationAudio.addEventListener("play", () => elements.pronounce.classList.add("speaking"));
+  pronunciationAudio.addEventListener("ended", () => elements.pronounce.classList.remove("speaking"));
+  pronunciationAudio.addEventListener("error", () => {
+    elements.pronounce.classList.remove("speaking");
+    speakWithBrowserVoice(reading);
+  }, { once: true });
+  pronunciationAudio.play().catch(() => speakWithBrowserVoice(reading));
 }
 
 function updateStatus() {
@@ -674,6 +708,7 @@ elements.readingInput.addEventListener("input", convertReadingInput);
 elements.recallForm.addEventListener("submit", checkRecall);
 elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
+elements.pronounce.addEventListener("click", pronounceCurrentWord);
 elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.dialogStudy.addEventListener("click", startStudyDeck);

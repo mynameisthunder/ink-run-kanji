@@ -109,7 +109,15 @@
         <div class="feedback" id="feedback" aria-live="assertive">
           <div class="feedback-head">
             <strong id="feedbackTitle"></strong>
-            <span id="feedbackReading"></span>
+            <div class="feedback-reading-tools">
+              <span id="feedbackReading"></span>
+              <button class="pronounce-button" id="pronounceButton" type="button" aria-label="Pronounce this word in Japanese" title="Hear the Japanese pronunciation">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+                  <path d="M16 8.2a5 5 0 0 1 0 7.6M18.7 5.5a9 9 0 0 1 0 13"></path>
+                </svg>
+              </button>
+            </div>
           </div>
           <p class="feedback-meaning" id="feedbackMeaning"></p>
           <div class="breakdown" id="feedbackBreakdown"></div>

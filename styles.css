@@ -413,7 +413,24 @@ kbd { font: inherit; color: var(--red); }
 .feedback.show { visibility: visible; pointer-events: auto; transform: translateY(0); }
 .feedback-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
 .feedback-head strong { font: 600 12px var(--mono); letter-spacing: .05em; }
-.feedback-head > span { font: 700 24px var(--jp); }
+.feedback-reading-tools { display: flex; align-items: center; gap: 10px; }
+.feedback-reading-tools > span { font: 700 24px var(--jp); }
+.pronounce-button {
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(242,237,223,.55);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.pronounce-button svg { width: 100%; height: 100%; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pronounce-button svg path:first-child { stroke: none; }
+.pronounce-button:hover, .pronounce-button.speaking { background: var(--yellow); color: var(--ink); transform: translateY(-2px); }
+.pronounce-button.speaking { animation: speaker-pulse 700ms ease-in-out infinite alternate; }
 .feedback-meaning { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(242,237,223,.28); font-size: 16px; line-height: 1.35; }
 .feedback-meaning::before { content: "WHOLE WORD"; display: block; margin-bottom: 5px; color: var(--yellow); font: 600 8px var(--mono); letter-spacing: .08em; }
 
@@ -520,6 +537,7 @@ kbd { font: inherit; color: var(--red); }
 @keyframes dialog-in { from { opacity: 0; transform: translateY(16px) scale(.98); } }
 @keyframes kanji-swap { 0% { opacity: 0; transform: scale(.78) rotate(-3deg); } 100% { opacity: 1; transform: none; } }
 @keyframes wrong-shake { 25% { transform: translateX(-7px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+@keyframes speaker-pulse { to { box-shadow: 0 0 0 5px rgba(242,201,76,.2); } }
 @keyframes confetti-fall { to { transform: translate(var(--x), 100vh) rotate(var(--r)); opacity: 0; } }
 
 @media (max-width: 760px) {

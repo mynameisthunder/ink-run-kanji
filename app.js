@@ -549,6 +549,106 @@ const KANJI = [
     breakdown: [["情", "じょう", "feeling; circumstances"], ["報", "ほう", "report; information"]],
     memory: "情 is じょう and 報 is ほう: じょう + ほう = じょうほう.",
   },
+  {
+    word: "出す", reading: "だす", romaji: ["dasu"], meaning: "to take out; to put out; to submit; to send",
+    breakdown: [["出", "だ", "take out; put out"], ["す", "す", "verb ending"]],
+    memory: "出 gives だ here; add す: だ + す = だす.",
+  },
+  {
+    word: "二人", reading: "ふたり", romaji: ["futari"], meaning: "two people; a pair; a couple",
+    breakdown: [["二", "ふた", "two"], ["人", "り", "person counter here"]],
+    memory: "Two people use the special reading ふたり (futari).",
+  },
+  {
+    word: "大", reading: "だい", romaji: ["dai"], meaning: "big; large; major",
+    breakdown: [["大", "だい", "big; large; major"]],
+    memory: "The on-reading for big or major is だい (dai).",
+  },
+  {
+    word: "に対して", reading: "にたいして", romaji: ["nitaishite", "nitaisite"], meaning: "toward; against; regarding; in contrast to",
+    breakdown: [["に", "に", "direction or target particle"], ["対", "たい", "opposite; toward; versus"], ["して", "して", "conjunctive form of する"]],
+    memory: "に marks the target, 対 is たい, and して completes the expression: にたいして.",
+  },
+  {
+    word: "一人", reading: "ひとり", romaji: ["hitori"], meaning: "one person; alone; by oneself",
+    breakdown: [["一", "ひと", "one"], ["人", "り", "person counter here"]],
+    memory: "One person uses the special reading ひとり (hitori).",
+  },
+  {
+    word: "分", reading: "ふん", romaji: ["fun"], meaning: "minute; part; portion",
+    breakdown: [["分", "ふん", "minute; part; portion"]],
+    memory: "A minute or portion gets the reading ふん (fun).",
+  },
+  {
+    word: "人々", reading: "ひとびと", romaji: ["hitobito"], meaning: "people; everyone; each person",
+    breakdown: [["人", "ひと", "person; people"], ["々", "びと", "repetition mark with sound change"]],
+    memory: "Repeat 人 (ひと) with a sound change: ひと + びと = ひとびと.",
+  },
+  {
+    word: "生きる", reading: "いきる", romaji: ["ikiru"], meaning: "to live; to exist; to make a living",
+    breakdown: [["生", "い", "live; life"], ["きる", "きる", "verb ending"]],
+    memory: "生 starts with い here; add きる: い + きる = いきる.",
+  },
+  {
+    word: "生", reading: "なま", romaji: ["nama"], meaning: "raw; fresh; unprocessed; live",
+    breakdown: [["生", "なま", "raw; fresh; unprocessed"]],
+    memory: "Raw or fresh is なま (nama).",
+  },
+  {
+    word: "会う", reading: "あう", romaji: ["au"], meaning: "to meet; to see; to encounter",
+    breakdown: [["会", "あ", "meet; encounter"], ["う", "う", "verb ending"]],
+    memory: "会 gives あ; add う: あ + う = あう.",
+  },
+  {
+    word: "見せる", reading: "みせる", romaji: ["miseru"], meaning: "to show; to display; to let someone see",
+    breakdown: [["見", "み", "see; look"], ["せる", "せる", "verb ending meaning show"]],
+    memory: "見 gives み; add せる: み + せる = みせる.",
+  },
+  {
+    word: "三百", reading: "さんびゃく", romaji: ["sanbyaku"], meaning: "three hundred",
+    breakdown: [["三", "さん", "three"], ["百", "びゃく", "hundred with sound change"]],
+    memory: "Three hundred changes 百 from ひゃく to びゃく: さんびゃく.",
+  },
+  {
+    word: "生まれる", reading: "うまれる", romaji: ["umareru"], meaning: "to be born; to arise; to come into existence",
+    breakdown: [["生", "う", "be born; life"], ["まれる", "まれる", "verb ending"]],
+    memory: "生 starts with う here; add まれる: う + まれる = うまれる.",
+  },
+  {
+    word: "地方", reading: "ちほう", romaji: ["chihou", "chiho", "tihou"], meaning: "region; locality; countryside",
+    breakdown: [["地", "ち", "ground; area"], ["方", "ほう", "direction; side"]],
+    memory: "地 is ち and 方 is ほう: ち + ほう = ちほう.",
+  },
+  {
+    word: "用いる", reading: "もちいる", romaji: ["mochiiru", "motiiru"], meaning: "to use; to employ; to adopt",
+    breakdown: [["用", "もち", "use; employ"], ["いる", "いる", "verb ending"]],
+    memory: "用 gives もち; add いる: もち + いる = もちいる.",
+  },
+  {
+    word: "小さい", reading: "ちいさい", romaji: ["chiisai", "tiisai"], meaning: "small; little; tiny",
+    breakdown: [["小", "ちい", "small; little"], ["さい", "さい", "adjective ending"]],
+    memory: "小 gives ちい; add さい: ちい + さい = ちいさい.",
+  },
+  {
+    word: "実", reading: "じつ", romaji: ["jitsu", "zitu"], meaning: "truth; reality; actuality; fruit",
+    breakdown: [["実", "じつ", "truth; reality; actuality"]],
+    memory: "Truth or reality gets the reading じつ (jitsu).",
+  },
+  {
+    word: "中々", reading: "なかなか", romaji: ["nakanaka"], meaning: "quite; considerably; not easily",
+    breakdown: [["中", "なか", "middle; inside"], ["々", "なか", "repetition mark"]],
+    memory: "Repeat なか: なか + なか = なかなか.",
+  },
+  {
+    word: "二つ", reading: "ふたつ", romaji: ["futatsu", "futatu"], meaning: "two things; two; a pair",
+    breakdown: [["二", "ふた", "two"], ["つ", "つ", "general counter"]],
+    memory: "二 gives ふた; add the counter つ: ふた + つ = ふたつ.",
+  },
+  {
+    word: "実は", reading: "じつは", romaji: ["jitsuha", "jitsuwa"], meaning: "actually; in fact; to tell the truth",
+    breakdown: [["実", "じつ", "truth; reality"], ["は", "は", "topic particle, pronounced わ"]],
+    memory: "実 is じつ; add the written particle は: じつは, pronounced じつわ.",
+  },
 ];
 
 const DECKS = {
@@ -564,6 +664,8 @@ const DECKS = {
   "121-130": { label: "121—130", setLabel: "SET 121—130", start: 80, end: 90 },
   "131-140": { label: "131—140", setLabel: "SET 131—140", start: 90, end: 100 },
   "141-150": { label: "141—150", setLabel: "SET 141—150", start: 100, end: 110 },
+  "extra-1-10": { label: "EXTRA 01—10", setLabel: "EXTRA 1 · 01—10", start: 110, end: 120 },
+  "extra-11-20": { label: "EXTRA 11—20", setLabel: "EXTRA 1 · 11—20", start: 120, end: 130 },
 };
 
 const BATCH_SIZE = 3;
@@ -886,7 +988,8 @@ function normalizeAnswer(value) {
 function answerIsCorrect(value, item) {
   const answer = normalizeAnswer(value);
   const acceptedKana = item.kana ?? [item.reading];
-  return acceptedKana.some((version) => answer === normalizeAnswer(version)) || item.romaji.some((version) => answer === normalizeAnswer(version));
+  return acceptedKana.some((version) => answer === normalizeAnswer(version))
+    || item.romaji.some((version) => answer === normalizeAnswer(romajiToHiragana(version, true)));
 }
 
 function checkRecall(event) {

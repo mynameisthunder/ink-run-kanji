@@ -588,7 +588,7 @@ kbd { font: inherit; color: var(--red); }
 .deck-item {
   position: relative;
   min-height: 90px;
-  padding: 15px 58px 15px 22px;
+  padding: 15px 58px 27px 22px;
   display: grid;
   grid-template-columns: minmax(90px, .42fr) 1fr;
   align-items: center;
@@ -618,6 +618,15 @@ kbd { font: inherit; color: var(--red); }
 .deck-breakdown-part { padding: 6px 8px; border: 1px solid var(--line); font: 600 11px var(--jp); }
 .deck-breakdown-part b { font-size: 15px; }
 .deck-breakdown-part small { display: block; margin-top: 2px; color: rgba(23,23,20,.56); font: 500 7px/1.35 var(--mono); text-transform: uppercase; }
+.deck-source {
+  position: absolute;
+  right: 14px;
+  bottom: 9px;
+  color: rgba(23,23,20,.4);
+  font: 600 7px var(--mono);
+  letter-spacing: .07em;
+  white-space: nowrap;
+}
 .deck-dialog-actions { padding: 18px 28px 0; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }
 

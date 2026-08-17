@@ -1573,6 +1573,17 @@ function speakWithBrowserVoice(reading, button) {
   window.speechSynthesis.speak(utterance);
 }
 
+function sourceDeckLabel(item) {
+  const index = KANJI.indexOf(item);
+  if (index < 0) return "";
+  if (index < 110) {
+    const start = 41 + Math.floor(index / 10) * 10;
+    return `LEVEL 1 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+  }
+  const start = 1 + Math.floor((index - 110) / 10) * 10;
+  return `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
+}
+
 function pronounceItem(item, button) {
   if (!item) return;
   const reading = (item.kana ?? [item.reading])[0];
@@ -1654,7 +1665,7 @@ function populateDeck() {
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span><span class="deck-source">${sourceDeckLabel(item)}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));

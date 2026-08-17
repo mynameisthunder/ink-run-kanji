@@ -881,6 +881,7 @@ const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
+  home: $("#homeLink"),
   start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
@@ -1214,6 +1215,23 @@ function startStarredStudy() {
 
 function showScreen(target) {
   screens.forEach((screen) => screen.classList.toggle("active", screen === target));
+}
+
+function returnHome(event) {
+  event?.preventDefault();
+  elements.feedback.classList.remove("show");
+  elements.deckDialog.close();
+  elements.accountDialog.close();
+  window.speechSynthesis?.cancel();
+  if (pronunciationAudio) {
+    pronunciationAudio.pause();
+    pronunciationAudio = null;
+  }
+  state.locked = false;
+  state.current = null;
+  renderDeckSelection();
+  showScreen(elements.intro);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function renderWord(item) {
@@ -1645,6 +1663,7 @@ function populateDeck() {
 }
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
+elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
 elements.studyStarred.addEventListener("click", startStarredStudy);

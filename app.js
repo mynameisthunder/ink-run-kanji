@@ -894,8 +894,8 @@ const elements = {
 };
 
 const state = {
-  selectedDeckKey: "all",
-  deck: KANJI,
+  selectedDeckKeys: new Set(["all"]),
+  deck: KANJI.slice(0, 110),
   mode: "study",
   batchIndex: 0,
   studyIndex: 0,
@@ -922,25 +922,66 @@ function shuffle(items) {
   return copy;
 }
 
-function selectedDeck() {
-  const deck = DECKS[state.selectedDeckKey];
-  return KANJI.slice(deck.start, deck.end);
+function orderedSelectedDeckKeys() {
+  return Object.keys(DECKS).filter((key) => state.selectedDeckKeys.has(key));
 }
 
-function selectDeck(key) {
-  if (!DECKS[key]) return;
-  state.selectedDeckKey = key;
-  const deck = DECKS[key];
+function selectedDeck() {
+  if (state.selectedDeckKeys.has("all")) return KANJI.slice(DECKS.all.start, DECKS.all.end);
+  return orderedSelectedDeckKeys().flatMap((key) => {
+    const deck = DECKS[key];
+    return KANJI.slice(deck.start, deck.end);
+  });
+}
+
+function selectedDeckMeta() {
+  const keys = orderedSelectedDeckKeys();
+  const wordCount = selectedDeck().length;
+  if (keys.length === 1) {
+    const deck = DECKS[keys[0]];
+    return { summary: deck.label, setLabel: deck.setLabel, studyLabel: deck.label, wordCount };
+  }
+  return {
+    summary: `${keys.length} DECKS · ${wordCount} WORDS`,
+    setLabel: `CUSTOM LOADOUT · ${wordCount} WORDS`,
+    studyLabel: `${keys.length} DECKS · ${wordCount} WORDS`,
+    wordCount,
+  };
+}
+
+function renderDeckSelection() {
+  const meta = selectedDeckMeta();
   document.querySelectorAll("[data-deck-choice]").forEach((button) => {
-    const active = button.dataset.deckChoice === key;
+    const active = state.selectedDeckKeys.has(button.dataset.deckChoice);
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-  elements.selectedDeckSummary.textContent = deck.label;
-  elements.introSetLabel.textContent = deck.setLabel;
-  elements.deckDialogTitle.textContent = deck.setLabel;
-  elements.deckButton.innerHTML = `DECK <span>${deck.end - deck.start}</span>`;
+  elements.selectedDeckSummary.textContent = meta.summary;
+  elements.introSetLabel.textContent = meta.setLabel;
+  elements.deckDialogTitle.textContent = meta.setLabel;
+  elements.deckButton.innerHTML = `DECK <span>${meta.wordCount}</span>`;
   populateDeck();
+}
+
+function setDeckSelection(keys) {
+  const validKeys = keys.filter((key) => DECKS[key]);
+  state.selectedDeckKeys = new Set(validKeys.length ? validKeys : ["all"]);
+  if (state.selectedDeckKeys.has("all") && state.selectedDeckKeys.size > 1) state.selectedDeckKeys = new Set(["all"]);
+  renderDeckSelection();
+}
+
+function toggleDeckSelection(key) {
+  if (!DECKS[key]) return;
+  if (key === "all") {
+    setDeckSelection(["all"]);
+    return;
+  }
+
+  const next = new Set(state.selectedDeckKeys);
+  next.delete("all");
+  if (next.has(key)) next.delete(key);
+  else next.add(key);
+  setDeckSelection([...next]);
 }
 
 function showScreen(target) {
@@ -1010,14 +1051,14 @@ function showStudyCard() {
   elements.recallForm.classList.add("hidden");
   elements.hint.classList.add("hidden");
   elements.meaning.textContent = "";
-  elements.roundLabel.textContent = `STUDY ${DECKS[state.selectedDeckKey].label}`;
+  elements.roundLabel.textContent = `STUDY ${selectedDeckMeta().studyLabel}`;
   elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
   elements.studyReading.textContent = item.reading;
   elements.studyPronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
-  elements.studyNext.firstChild.textContent = state.studyIndex === state.deck.length - 1 ? "START DECK RECALL " : "NEXT STUDY CARD ";
+  elements.studyNext.firstChild.textContent = state.studyIndex === state.deck.length - 1 ? "START RECALL RUN " : "NEXT STUDY CARD ";
   updateStatus();
 }
 
@@ -1369,7 +1410,7 @@ function populateDeck() {
   }));
 }
 
-document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => selectDeck(button.dataset.deckChoice)));
+document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
 elements.replay.addEventListener("click", startGame);
@@ -1406,4 +1447,4 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-selectDeck("all");
+setDeckSelection(["all"]);

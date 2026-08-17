@@ -391,6 +391,7 @@ kbd { font: inherit; color: var(--red); }
 .interaction-panel { width: 100%; }
 
 .study-card {
+  position: relative;
   padding: clamp(24px, 3vw, 38px);
   border: 1.5px solid var(--ink);
   background: rgba(242,237,223,.72);
@@ -402,17 +403,21 @@ kbd { font: inherit; color: var(--red); }
 .study-reading { font: 800 clamp(42px, 5vw, 68px)/1 var(--jp); }
 .study-tools { display: flex; align-items: center; gap: 8px; }
 .study-lookup-link {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--ink);
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--ink);
-  font: 700 16px var(--mono);
+  font: 700 18px var(--mono);
   text-decoration: none;
+  opacity: .38;
+  transition: opacity 140ms ease, transform 140ms ease;
 }
-.study-lookup-link:hover, .study-lookup-link:focus-visible { background: var(--yellow); }
+.study-lookup-link:hover, .study-lookup-link:focus-visible { opacity: 1; transform: translate(2px, -2px); }
 .study-meaning { margin: 15px 0 20px; font-size: clamp(17px, 2vw, 22px); line-height: 1.35; }
 .study-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .study-part { padding: 11px 13px; border: 1px solid var(--line); }

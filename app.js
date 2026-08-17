@@ -1528,7 +1528,7 @@ function showFeedback(title, item, includeBreakdown) {
   elements.feedbackReading.textContent = item.reading;
   elements.pronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.feedbackMeaning.textContent = item.meaning;
-  elements.feedback.classList.toggle("detailed", includeBreakdown);
+  elements.feedback.classList.add("detailed");
   buildParts(item, elements.feedbackBreakdown, "breakdown-item");
   elements.feedbackBreakdown.querySelectorAll(".breakdown-item strong").forEach((node) => node.className = "breakdown-char");
   elements.feedbackBreakdown.querySelectorAll(".breakdown-item span").forEach((node) => node.className = "breakdown-definition");

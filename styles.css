@@ -400,6 +400,19 @@ kbd { font: inherit; color: var(--red); }
 .panel-eyebrow { color: var(--blue); font: 600 9px var(--mono); letter-spacing: .08em; }
 .study-reading-row { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .study-reading { font: 800 clamp(42px, 5vw, 68px)/1 var(--jp); }
+.study-tools { display: flex; align-items: center; gap: 8px; }
+.study-lookup-link {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  font: 700 16px var(--mono);
+  text-decoration: none;
+}
+.study-lookup-link:hover, .study-lookup-link:focus-visible { background: var(--yellow); }
 .study-meaning { margin: 15px 0 20px; font-size: clamp(17px, 2vw, 22px); line-height: 1.35; }
 .study-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .study-part { padding: 11px 13px; border: 1px solid var(--line); }

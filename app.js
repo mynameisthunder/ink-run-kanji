@@ -892,7 +892,7 @@ const elements = {
   selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
-  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
+  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
@@ -1301,6 +1301,8 @@ function showStudyCard() {
   elements.roundLabel.textContent = `STUDY ${selectedDeckMeta().studyLabel}`;
   elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
   elements.studyReading.textContent = item.reading;
+  elements.studyLookup.href = `https://www.romajidesu.com/kanji/${encodeURIComponent(item.word)}`;
+  elements.studyLookup.setAttribute("aria-label", `Look up ${item.word} on RomajiDesu`);
   elements.studyPronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;

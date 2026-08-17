@@ -7,7 +7,7 @@
     <meta name="description" content="A fast kanji reading game for frequency level 1 words 41–150 and focused extra decks." />
     <title>INK RUN — Kanji Frequency + Extras</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=favorites-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -32,6 +32,7 @@
           <span class="picker-label" id="deckPickerLabel">CHOOSE YOUR DECKS · TAP TO TOGGLE</span>
           <div class="deck-options">
             <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
+            <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
             <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
             <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
             <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -96,6 +97,7 @@
               <a class="kanji-link" id="jishoLink" href="https://jisho.org/search/%E4%B8%89" target="_blank" rel="noopener noreferrer" aria-label="Look up 三 on Jisho">
                 <h2 id="kanjiPrompt">三</h2>
               </a>
+              <button class="favorite-button prompt-favorite-button" id="favoriteButton" type="button" aria-pressed="false" aria-label="Add this word to favorites" title="Add to favorites">☆</button>
             </div>
             <button class="hint-button hidden" id="hintButton" type="button"><kbd>H</kbd> TEACH ME</button>
             <p class="meaning" id="meaning" aria-live="polite"></p>
@@ -178,6 +180,7 @@
       </div>
       <div class="dialog-deck-options" aria-label="Choose one or more decks to review">
         <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
+        <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
         <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
         <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
         <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -203,6 +206,6 @@
       <p class="deck-note">Tap anywhere outside this card to close.</p>
     </dialog>
 
-    <script src="app.js?v=multideck-1" defer></script>
+    <script src="app.js?v=favorites-1" defer></script>
   </body>
 </html>

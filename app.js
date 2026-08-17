@@ -853,6 +853,7 @@ const KANJI = [
 
 const DECKS = {
   all: { label: "ALL 110", setLabel: "SET 041—150", start: 0, end: 110 },
+  favorites: { label: "★ FAVORITES", setLabel: "FAVORITES", dynamic: true },
   "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
   "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
   "61-70": { label: "61—70", setLabel: "SET 061—070", start: 20, end: 30 },
@@ -882,6 +883,7 @@ const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   start: $("#startButton"), study: $("#studyButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  favorite: $("#favoriteButton"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
@@ -893,8 +895,29 @@ const elements = {
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
 
+const FAVORITES_STORAGE_KEY = "ink-run-favorites-v1";
+
+function loadFavoriteWords() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(FAVORITES_STORAGE_KEY) ?? "[]");
+    const validWords = new Set(KANJI.map((item) => item.word));
+    return new Set(Array.isArray(stored) ? stored.filter((word) => validWords.has(word)) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveFavoriteWords(words) {
+  try {
+    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...words]));
+  } catch {
+    // Favorites still work for this session when storage is unavailable.
+  }
+}
+
 const state = {
   selectedDeckKeys: new Set(["all"]),
+  favoriteWords: loadFavoriteWords(),
   deck: KANJI.slice(0, 110),
   mode: "study",
   batchIndex: 0,
@@ -926,11 +949,19 @@ function orderedSelectedDeckKeys() {
   return Object.keys(DECKS).filter((key) => state.selectedDeckKeys.has(key));
 }
 
+function itemsForDeck(key) {
+  if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(item.word));
+  const deck = DECKS[key];
+  return deck ? KANJI.slice(deck.start, deck.end) : [];
+}
+
 function selectedDeck() {
-  if (state.selectedDeckKeys.has("all")) return KANJI.slice(DECKS.all.start, DECKS.all.end);
-  return orderedSelectedDeckKeys().flatMap((key) => {
-    const deck = DECKS[key];
-    return KANJI.slice(deck.start, deck.end);
+  if (state.selectedDeckKeys.has("all")) return itemsForDeck("all");
+  const seen = new Set();
+  return orderedSelectedDeckKeys().flatMap(itemsForDeck).filter((item) => {
+    if (seen.has(item.word)) return false;
+    seen.add(item.word);
+    return true;
   });
 }
 
@@ -939,6 +970,14 @@ function selectedDeckMeta() {
   const wordCount = selectedDeck().length;
   if (keys.length === 1) {
     const deck = DECKS[keys[0]];
+    if (keys[0] === "favorites") {
+      return {
+        summary: `★ FAVORITES · ${wordCount}`,
+        setLabel: `FAVORITES · ${wordCount} ${wordCount === 1 ? "WORD" : "WORDS"}`,
+        studyLabel: `★ FAVORITES · ${wordCount}`,
+        wordCount,
+      };
+    }
     return { summary: deck.label, setLabel: deck.setLabel, studyLabel: deck.label, wordCount };
   }
   return {
@@ -947,6 +986,27 @@ function selectedDeckMeta() {
     studyLabel: `${keys.length} DECKS · ${wordCount} WORDS`,
     wordCount,
   };
+}
+
+function updateFavoriteButton(button, item) {
+  if (!button) return;
+  const active = Boolean(item && state.favoriteWords.has(item.word));
+  button.disabled = !item;
+  button.textContent = active ? "★" : "☆";
+  button.classList.toggle("active", active);
+  button.setAttribute("aria-pressed", String(active));
+  button.setAttribute("aria-label", item ? `${active ? "Remove" : "Add"} ${item.word} ${active ? "from" : "to"} favorites` : "Add this word to favorites");
+  button.title = active ? "Remove from favorites" : "Add to favorites";
+}
+
+function updateFavoriteControls() {
+  const count = state.favoriteWords.size;
+  document.querySelectorAll("[data-favorite-count]").forEach((node) => { node.textContent = String(count); });
+  document.querySelectorAll('[data-deck-choice="favorites"]').forEach((button) => {
+    button.disabled = count === 0;
+    button.title = count === 0 ? "Star words to build this deck" : `Study ${count} favorite ${count === 1 ? "word" : "words"}`;
+  });
+  updateFavoriteButton(elements.favorite, state.current);
 }
 
 function renderDeckSelection() {
@@ -960,6 +1020,7 @@ function renderDeckSelection() {
   elements.introSetLabel.textContent = meta.setLabel;
   elements.deckDialogTitle.textContent = meta.setLabel;
   elements.deckButton.innerHTML = `DECK <span>${meta.wordCount}</span>`;
+  updateFavoriteControls();
   populateDeck();
 }
 
@@ -972,6 +1033,7 @@ function setDeckSelection(keys) {
 
 function toggleDeckSelection(key) {
   if (!DECKS[key]) return;
+  if (key === "favorites" && state.favoriteWords.size === 0) return;
   if (key === "all") {
     setDeckSelection(["all"]);
     return;
@@ -984,12 +1046,28 @@ function toggleDeckSelection(key) {
   setDeckSelection([...next]);
 }
 
+function toggleFavorite(item) {
+  if (!item) return;
+  if (state.favoriteWords.has(item.word)) state.favoriteWords.delete(item.word);
+  else state.favoriteWords.add(item.word);
+  saveFavoriteWords(state.favoriteWords);
+
+  if (state.favoriteWords.size === 0 && state.selectedDeckKeys.has("favorites")) {
+    const next = new Set(state.selectedDeckKeys);
+    next.delete("favorites");
+    state.selectedDeckKeys = next.size ? next : new Set(["all"]);
+  }
+  renderDeckSelection();
+  updateFavoriteButton(elements.favorite, state.current);
+}
+
 function showScreen(target) {
   screens.forEach((screen) => screen.classList.toggle("active", screen === target));
 }
 
 function renderWord(item) {
   state.current = item;
+  updateFavoriteButton(elements.favorite, item);
   elements.kanji.textContent = item.word;
   elements.kanji.classList.toggle("long", item.word.length > 1);
   elements.jishoLink.href = `https://jisho.org/search/${encodeURIComponent(item.word)}`;
@@ -1405,7 +1483,10 @@ function populateDeck() {
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>`;
+    row.innerHTML = `<span class="deck-kanji-tools"><span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button></span><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>`;
+    const favoriteButton = row.querySelector(".deck-favorite-button");
+    updateFavoriteButton(favoriteButton, item);
+    favoriteButton.addEventListener("click", () => toggleFavorite(item));
     return row;
   }));
 }
@@ -1421,6 +1502,7 @@ elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
 elements.pronounce.addEventListener("click", pronounceCurrentWord);
 elements.studyPronounce.addEventListener("click", pronounceStudyWord);
+elements.favorite.addEventListener("click", () => toggleFavorite(state.current));
 elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.dialogStudy.addEventListener("click", startStudyDeck);

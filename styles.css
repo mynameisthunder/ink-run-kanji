@@ -83,6 +83,13 @@ button { color: inherit; font: inherit; }
 .text-button:hover { border-bottom-color: var(--ink); }
 .text-button span { color: var(--red); }
 
+.account-button { display: inline-flex; align-items: center; gap: 7px; }
+.account-button i { width: 7px; height: 7px; border-radius: 50%; background: rgba(23,23,20,.28); }
+.account-button.syncing i { background: var(--yellow); animation: speaker-pulse 700ms ease-in-out infinite alternate; }
+.account-button.synced i { background: var(--green); }
+.account-button.error i { background: var(--red); }
+.account-button span { color: inherit; }
+
 main { min-height: calc(100vh - 82px); }
 
 .screen {
@@ -614,6 +621,40 @@ kbd { font: inherit; color: var(--red); }
 .deck-dialog-actions { padding: 18px 28px 0; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }
 
+.account-dialog {
+  width: min(620px, calc(100% - 28px));
+  padding: 0;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 12px 12px 0 var(--blue);
+}
+.account-dialog::backdrop { background: rgba(23,23,20,.68); backdrop-filter: blur(4px); }
+.account-dialog[open] { animation: dialog-in 240ms cubic-bezier(.2,.8,.2,1) both; }
+.account-dialog-head h2 { max-width: 460px; font-size: clamp(28px, 5vw, 46px); line-height: .95; }
+.account-panel { padding: 28px; }
+.account-panel > p { margin: 0 0 24px; max-width: 500px; font-size: 16px; line-height: 1.45; }
+.auth-form label { display: block; margin-bottom: 9px; font: 600 9px var(--mono); letter-spacing: .08em; }
+.auth-form input {
+  width: 100%;
+  padding: 13px 0;
+  border: 0;
+  border-bottom: 3px solid var(--ink);
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 600 clamp(20px, 4vw, 30px) var(--sans);
+}
+.auth-form input:focus { border-bottom-color: var(--blue); }
+.auth-submit { width: 100%; margin-top: 22px; }
+.account-state-label { display: block; color: var(--green); font: 600 9px var(--mono); letter-spacing: .08em; }
+.account-email { display: block; margin: 8px 0 20px; overflow-wrap: anywhere; font-size: clamp(22px, 5vw, 36px); letter-spacing: -.05em; }
+.account-actions { display: flex; align-items: center; gap: 18px; }
+.account-actions .study-button { min-width: 210px; }
+.cloud-status { margin: 0; padding: 14px 28px 18px; border-top: 1px solid var(--line); color: rgba(23,23,20,.58); font: 600 9px/1.45 var(--mono); letter-spacing: .05em; }
+.cloud-status.success { color: var(--green); }
+.cloud-status.error { color: var(--red); }
+
 .confetti { position: fixed; z-index: 30; width: 9px; height: 20px; pointer-events: none; animation: confetti-fall 900ms ease-in forwards; }
 
 @keyframes screen-in { from { opacity: 0; transform: translateY(12px); } }
@@ -625,6 +666,9 @@ kbd { font: inherit; color: var(--red); }
 
 @media (max-width: 760px) {
   .topbar { height: 64px; }
+  .top-actions { gap: 13px; }
+  .text-button { font-size: 10px; }
+  .account-button > span { max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   main, .screen { min-height: calc(100vh - 64px); }
   .screen { padding: 30px 20px; }
   .intro { justify-content: flex-start; padding-top: 12vh; }
@@ -673,6 +717,8 @@ kbd { font: inherit; color: var(--red); }
   .deck-item { grid-template-columns: minmax(90px, .4fr) 1fr; }
   .dialog-deck-options { padding: 12px 18px; }
   .dialog-deck-options .deck-option { flex: 1 1 28%; }
+  .account-panel { padding: 22px; }
+  .account-actions { align-items: flex-start; flex-direction: column; }
 }
 
 @media (max-height: 720px) and (min-width: 761px) {

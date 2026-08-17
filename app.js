@@ -883,6 +883,9 @@ const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
+  signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
+  accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
   favorite: $("#favoriteButton"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
@@ -896,6 +899,7 @@ const elements = {
 };
 
 const FAVORITES_STORAGE_KEY = "ink-run-favorites-v1";
+const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
 
 function loadFavoriteWords() {
   try {
@@ -912,6 +916,25 @@ function saveFavoriteWords(words) {
     window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...words]));
   } catch {
     // Favorites still work for this session when storage is unavailable.
+  }
+}
+
+function loadCloudSnapshot(userId) {
+  try {
+    const stored = window.localStorage.getItem(`${CLOUD_SNAPSHOT_PREFIX}${userId}`);
+    if (stored === null) return null;
+    const words = JSON.parse(stored);
+    return new Set(Array.isArray(words) ? words : []);
+  } catch {
+    return null;
+  }
+}
+
+function saveCloudSnapshot(userId, words) {
+  try {
+    window.localStorage.setItem(`${CLOUD_SNAPSHOT_PREFIX}${userId}`, JSON.stringify([...words]));
+  } catch {
+    // Cloud sync still works when local snapshot storage is unavailable.
   }
 }
 
@@ -934,7 +957,123 @@ const state = {
   reteaches: 0,
   locked: false,
   sound: true,
+  cloudUser: null,
 };
+
+let cloudWriteQueue = Promise.resolve();
+let activeCloudSync = null;
+
+function setCloudStatus(message, tone = "") {
+  elements.cloudStatus.textContent = message;
+  elements.cloudStatus.classList.toggle("success", tone === "success");
+  elements.cloudStatus.classList.toggle("error", tone === "error");
+  elements.account.classList.toggle("syncing", tone === "syncing");
+  elements.account.classList.toggle("synced", tone === "success");
+  elements.account.classList.toggle("error", tone === "error");
+}
+
+function updateAccountUI() {
+  const signedIn = Boolean(state.cloudUser);
+  elements.accountLabel.textContent = signedIn ? "SYNCED" : "SIGN IN";
+  elements.signedOutPanel.classList.toggle("hidden", signedIn);
+  elements.signedInPanel.classList.toggle("hidden", !signedIn);
+  elements.accountEmail.textContent = state.cloudUser?.email ?? "";
+  if (!signedIn) setCloudStatus("LOCAL SAVE ACTIVE · SIGN IN TO SYNC DEVICES");
+}
+
+function updateSnapshotWord(userId, word, favorite) {
+  const snapshot = loadCloudSnapshot(userId) ?? new Set();
+  if (favorite) snapshot.add(word);
+  else snapshot.delete(word);
+  saveCloudSnapshot(userId, snapshot);
+}
+
+async function synchronizeCloudProgress() {
+  if (!state.cloudUser || !window.inkRunCloud?.available) return;
+  if (activeCloudSync) return activeCloudSync;
+
+  const userId = state.cloudUser.id;
+  activeCloudSync = (async () => {
+    setCloudStatus("SYNCING LOCAL + CLOUD PROGRESS…", "syncing");
+    const rows = await window.inkRunCloud.loadProgress();
+    const validWords = new Set(KANJI.map((item) => item.word));
+    const remoteFavorites = new Set(rows.filter((row) => row.favorite && validWords.has(row.word)).map((row) => row.word));
+    const localFavorites = new Set([...state.favoriteWords].filter((word) => validWords.has(word)));
+    const previousSnapshot = loadCloudSnapshot(userId);
+    const localAdds = previousSnapshot
+      ? [...localFavorites].filter((word) => !previousSnapshot.has(word))
+      : [...localFavorites];
+    const localRemovals = previousSnapshot
+      ? [...previousSnapshot].filter((word) => !localFavorites.has(word))
+      : [];
+
+    const changes = [
+      ...localAdds.map((word) => ({ word, favorite: true })),
+      ...localRemovals.map((word) => ({ word, favorite: false })),
+    ];
+    if (changes.length) await window.inkRunCloud.setFavorites(changes);
+
+    const mergedFavorites = new Set(remoteFavorites);
+    localAdds.forEach((word) => mergedFavorites.add(word));
+    localRemovals.forEach((word) => mergedFavorites.delete(word));
+    state.favoriteWords = mergedFavorites;
+    saveFavoriteWords(mergedFavorites);
+    saveCloudSnapshot(userId, mergedFavorites);
+    renderDeckSelection();
+    setCloudStatus(`SYNCED · ${mergedFavorites.size} STARRED · RECALL HISTORY ON`, "success");
+  })().catch((error) => {
+    setCloudStatus(`SYNC PAUSED · ${error.message} · LOCAL SAVE IS SAFE`, "error");
+  }).finally(() => {
+    activeCloudSync = null;
+  });
+
+  return activeCloudSync;
+}
+
+function queueFavoriteSync(word, favorite) {
+  const user = state.cloudUser;
+  if (!user || !window.inkRunCloud?.available) return;
+  setCloudStatus("SYNCING STAR…", "syncing");
+  cloudWriteQueue = cloudWriteQueue.catch(() => {}).then(async () => {
+    await window.inkRunCloud.setFavorite(word, favorite);
+    updateSnapshotWord(user.id, word, favorite);
+    setCloudStatus(`SYNCED · ${state.favoriteWords.size} STARRED · RECALL HISTORY ON`, "success");
+  }).catch((error) => {
+    setCloudStatus(`STAR SAVED LOCALLY · ${error.message}`, "error");
+  });
+}
+
+function queueCloudAttempt(word, correct) {
+  if (!state.cloudUser || !window.inkRunCloud?.available) return;
+  cloudWriteQueue = cloudWriteQueue.catch(() => {}).then(() => window.inkRunCloud.recordAttempt(word, correct)).catch((error) => {
+    setCloudStatus(`RECALL SAVED LOCALLY ONLY · ${error.message}`, "error");
+  });
+}
+
+async function handleCloudUser(user, startupError) {
+  if (startupError) {
+    state.cloudUser = null;
+    updateAccountUI();
+    setCloudStatus(startupError.message, "error");
+    return;
+  }
+  state.cloudUser = user;
+  updateAccountUI();
+  if (user) await synchronizeCloudProgress();
+}
+
+async function initializeCloudSync() {
+  if (!window.inkRunCloud?.available) {
+    updateAccountUI();
+    setCloudStatus("CLOUD UNAVAILABLE · LOCAL SAVE ACTIVE", "error");
+    return;
+  }
+  try {
+    await window.inkRunCloud.init(handleCloudUser);
+  } catch (error) {
+    await handleCloudUser(null, error);
+  }
+}
 
 function shuffle(items) {
   const copy = [...items];
@@ -1054,7 +1193,9 @@ function toggleFavorite(item) {
   if (!item) return;
   if (state.favoriteWords.has(item.word)) state.favoriteWords.delete(item.word);
   else state.favoriteWords.add(item.word);
+  const favorite = state.favoriteWords.has(item.word);
   saveFavoriteWords(state.favoriteWords);
+  queueFavoriteSync(item.word, favorite);
 
   if (state.favoriteWords.size === 0 && state.selectedDeckKeys.has("favorites")) {
     const next = new Set(state.selectedDeckKeys);
@@ -1344,6 +1485,7 @@ function recordCorrectRecall() {
   state.recalls += 1;
   state.streak += 1;
   state.bestStreak = Math.max(state.bestStreak, state.streak);
+  queueCloudAttempt(state.current.word, true);
   elements.readingInput.classList.add("input-correct");
 
   let title;
@@ -1368,6 +1510,7 @@ function reteachCurrent() {
   state.locked = true;
   state.reteaches += 1;
   state.streak = 0;
+  queueCloudAttempt(state.current.word, false);
   elements.readingInput.classList.add("input-wrong");
 
   if (state.mode === "batchRecall") {
@@ -1516,6 +1659,38 @@ elements.studyPronounce.addEventListener("click", pronounceStudyWord);
 elements.favorite.addEventListener("click", () => toggleFavorite(state.current));
 elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
 elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
+elements.account.addEventListener("click", () => elements.accountDialog.showModal());
+elements.closeAccount.addEventListener("click", () => elements.accountDialog.close());
+elements.accountDialog.addEventListener("click", (event) => {
+  if (event.target === elements.accountDialog) elements.accountDialog.close();
+});
+elements.signInForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submitButton = elements.signInForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  setCloudStatus("SENDING YOUR PRIVATE SIGN-IN LINK…", "syncing");
+  try {
+    await window.inkRunCloud.signIn(elements.emailInput.value.trim());
+    elements.emailInput.value = "";
+    setCloudStatus("LINK SENT · CHECK YOUR EMAIL · THIS WINDOW CAN STAY OPEN", "success");
+  } catch (error) {
+    setCloudStatus(`COULD NOT SEND LINK · ${error.message}`, "error");
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+elements.syncNow.addEventListener("click", () => synchronizeCloudProgress());
+elements.signOut.addEventListener("click", async () => {
+  elements.signOut.disabled = true;
+  setCloudStatus("SIGNING OUT…", "syncing");
+  try {
+    await window.inkRunCloud.signOut();
+  } catch (error) {
+    setCloudStatus(`COULD NOT SIGN OUT · ${error.message}`, "error");
+  } finally {
+    elements.signOut.disabled = false;
+  }
+});
 elements.dialogStudy.addEventListener("click", startStudyDeck);
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
@@ -1541,3 +1716,4 @@ window.addEventListener("keydown", (event) => {
 });
 
 setDeckSelection(["all"]);
+initializeCloudSync();

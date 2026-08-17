@@ -881,11 +881,11 @@ const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
-  start: $("#startButton"), study: $("#studyButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   favorite: $("#favoriteButton"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
-  selectedDeckSummary: $("#selectedDeckSummary"),
+  selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
@@ -1006,6 +1006,10 @@ function updateFavoriteControls() {
     button.disabled = count === 0;
     button.title = count === 0 ? "Star words to build this deck" : `Study ${count} favorite ${count === 1 ? "word" : "words"}`;
   });
+  elements.studyStarred.disabled = count === 0;
+  elements.studyStarred.title = count === 0 ? "Star words during a run to study them here" : `Study ${count} starred ${count === 1 ? "word" : "words"}`;
+  elements.studyStarred.setAttribute("aria-label", elements.studyStarred.title);
+  elements.starredStudyCount.textContent = `${count} ${count === 1 ? "WORD" : "WORDS"} SAVED`;
   updateFavoriteButton(elements.favorite, state.current);
 }
 
@@ -1059,6 +1063,12 @@ function toggleFavorite(item) {
   }
   renderDeckSelection();
   updateFavoriteButton(elements.favorite, state.current);
+}
+
+function startStarredStudy() {
+  if (state.favoriteWords.size === 0) return;
+  setDeckSelection(["favorites"]);
+  startStudyDeck();
 }
 
 function showScreen(target) {
@@ -1483,7 +1493,7 @@ function populateDeck() {
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji-tools"><span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button></span><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));
@@ -1494,6 +1504,7 @@ function populateDeck() {
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
+elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", startGame);
 elements.studyNext.addEventListener("click", advanceStudy);
 elements.readingInput.addEventListener("input", convertReadingInput);

@@ -10,7 +10,7 @@ A focused kanji reading game for frequency words 41–150, plus 60 words in sepa
 - Study focused ten-word decks before testing recall.
 - Hear every word pronounced in Japanese.
 - Click any displayed kanji to open its Jisho entry.
-- Star words to build a persistent Favorites deck.
+- Star words to build a persistent Favorites deck with a dedicated Study Starred route.
 
 ## Run locally
 

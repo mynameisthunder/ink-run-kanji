@@ -179,6 +179,7 @@ main { min-height: calc(100vh - 82px); }
 .deck-option:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 .deck-option.active { background: var(--blue); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
 .deck-option.active small { color: var(--yellow); }
+.needs-work-deck-option { border-color: var(--red); }
 .starred-study {
   position: absolute;
   z-index: 1;
@@ -687,6 +688,16 @@ kbd { font: inherit; color: var(--red); }
   letter-spacing: .07em;
   white-space: nowrap;
 }
+.deck-progress {
+  position: absolute;
+  left: 22px;
+  bottom: 9px;
+  color: rgba(23,23,20,.42);
+  font: 600 7px var(--mono);
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.deck-progress.needs-work { color: var(--red); }
 .deck-dialog-actions { padding: 18px 28px 0; }
 .deck-dialog-actions .study-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }

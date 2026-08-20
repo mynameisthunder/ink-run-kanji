@@ -866,6 +866,8 @@ REAL_KANA_N5_WORDS.forEach((word, index) => {
 const DECKS = {
   all: { label: "ALL 110", setLabel: "SET 041—150", start: 0, end: 110 },
   favorites: { label: "★ FAVORITES", setLabel: "FAVORITES", dynamic: true },
+  done: { label: "DONE", setLabel: "RECALL HISTORY · DONE", dynamic: true },
+  "needs-work": { label: "NEEDS WORK", setLabel: "RECALL HISTORY · NEEDS WORK", dynamic: true },
   "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
   "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
   "61-70": { label: "61—70", setLabel: "SET 061—070", start: 20, end: 30 },
@@ -924,6 +926,7 @@ const elements = {
 elements.libraryWordCount.textContent = String(KANJI.length);
 
 const FAVORITES_STORAGE_KEY = "ink-run-favorites-v1";
+const WORD_PROGRESS_STORAGE_KEY = "ink-run-word-progress-v1";
 const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
 
 function loadFavoriteWords() {
@@ -941,6 +944,30 @@ function saveFavoriteWords(words) {
     window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify([...words]));
   } catch {
     // Favorites still work for this session when storage is unavailable.
+  }
+}
+
+function loadWordProgress() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(WORD_PROGRESS_STORAGE_KEY) ?? "{}");
+    const validWords = new Set(KANJI.map((item) => item.word));
+    return new Map(Object.entries(stored).filter(([word]) => validWords.has(word)).map(([word, value]) => [word, {
+      seenCount: Math.max(0, Number(value?.seenCount) || 0),
+      correctCount: Math.max(0, Number(value?.correctCount) || 0),
+      wrongCount: Math.max(0, Number(value?.wrongCount) || 0),
+      lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
+      lastReviewedAt: value?.lastReviewedAt || "",
+    }]));
+  } catch {
+    return new Map();
+  }
+}
+
+function saveWordProgress(progress) {
+  try {
+    window.localStorage.setItem(WORD_PROGRESS_STORAGE_KEY, JSON.stringify(Object.fromEntries(progress)));
+  } catch {
+    // Recall tracking still works for this session when storage is unavailable.
   }
 }
 
@@ -966,6 +993,7 @@ function saveCloudSnapshot(userId, words) {
 const state = {
   selectedDeckKeys: new Set(["all"]),
   favoriteWords: loadFavoriteWords(),
+  wordProgress: loadWordProgress(),
   deck: KANJI.slice(0, 110),
   mode: "study",
   batchIndex: 0,
@@ -985,6 +1013,49 @@ const state = {
   cloudUser: null,
   studyLabel: "ALL 110",
 };
+
+function progressFor(word) {
+  return state.wordProgress.get(word) ?? {
+    seenCount: 0, correctCount: 0, wrongCount: 0, lastResult: "", lastReviewedAt: "",
+  };
+}
+
+function needsWork(stats) {
+  const attempts = stats.correctCount + stats.wrongCount;
+  return stats.wrongCount > 0 && (stats.lastResult === "wrong" || stats.correctCount / attempts < .8);
+}
+
+function markWordSeen(word) {
+  const stats = progressFor(word);
+  state.wordProgress.set(word, {
+    ...stats,
+    seenCount: stats.seenCount + 1,
+    lastReviewedAt: new Date().toISOString(),
+  });
+  saveWordProgress(state.wordProgress);
+}
+
+function recordLocalAttempt(word, correct) {
+  const stats = progressFor(word);
+  state.wordProgress.set(word, {
+    ...stats,
+    seenCount: Math.max(1, stats.seenCount),
+    correctCount: stats.correctCount + (correct ? 1 : 0),
+    wrongCount: stats.wrongCount + (correct ? 0 : 1),
+    lastResult: correct ? "correct" : "wrong",
+    lastReviewedAt: new Date().toISOString(),
+  });
+  saveWordProgress(state.wordProgress);
+  updateProgressControls();
+}
+
+function progressLabel(item) {
+  const stats = progressFor(item.word);
+  const attempts = stats.correctCount + stats.wrongCount;
+  if (!attempts) return stats.seenCount ? "SEEN · NOT TESTED" : "";
+  const accuracy = Math.round((stats.correctCount / attempts) * 100);
+  return `${stats.correctCount}/${attempts} CORRECT · ${accuracy}%${needsWork(stats) ? " · NEEDS WORK" : ""}`;
+}
 
 let cloudWriteQueue = Promise.resolve();
 let activeCloudSync = null;
@@ -1023,6 +1094,20 @@ async function synchronizeCloudProgress() {
     setCloudStatus("SYNCING LOCAL + CLOUD PROGRESS…", "syncing");
     const rows = await window.inkRunCloud.loadProgress();
     const validWords = new Set(KANJI.map((item) => item.word));
+    rows.filter((row) => validWords.has(row.word)).forEach((row) => {
+      const local = progressFor(row.word);
+      const remoteCorrect = Math.max(0, Number(row.correct_count) || 0);
+      const remoteWrong = Math.max(0, Number(row.wrong_count) || 0);
+      const remoteAttempts = remoteCorrect + remoteWrong;
+      state.wordProgress.set(row.word, {
+        ...local,
+        seenCount: Math.max(local.seenCount, remoteAttempts ? 1 : 0),
+        correctCount: Math.max(local.correctCount, remoteCorrect),
+        wrongCount: Math.max(local.wrongCount, remoteWrong),
+        lastReviewedAt: [local.lastReviewedAt, row.last_reviewed_at].filter(Boolean).sort().at(-1) ?? "",
+      });
+    });
+    saveWordProgress(state.wordProgress);
     const remoteFavorites = new Set(rows.filter((row) => row.favorite && validWords.has(row.word)).map((row) => row.word));
     const localFavorites = new Set([...state.favoriteWords].filter((word) => validWords.has(word)));
     const previousSnapshot = loadCloudSnapshot(userId);
@@ -1116,6 +1201,16 @@ function orderedSelectedDeckKeys() {
 
 function itemsForDeck(key) {
   if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(item.word));
+  if (key === "done") return KANJI.filter((item) => progressFor(item.word).seenCount > 0)
+    .sort((a, b) => progressFor(b.word).lastReviewedAt.localeCompare(progressFor(a.word).lastReviewedAt));
+  if (key === "needs-work") return KANJI.filter((item) => needsWork(progressFor(item.word)))
+    .sort((a, b) => {
+      const aStats = progressFor(a.word);
+      const bStats = progressFor(b.word);
+      const aRate = aStats.correctCount / (aStats.correctCount + aStats.wrongCount);
+      const bRate = bStats.correctCount / (bStats.correctCount + bStats.wrongCount);
+      return aRate - bRate || bStats.wrongCount - aStats.wrongCount;
+    });
   const deck = DECKS[key];
   if (deck?.words) return deck.words.map((word) => KANJI_BY_WORD.get(word)).filter(Boolean);
   return deck ? KANJI.slice(deck.start, deck.end) : [];
@@ -1141,6 +1236,15 @@ function selectedDeckMeta() {
         summary: `★ FAVORITES · ${wordCount}`,
         setLabel: `FAVORITES · ${wordCount} ${wordCount === 1 ? "WORD" : "WORDS"}`,
         studyLabel: `★ FAVORITES · ${wordCount}`,
+        wordCount,
+      };
+    }
+    if (keys[0] === "done" || keys[0] === "needs-work") {
+      const label = keys[0] === "done" ? "DONE" : "NEEDS WORK";
+      return {
+        summary: `${label} · ${wordCount}`,
+        setLabel: `RECALL HISTORY · ${label} · ${wordCount}`,
+        studyLabel: `${label} · ${wordCount}`,
         wordCount,
       };
     }
@@ -1179,6 +1283,21 @@ function updateFavoriteControls() {
   updateFavoriteButton(elements.favorite, state.current);
 }
 
+function updateProgressControls() {
+  const doneCount = itemsForDeck("done").length;
+  const needsWorkCount = itemsForDeck("needs-work").length;
+  document.querySelectorAll("[data-done-count]").forEach((node) => { node.textContent = String(doneCount); });
+  document.querySelectorAll("[data-needs-work-count]").forEach((node) => { node.textContent = String(needsWorkCount); });
+  document.querySelectorAll('[data-deck-choice="done"]').forEach((button) => {
+    button.disabled = doneCount === 0;
+    button.title = doneCount ? `Review ${doneCount} seen ${doneCount === 1 ? "word" : "words"}` : "Complete recalls to build this deck";
+  });
+  document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
+    button.disabled = needsWorkCount === 0;
+    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} below 80% recall` : "Missed words will appear here";
+  });
+}
+
 function renderDeckSelection() {
   const meta = selectedDeckMeta();
   document.querySelectorAll("[data-deck-choice]").forEach((button) => {
@@ -1191,6 +1310,7 @@ function renderDeckSelection() {
   elements.deckDialogTitle.textContent = meta.setLabel;
   elements.deckButton.innerHTML = `DECK <span>${meta.wordCount}</span>`;
   updateFavoriteControls();
+  updateProgressControls();
   populateDeck();
 }
 
@@ -1204,6 +1324,7 @@ function setDeckSelection(keys) {
 function toggleDeckSelection(key) {
   if (!DECKS[key]) return;
   if (key === "favorites" && state.favoriteWords.size === 0) return;
+  if ((key === "done" || key === "needs-work") && itemsForDeck(key).length === 0) return;
   if (key === "all") {
     setDeckSelection(["all"]);
     return;
@@ -1332,6 +1453,7 @@ function buildParts(item, target, className) {
 
 function showStudyCard() {
   const item = state.deck[state.studyIndex];
+  markWordSeen(item.word);
   renderWord(item);
   elements.feedback.classList.remove("show");
   elements.studyCard.classList.remove("hidden");
@@ -1545,6 +1667,7 @@ function recordCorrectRecall() {
   state.recalls += 1;
   state.streak += 1;
   state.bestStreak = Math.max(state.bestStreak, state.streak);
+  recordLocalAttempt(state.current.word, true);
   queueCloudAttempt(state.current.word, true);
   elements.readingInput.classList.add("input-correct");
 
@@ -1570,6 +1693,7 @@ function reteachCurrent() {
   state.locked = true;
   state.reteaches += 1;
   state.streak = 0;
+  recordLocalAttempt(state.current.word, false);
   queueCloudAttempt(state.current.word, false);
   elements.readingInput.classList.add("input-wrong");
 
@@ -1729,11 +1853,12 @@ function populateDeck() {
   const rows = items.map((item) => {
     const row = document.createElement("div");
     const hasCharacterBreakdown = item.breakdown.length > 1;
+    const trackedProgress = progressLabel(item);
     row.className = `deck-item${hasCharacterBreakdown ? " deck-item-detailed" : ""}`;
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span><span class="deck-source">${sourceDeckLabel(item)}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${needsWork(progressFor(item.word)) ? " needs-work" : ""}">${trackedProgress}</span>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));

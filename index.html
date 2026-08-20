@@ -7,7 +7,7 @@
     <meta name="description" content="A fast kanji reading game for frequency decks, focused extras, and the complete RealKana JLPT N5 word set." />
     <title>INK RUN — Kanji Frequency + JLPT N5</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=n5-1" />
+    <link rel="stylesheet" href="styles.css?v=progress-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -35,6 +35,8 @@
           <div class="deck-options">
             <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
             <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
+            <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
+            <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
             <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
             <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
             <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -196,6 +198,8 @@
       <div class="dialog-deck-options" aria-label="Choose one or more decks to review">
         <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
         <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
+        <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
+        <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
         <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
         <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
         <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -215,7 +219,7 @@
         <button class="deck-option" type="button" data-deck-choice="extra-51-60" aria-pressed="false">EXTRA 51—60</button>
       </div>
       <div class="deck-search">
-        <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">170</span> WORDS · ENGLISH OR JAPANESE</label>
+        <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">307</span> WORDS · ENGLISH OR JAPANESE</label>
         <div class="deck-search-control">
           <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
           <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
@@ -264,6 +268,6 @@
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=cloud-1" defer></script>
     <script src="n5-data.js?v=n5-1" defer></script>
-    <script src="app.js?v=n5-1" defer></script>
+    <script src="app.js?v=progress-1" defer></script>
   </body>
 </html>

@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f2eddf" />
-    <meta name="description" content="A fast kanji reading game for frequency level 1 words 41–150 and focused extra decks." />
-    <title>INK RUN — Kanji Frequency + Extras</title>
+    <meta name="description" content="A fast kanji reading game for frequency decks, focused extras, and the complete RealKana JLPT N5 word set." />
+    <title>INK RUN — Kanji Frequency + JLPT N5</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=cloud-5" />
+    <link rel="stylesheet" href="styles.css?v=n5-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -26,7 +26,7 @@
 
     <main>
       <section class="screen intro active" id="introScreen" aria-labelledby="introTitle">
-        <div class="edition-tag"><span></span> FREQUENCY / LEVEL 1</div>
+        <div class="edition-tag"><span></span> FREQUENCY + JLPT N5</div>
         <h1 id="introTitle">READ<br /><em>ON SIGHT.</em></h1>
         <p class="intro-copy">Pick one or more decks to study, or run the full set. Then type every reading from memory.</p>
 
@@ -215,7 +215,7 @@
         <button class="deck-option" type="button" data-deck-choice="extra-51-60" aria-pressed="false">EXTRA 51—60</button>
       </div>
       <div class="deck-search">
-        <label for="deckSearchInput">SEARCH ALL 170 WORDS · ENGLISH OR JAPANESE</label>
+        <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">170</span> WORDS · ENGLISH OR JAPANESE</label>
         <div class="deck-search-control">
           <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
           <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
@@ -263,6 +263,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=cloud-1" defer></script>
-    <script src="app.js?v=cloud-6" defer></script>
+    <script src="n5-data.js?v=n5-1" defer></script>
+    <script src="app.js?v=n5-1" defer></script>
   </body>
 </html>

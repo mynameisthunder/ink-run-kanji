@@ -156,6 +156,14 @@ main { min-height: calc(100vh - 82px); }
 .deck-picker { position: relative; z-index: 1; width: min(680px, 100%); margin-bottom: 18px; }
 .picker-label { display: block; margin-bottom: 8px; font: 600 9px var(--mono); letter-spacing: .08em; }
 .deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.deck-group-label {
+  flex: 1 0 100%;
+  margin-top: 5px;
+  color: var(--red);
+  font: 600 8px var(--mono);
+  letter-spacing: .1em;
+}
+.n5-deck-option { border-color: var(--blue); }
 .deck-option {
   min-height: 36px;
   padding: 8px 12px;
@@ -737,6 +745,7 @@ kbd { font: inherit; color: var(--red); }
   .intro h1 { font-size: clamp(58px, 20vw, 100px); }
   .intro::after { right: -14vw; bottom: 4vh; font-size: 88vw; opacity: .26; }
   .deck-options { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .deck-group-label { grid-column: 1 / -1; }
   .deck-option { padding: 8px; }
   .starred-study {
     position: static;

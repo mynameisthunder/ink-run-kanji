@@ -851,6 +851,18 @@ const KANJI = [
   },
 ];
 
+const REAL_KANA_N5_WORDS = window.INK_RUN_N5_WORDS ?? [];
+const REAL_KANA_N5_IMPORTS = window.INK_RUN_N5_IMPORTS ?? [];
+KANJI.push(...REAL_KANA_N5_IMPORTS);
+
+const KANJI_BY_WORD = new Map(KANJI.map((item) => [item.word, item]));
+REAL_KANA_N5_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
+
 const DECKS = {
   all: { label: "ALL 110", setLabel: "SET 041—150", start: 0, end: 110 },
   favorites: { label: "★ FAVORITES", setLabel: "FAVORITES", dynamic: true },
@@ -873,6 +885,15 @@ const DECKS = {
   "extra-51-60": { label: "EXTRA 51—60", setLabel: "EXTRA 1 · 51—60", start: 160, end: 170 },
 };
 
+DECKS["n5-all"] = { label: "N5 ALL 150", setLabel: "JLPT N5 · ALL 150", words: REAL_KANA_N5_WORDS };
+for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
+  const start = index + 1;
+  const end = Math.min(index + 10, REAL_KANA_N5_WORDS.length);
+  const key = `n5-${start}-${end}`;
+  const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  DECKS[key] = { label: `N5 ${range}`, setLabel: `JLPT N5 · ${range}`, words: REAL_KANA_N5_WORDS.slice(index, end) };
+}
+
 const BATCH_SIZE = 3;
 const RECALLS_PER_WORD = 2;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
@@ -884,7 +905,7 @@ const elements = {
   home: $("#homeLink"),
   start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
-  deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"),
+  deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
@@ -899,6 +920,8 @@ const elements = {
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
+
+elements.libraryWordCount.textContent = String(KANJI.length);
 
 const FAVORITES_STORAGE_KEY = "ink-run-favorites-v1";
 const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
@@ -1094,6 +1117,7 @@ function orderedSelectedDeckKeys() {
 function itemsForDeck(key) {
   if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(item.word));
   const deck = DECKS[key];
+  if (deck?.words) return deck.words.map((word) => KANJI_BY_WORD.get(word)).filter(Boolean);
   return deck ? KANJI.slice(deck.start, deck.end) : [];
 }
 
@@ -1594,12 +1618,15 @@ function speakWithBrowserVoice(reading, button) {
 function sourceDeckLabel(item) {
   const index = KANJI.indexOf(item);
   if (index < 0) return "";
+  let originalLabel = "";
   if (index < 110) {
     const start = 41 + Math.floor(index / 10) * 10;
-    return `LEVEL 1 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+    originalLabel = `LEVEL 1 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+  } else if (index < 170) {
+    const start = 1 + Math.floor((index - 110) / 10) * 10;
+    originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  const start = 1 + Math.floor((index - 110) / 10) * 10;
-  return `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
+  return [originalLabel, item.n5SourceLabel].filter(Boolean).join(" · ");
 }
 
 function pronounceItem(item, button) {
@@ -1737,6 +1764,31 @@ function openDeckDialog(focusSearch = false) {
   elements.deckDialog.showModal();
   if (focusSearch) window.requestAnimationFrame(() => elements.deckSearch.focus());
 }
+
+function appendN5DeckButtons() {
+  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
+    const groupLabel = document.createElement("span");
+    groupLabel.className = "deck-group-label";
+    groupLabel.textContent = "REAL KANA · JLPT N5";
+    container.append(groupLabel);
+
+    const keys = ["n5-all", ...Array.from({ length: 15 }, (_, index) => {
+      const start = index * 10 + 1;
+      return `n5-${start}-${start + 9}`;
+    })];
+    keys.forEach((key) => {
+      const button = document.createElement("button");
+      button.className = "deck-option n5-deck-option";
+      button.type = "button";
+      button.dataset.deckChoice = key;
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = DECKS[key].label;
+      container.append(button);
+    });
+  });
+}
+
+appendN5DeckButtons();
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.home.addEventListener("click", returnHome);

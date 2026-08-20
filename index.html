@@ -7,7 +7,7 @@
     <meta name="description" content="A fast kanji reading game for frequency level 1 words 41–150 and focused extra decks." />
     <title>INK RUN — Kanji Frequency + Extras</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=cloud-4" />
+    <link rel="stylesheet" href="styles.css?v=cloud-5" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -17,6 +17,7 @@
         <span>INK RUN</span>
       </a>
       <div class="top-actions">
+        <button class="text-button" id="searchButton" type="button">SEARCH</button>
         <button class="text-button" id="deckButton" type="button">DECK <span>110</span></button>
         <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
         <button class="text-button account-button" id="accountButton" type="button"><i aria-hidden="true"></i><span>SIGN IN</span></button>
@@ -213,6 +214,14 @@
         <button class="deck-option" type="button" data-deck-choice="extra-41-50" aria-pressed="false">EXTRA 41—50</button>
         <button class="deck-option" type="button" data-deck-choice="extra-51-60" aria-pressed="false">EXTRA 51—60</button>
       </div>
+      <div class="deck-search">
+        <label for="deckSearchInput">SEARCH ALL 170 WORDS · ENGLISH OR JAPANESE</label>
+        <div class="deck-search-control">
+          <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
+          <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
+        </div>
+        <p class="deck-search-status" id="deckSearchStatus" role="status" aria-live="polite">SHOWING YOUR SELECTED DECKS</p>
+      </div>
       <div class="deck-list" id="deckList"></div>
       <div class="deck-dialog-actions">
         <button class="study-button" id="dialogStudyButton" type="button">STUDY SELECTION <span>→</span></button>
@@ -254,6 +263,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=cloud-1" defer></script>
-    <script src="app.js?v=cloud-5" defer></script>
+    <script src="app.js?v=cloud-6" defer></script>
   </body>
 </html>

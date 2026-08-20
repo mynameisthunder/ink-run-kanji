@@ -883,7 +883,8 @@ const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
   start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
-  deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
@@ -959,6 +960,7 @@ const state = {
   locked: false,
   sound: true,
   cloudUser: null,
+  studyLabel: "ALL 110",
 };
 
 let cloudWriteQueue = Promise.resolve();
@@ -1246,12 +1248,13 @@ function renderWord(item) {
   elements.kanji.parentElement.classList.add("swap");
 }
 
-function prepareRun(mode) {
-  const deck = selectedDeck();
+function prepareRun(mode, deckOverride = null, studyLabelOverride = null) {
+  const deck = deckOverride ? [...deckOverride] : selectedDeck();
   Object.assign(state, {
     mode, deck, batchIndex: 0, studyIndex: 0, batch: deck, queue: mode === "finalRecall" ? shuffle(deck) : [], current: null,
     mastery: new Map(deck.map((item) => [item.word, 0])), mastered: new Set(), finalMastered: new Set(),
     streak: 0, bestStreak: 0, recalls: 0, reteaches: 0, locked: false,
+    studyLabel: studyLabelOverride ?? selectedDeckMeta().studyLabel,
   });
   elements.progress.style.background = "var(--red)";
   elements.feedback.classList.remove("show");
@@ -1266,6 +1269,19 @@ function startGame() {
 function startStudyDeck() {
   if (elements.deckDialog.open) elements.deckDialog.close();
   prepareRun("study");
+  showStudyCard();
+}
+
+function startDialogStudy() {
+  const query = elements.deckSearch.value.trim();
+  if (!query) {
+    startStudyDeck();
+    return;
+  }
+  const results = searchKanji(query);
+  if (results.length === 0) return;
+  elements.deckDialog.close();
+  prepareRun("study", results, `SEARCH · ${results.length} ${results.length === 1 ? "RESULT" : "RESULTS"}`);
   showStudyCard();
 }
 
@@ -1298,7 +1314,7 @@ function showStudyCard() {
   elements.recallForm.classList.add("hidden");
   elements.hint.classList.add("hidden");
   elements.meaning.textContent = "";
-  elements.roundLabel.textContent = `STUDY ${selectedDeckMeta().studyLabel}`;
+  elements.roundLabel.textContent = `STUDY ${state.studyLabel}`;
   elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
   elements.studyReading.textContent = item.reading;
   elements.studyLookup.href = `https://www.romajidesu.com/kanji/${encodeURIComponent(item.word)}`;
@@ -1659,8 +1675,31 @@ function playTone(kind) {
   });
 }
 
+function normalizeSearchText(value) {
+  return String(value ?? "").normalize("NFKC").toLocaleLowerCase();
+}
+
+function searchKanji(query) {
+  const terms = normalizeSearchText(query).trim().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return selectedDeck();
+  return KANJI.filter((item) => {
+    const breakdownText = item.breakdown.flat().join(" ");
+    const searchable = normalizeSearchText([
+      item.word,
+      item.reading,
+      ...(item.romaji ?? []),
+      item.meaning,
+      item.memory,
+      breakdownText,
+    ].join(" "));
+    return terms.every((term) => searchable.includes(term));
+  });
+}
+
 function populateDeck() {
-  elements.deckList.replaceChildren(...selectedDeck().map((item) => {
+  const query = elements.deckSearch.value.trim();
+  const items = query ? searchKanji(query) : selectedDeck();
+  const rows = items.map((item) => {
     const row = document.createElement("div");
     const hasCharacterBreakdown = item.breakdown.length > 1;
     row.className = `deck-item${hasCharacterBreakdown ? " deck-item-detailed" : ""}`;
@@ -1672,7 +1711,31 @@ function populateDeck() {
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));
     return row;
-  }));
+  });
+
+  if (rows.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "deck-empty";
+    empty.textContent = "NO MATCHES YET · TRY A KANJI, READING, ROMAJI, OR ENGLISH MEANING";
+    rows.push(empty);
+  }
+
+  elements.deckList.replaceChildren(...rows);
+  elements.clearDeckSearch.classList.toggle("hidden", !query);
+  elements.deckSearchStatus.textContent = query
+    ? `SEARCHING ALL ${KANJI.length} WORDS · ${items.length} ${items.length === 1 ? "MATCH" : "MATCHES"}`
+    : `SHOWING ${selectedDeckMeta().summary}`;
+  elements.dialogStudy.disabled = items.length === 0;
+  elements.dialogStudy.firstChild.textContent = query
+    ? `STUDY ${items.length} ${items.length === 1 ? "RESULT" : "RESULTS"} `
+    : "STUDY SELECTION ";
+}
+
+function openDeckDialog(focusSearch = false) {
+  elements.deckSearch.value = "";
+  populateDeck();
+  elements.deckDialog.showModal();
+  if (focusSearch) window.requestAnimationFrame(() => elements.deckSearch.focus());
 }
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
@@ -1680,7 +1743,12 @@ elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
 elements.studyStarred.addEventListener("click", startStarredStudy);
-elements.replay.addEventListener("click", startGame);
+elements.replay.addEventListener("click", () => {
+  const replayDeck = [...state.deck];
+  const replayLabel = state.studyLabel;
+  prepareRun("finalRecall", replayDeck, replayLabel);
+  nextRecall();
+});
 elements.studyNext.addEventListener("click", advanceStudy);
 elements.readingInput.addEventListener("input", convertReadingInput);
 elements.recallForm.addEventListener("submit", checkRecall);
@@ -1689,8 +1757,15 @@ elements.next.addEventListener("click", nextRecall);
 elements.pronounce.addEventListener("click", pronounceCurrentWord);
 elements.studyPronounce.addEventListener("click", pronounceStudyWord);
 elements.favorite.addEventListener("click", () => toggleFavorite(state.current));
-elements.review.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
-elements.deckButton.addEventListener("click", () => { populateDeck(); elements.deckDialog.showModal(); });
+elements.review.addEventListener("click", () => openDeckDialog());
+elements.search.addEventListener("click", () => openDeckDialog(true));
+elements.deckButton.addEventListener("click", () => openDeckDialog());
+elements.deckSearch.addEventListener("input", populateDeck);
+elements.clearDeckSearch.addEventListener("click", () => {
+  elements.deckSearch.value = "";
+  populateDeck();
+  elements.deckSearch.focus();
+});
 elements.account.addEventListener("click", () => elements.accountDialog.showModal());
 elements.closeAccount.addEventListener("click", () => elements.accountDialog.close());
 elements.accountDialog.addEventListener("click", (event) => {
@@ -1723,7 +1798,7 @@ elements.signOut.addEventListener("click", async () => {
     elements.signOut.disabled = false;
   }
 });
-elements.dialogStudy.addEventListener("click", startStudyDeck);
+elements.dialogStudy.addEventListener("click", startDialogStudy);
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
   if (event.target === elements.deckDialog) elements.deckDialog.close();

@@ -898,6 +898,7 @@ for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
 
 const BATCH_SIZE = 3;
 const RECALLS_PER_WORD = 2;
+const RECOVERY_STREAK = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 
 const $ = (selector) => document.querySelector(selector);
@@ -955,6 +956,7 @@ function loadWordProgress() {
       seenCount: Math.max(0, Number(value?.seenCount) || 0),
       correctCount: Math.max(0, Number(value?.correctCount) || 0),
       wrongCount: Math.max(0, Number(value?.wrongCount) || 0),
+      correctStreak: Math.max(0, Number(value?.correctStreak) || 0),
       lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
       lastReviewedAt: value?.lastReviewedAt || "",
     }]));
@@ -1016,13 +1018,12 @@ const state = {
 
 function progressFor(word) {
   return state.wordProgress.get(word) ?? {
-    seenCount: 0, correctCount: 0, wrongCount: 0, lastResult: "", lastReviewedAt: "",
+    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, lastResult: "", lastReviewedAt: "",
   };
 }
 
 function needsWork(stats) {
-  const attempts = stats.correctCount + stats.wrongCount;
-  return stats.wrongCount > 0 && (stats.lastResult === "wrong" || stats.correctCount / attempts < .8);
+  return stats.wrongCount > 0 && stats.correctStreak < RECOVERY_STREAK;
 }
 
 function markWordSeen(word) {
@@ -1042,6 +1043,7 @@ function recordLocalAttempt(word, correct) {
     seenCount: Math.max(1, stats.seenCount),
     correctCount: stats.correctCount + (correct ? 1 : 0),
     wrongCount: stats.wrongCount + (correct ? 0 : 1),
+    correctStreak: correct ? stats.correctStreak + 1 : 0,
     lastResult: correct ? "correct" : "wrong",
     lastReviewedAt: new Date().toISOString(),
   });
@@ -1054,7 +1056,8 @@ function progressLabel(item) {
   const attempts = stats.correctCount + stats.wrongCount;
   if (!attempts) return stats.seenCount ? "SEEN · NOT TESTED" : "";
   const accuracy = Math.round((stats.correctCount / attempts) * 100);
-  return `${stats.correctCount}/${attempts} CORRECT · ${accuracy}%${needsWork(stats) ? " · NEEDS WORK" : ""}`;
+  const recovery = needsWork(stats) ? ` · NEEDS WORK · ${stats.correctStreak}/${RECOVERY_STREAK} RECOVERY` : "";
+  return `${stats.correctCount}/${attempts} CORRECT · ${accuracy}%${recovery}`;
 }
 
 let cloudWriteQueue = Promise.resolve();

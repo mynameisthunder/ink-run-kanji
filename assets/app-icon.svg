@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#284fef"/>
+  <path d="M0 366 512 230v282H0Z" fill="#1737bd"/>
+  <rect x="374" y="52" width="88" height="88" rx="12" fill="#f04b2f"/>
+  <text x="248" y="376" fill="#f2eddf" font-family="Hiragino Kaku Gothic ProN, Hiragino Sans, sans-serif" font-size="328" font-weight="900" text-anchor="middle">墨</text>
+</svg>

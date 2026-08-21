@@ -1,0 +1,28 @@
+{
+  "name": "Ink Run — Kanji Recall Training",
+  "short_name": "Ink Run",
+  "description": "Learn Japanese kanji readings through active recall, focused decks, pronunciation, and smart review.",
+  "id": "/ink-run-kanji/",
+  "start_url": "/ink-run-kanji/",
+  "scope": "/ink-run-kanji/",
+  "lang": "en",
+  "dir": "ltr",
+  "display": "standalone",
+  "background_color": "#f2eddf",
+  "theme_color": "#f2eddf",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

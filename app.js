@@ -899,6 +899,8 @@ for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
 const BATCH_SIZE = 3;
 const RECALLS_PER_WORD = 2;
 const RECOVERY_STREAK = 3;
+const NEEDS_WORK_ENTRY_ACCURACY = .6;
+const NEEDS_WORK_EXIT_ACCURACY = .75;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 
 const $ = (selector) => document.querySelector(selector);
@@ -952,15 +954,24 @@ function loadWordProgress() {
   try {
     const stored = JSON.parse(window.localStorage.getItem(WORD_PROGRESS_STORAGE_KEY) ?? "{}");
     const validWords = new Set(KANJI.map((item) => item.word));
-    return new Map(Object.entries(stored).filter(([word]) => validWords.has(word)).map(([word, value]) => [word, {
-      seenCount: Math.max(0, Number(value?.seenCount) || 0),
-      correctCount: Math.max(0, Number(value?.correctCount) || 0),
-      wrongCount: Math.max(0, Number(value?.wrongCount) || 0),
-      correctStreak: Math.max(0, Number(value?.correctStreak) || 0),
-      reviewDismissed: Boolean(value?.reviewDismissed),
-      lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
-      lastReviewedAt: value?.lastReviewedAt || "",
-    }]));
+    return new Map(Object.entries(stored).filter(([word]) => validWords.has(word)).map(([word, value]) => {
+      const correctCount = Math.max(0, Number(value?.correctCount) || 0);
+      const wrongCount = Math.max(0, Number(value?.wrongCount) || 0);
+      const attempts = correctCount + wrongCount;
+      const reviewDismissed = Boolean(value?.reviewDismissed);
+      const reviewRequired = Boolean(value?.reviewRequired)
+        || (!reviewDismissed && wrongCount > 0 && correctCount / attempts <= NEEDS_WORK_ENTRY_ACCURACY);
+      return [word, {
+        seenCount: Math.max(0, Number(value?.seenCount) || 0),
+        correctCount,
+        wrongCount,
+        correctStreak: Math.max(0, Number(value?.correctStreak) || 0),
+        reviewRequired,
+        reviewDismissed,
+        lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
+        lastReviewedAt: value?.lastReviewedAt || "",
+      }];
+    }));
   } catch {
     return new Map();
   }
@@ -1019,12 +1030,14 @@ const state = {
 
 function progressFor(word) {
   return state.wordProgress.get(word) ?? {
-    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, reviewDismissed: false, lastResult: "", lastReviewedAt: "",
+    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, reviewRequired: false, reviewDismissed: false, lastResult: "", lastReviewedAt: "",
   };
 }
 
 function needsWork(stats) {
-  return stats.wrongCount > 0 && !stats.reviewDismissed && stats.correctStreak < RECOVERY_STREAK;
+  const attempts = stats.correctCount + stats.wrongCount;
+  if (!attempts || !stats.reviewRequired || stats.reviewDismissed) return false;
+  return stats.correctStreak < RECOVERY_STREAK && stats.correctCount / attempts < NEEDS_WORK_EXIT_ACCURACY;
 }
 
 function markWordSeen(word) {
@@ -1039,13 +1052,23 @@ function markWordSeen(word) {
 
 function recordLocalAttempt(word, correct) {
   const stats = progressFor(word);
+  const correctCount = stats.correctCount + (correct ? 1 : 0);
+  const wrongCount = stats.wrongCount + (correct ? 0 : 1);
+  const correctStreak = correct ? stats.correctStreak + 1 : 0;
+  const accuracy = correctCount / (correctCount + wrongCount);
+  const currentlyNeedsWork = needsWork(stats);
+  const graduated = correctStreak >= RECOVERY_STREAK || accuracy >= NEEDS_WORK_EXIT_ACCURACY;
+  const reviewRequired = correct
+    ? currentlyNeedsWork && !graduated
+    : currentlyNeedsWork || accuracy <= NEEDS_WORK_ENTRY_ACCURACY;
   state.wordProgress.set(word, {
     ...stats,
     seenCount: Math.max(1, stats.seenCount),
-    correctCount: stats.correctCount + (correct ? 1 : 0),
-    wrongCount: stats.wrongCount + (correct ? 0 : 1),
-    correctStreak: correct ? stats.correctStreak + 1 : 0,
-    reviewDismissed: correct ? stats.reviewDismissed : false,
+    correctCount,
+    wrongCount,
+    correctStreak,
+    reviewRequired,
+    reviewDismissed: correct || accuracy > NEEDS_WORK_ENTRY_ACCURACY ? stats.reviewDismissed : false,
     lastResult: correct ? "correct" : "wrong",
     lastReviewedAt: new Date().toISOString(),
   });
@@ -1064,7 +1087,7 @@ function progressLabel(item) {
 
 function dismissNeedsWork(item) {
   const stats = progressFor(item.word);
-  state.wordProgress.set(item.word, { ...stats, reviewDismissed: true });
+  state.wordProgress.set(item.word, { ...stats, reviewRequired: false, reviewDismissed: true });
   saveWordProgress(state.wordProgress);
   updateProgressControls();
   populateDeck();
@@ -1112,11 +1135,16 @@ async function synchronizeCloudProgress() {
       const remoteCorrect = Math.max(0, Number(row.correct_count) || 0);
       const remoteWrong = Math.max(0, Number(row.wrong_count) || 0);
       const remoteAttempts = remoteCorrect + remoteWrong;
+      const correctCount = Math.max(local.correctCount, remoteCorrect);
+      const wrongCount = Math.max(local.wrongCount, remoteWrong);
+      const attempts = correctCount + wrongCount;
       state.wordProgress.set(row.word, {
         ...local,
         seenCount: Math.max(local.seenCount, remoteAttempts ? 1 : 0),
-        correctCount: Math.max(local.correctCount, remoteCorrect),
-        wrongCount: Math.max(local.wrongCount, remoteWrong),
+        correctCount,
+        wrongCount,
+        reviewRequired: local.reviewRequired
+          || (!local.reviewDismissed && wrongCount > 0 && correctCount / attempts <= NEEDS_WORK_ENTRY_ACCURACY),
         lastReviewedAt: [local.lastReviewedAt, row.last_reviewed_at].filter(Boolean).sort().at(-1) ?? "",
       });
     });
@@ -1307,7 +1335,7 @@ function updateProgressControls() {
   });
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
     button.disabled = needsWorkCount === 0;
-    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} awaiting a three-recall recovery` : "Missed words will appear here";
+    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} at 60% recall or lower` : "Words at 60% recall or lower will appear here";
   });
 }
 

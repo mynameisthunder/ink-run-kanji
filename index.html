@@ -38,7 +38,7 @@
     <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=progress-1" />
+    <link rel="stylesheet" href="styles.css?v=search-head-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -234,9 +234,17 @@
 
     <dialog class="deck-dialog" id="deckDialog">
       <div class="dialog-head">
-        <div>
+        <div class="dialog-title">
           <span class="eyebrow">YOUR LOADOUT</span>
           <h2 id="deckDialogTitle">SET 041—150</h2>
+        </div>
+        <div class="deck-search">
+          <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">307</span> WORDS · ENGLISH OR JAPANESE</label>
+          <div class="deck-search-control">
+            <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
+            <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
+          </div>
+          <p class="deck-search-status" id="deckSearchStatus" role="status" aria-live="polite">SHOWING YOUR SELECTED DECKS</p>
         </div>
         <button class="close-button" id="closeDeckButton" type="button" aria-label="Close deck">×</button>
       </div>
@@ -262,14 +270,6 @@
         <button class="deck-option" type="button" data-deck-choice="extra-31-40" aria-pressed="false">EXTRA 31—40</button>
         <button class="deck-option" type="button" data-deck-choice="extra-41-50" aria-pressed="false">EXTRA 41—50</button>
         <button class="deck-option" type="button" data-deck-choice="extra-51-60" aria-pressed="false">EXTRA 51—60</button>
-      </div>
-      <div class="deck-search">
-        <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">307</span> WORDS · ENGLISH OR JAPANESE</label>
-        <div class="deck-search-control">
-          <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
-          <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
-        </div>
-        <p class="deck-search-status" id="deckSearchStatus" role="status" aria-live="polite">SHOWING YOUR SELECTED DECKS</p>
       </div>
       <div class="deck-list" id="deckList"></div>
       <div class="deck-dialog-actions">

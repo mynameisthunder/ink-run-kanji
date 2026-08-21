@@ -710,17 +710,18 @@ kbd { font: inherit; color: var(--red); }
 .deck-progress.needs-work { color: var(--red); }
 .deck-review-dismiss {
   position: absolute;
-  left: 22px;
-  bottom: 22px;
+  top: 20px;
+  right: 52px;
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(23,23,20,.42);
-  font: 600 7px var(--mono);
+  color: var(--red);
+  font: 600 8px var(--mono);
   letter-spacing: .05em;
+  opacity: .52;
   cursor: pointer;
 }
-.deck-review-dismiss:hover, .deck-review-dismiss:focus-visible { color: var(--red); }
+.deck-review-dismiss:hover, .deck-review-dismiss:focus-visible { opacity: 1; }
 .deck-dialog-actions { padding: 18px 28px 0; }
 .deck-dialog-actions .study-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }

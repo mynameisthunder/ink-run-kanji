@@ -957,6 +957,7 @@ function loadWordProgress() {
       correctCount: Math.max(0, Number(value?.correctCount) || 0),
       wrongCount: Math.max(0, Number(value?.wrongCount) || 0),
       correctStreak: Math.max(0, Number(value?.correctStreak) || 0),
+      reviewDismissed: Boolean(value?.reviewDismissed),
       lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
       lastReviewedAt: value?.lastReviewedAt || "",
     }]));
@@ -1018,12 +1019,12 @@ const state = {
 
 function progressFor(word) {
   return state.wordProgress.get(word) ?? {
-    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, lastResult: "", lastReviewedAt: "",
+    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, reviewDismissed: false, lastResult: "", lastReviewedAt: "",
   };
 }
 
 function needsWork(stats) {
-  return stats.wrongCount > 0 && stats.correctStreak < RECOVERY_STREAK;
+  return stats.wrongCount > 0 && !stats.reviewDismissed && stats.correctStreak < RECOVERY_STREAK;
 }
 
 function markWordSeen(word) {
@@ -1044,6 +1045,7 @@ function recordLocalAttempt(word, correct) {
     correctCount: stats.correctCount + (correct ? 1 : 0),
     wrongCount: stats.wrongCount + (correct ? 0 : 1),
     correctStreak: correct ? stats.correctStreak + 1 : 0,
+    reviewDismissed: correct ? stats.reviewDismissed : false,
     lastResult: correct ? "correct" : "wrong",
     lastReviewedAt: new Date().toISOString(),
   });
@@ -1058,6 +1060,14 @@ function progressLabel(item) {
   const accuracy = Math.round((stats.correctCount / attempts) * 100);
   const recovery = needsWork(stats) ? ` · NEEDS WORK · ${stats.correctStreak}/${RECOVERY_STREAK} RECOVERY` : "";
   return `${stats.correctCount}/${attempts} CORRECT · ${accuracy}%${recovery}`;
+}
+
+function dismissNeedsWork(item) {
+  const stats = progressFor(item.word);
+  state.wordProgress.set(item.word, { ...stats, reviewDismissed: true });
+  saveWordProgress(state.wordProgress);
+  updateProgressControls();
+  populateDeck();
 }
 
 let cloudWriteQueue = Promise.resolve();
@@ -1297,7 +1307,7 @@ function updateProgressControls() {
   });
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
     button.disabled = needsWorkCount === 0;
-    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} below 80% recall` : "Missed words will appear here";
+    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} awaiting a three-recall recovery` : "Missed words will appear here";
   });
 }
 
@@ -1859,14 +1869,16 @@ function populateDeck() {
     const row = document.createElement("div");
     const hasCharacterBreakdown = item.breakdown.length > 1;
     const trackedProgress = progressLabel(item);
+    const itemNeedsWork = needsWork(progressFor(item.word));
     row.className = `deck-item${hasCharacterBreakdown ? " deck-item-detailed" : ""}`;
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${needsWork(progressFor(item.word)) ? " needs-work" : ""}">${trackedProgress}</span>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${itemNeedsWork ? " needs-work" : ""}">${trackedProgress}</span>` : ""}${itemNeedsWork ? `<button class="deck-review-dismiss" type="button" aria-label="Remove ${item.word} from Needs Work">REMOVE FROM NEEDS WORK ×</button>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));
+    row.querySelector(".deck-review-dismiss")?.addEventListener("click", () => dismissNeedsWork(item));
     return row;
   });
 

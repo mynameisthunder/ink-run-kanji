@@ -918,7 +918,7 @@ const elements = {
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
-  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"),
+  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
@@ -1710,6 +1710,8 @@ function reteachCurrent() {
 function showFeedback(title, item, includeBreakdown) {
   elements.feedbackTitle.textContent = title;
   elements.feedbackReading.textContent = item.reading;
+  elements.feedbackLookup.href = `https://www.romajidesu.com/kanji/${encodeURIComponent(item.word)}`;
+  elements.feedbackLookup.setAttribute("aria-label", `Look up ${item.word} on RomajiDesu`);
   elements.pronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.feedbackMeaning.textContent = item.meaning;
   elements.feedback.classList.add("detailed");

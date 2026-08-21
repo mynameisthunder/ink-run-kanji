@@ -517,6 +517,14 @@ kbd { font: inherit; color: var(--red); }
 .feedback-head strong { font: 600 12px var(--mono); letter-spacing: .05em; }
 .feedback-reading-tools { display: flex; align-items: center; gap: 10px; }
 .feedback-reading-tools > span { font: 700 24px var(--jp); }
+.feedback-lookup-link {
+  color: var(--paper);
+  font: 700 18px/1 var(--mono);
+  text-decoration: none;
+  opacity: .4;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.feedback-lookup-link:hover, .feedback-lookup-link:focus-visible { opacity: 1; transform: translate(2px, -2px); }
 .pronounce-button {
   width: 36px;
   height: 36px;

@@ -371,7 +371,7 @@ main { min-height: calc(100vh - 82px); }
 .prompt-favorite-button:hover,
 .prompt-favorite-button:focus-visible { opacity: 1; }
 
-.kanji-wrap h2.long { font-size: clamp(80px, 11vw, 170px); letter-spacing: -.16em; }
+.kanji-wrap h2.long { font-size: clamp(80px, 11vw, 170px); letter-spacing: 1px; }
 .kanji-wrap.swap { animation: kanji-swap 360ms cubic-bezier(.2,.8,.2,1) both; }
 
 .accent-shape {

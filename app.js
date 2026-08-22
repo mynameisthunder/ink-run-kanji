@@ -855,11 +855,14 @@ const REAL_KANA_N5_WORDS = window.INK_RUN_N5_WORDS ?? [];
 const REAL_KANA_N5_IMPORTS = window.INK_RUN_N5_IMPORTS ?? [];
 const FREQUENCY_2_WORDS = window.INK_RUN_FREQUENCY_2_WORDS ?? [];
 const FREQUENCY_2_IMPORTS = window.INK_RUN_FREQUENCY_2_IMPORTS ?? [];
+const LEVEL_2_WORDS = window.INK_RUN_LEVEL_2_WORDS ?? [];
+const LEVEL_2_IMPORTS = window.INK_RUN_LEVEL_2_IMPORTS ?? [];
 const NUMBER_GROUPS = window.INK_RUN_NUMBER_GROUPS ?? [];
 const NUMBER_WORDS = window.INK_RUN_NUMBER_WORDS ?? [];
 const NUMBER_IMPORTS = window.INK_RUN_NUMBER_IMPORTS ?? [];
 KANJI.push(...REAL_KANA_N5_IMPORTS);
 KANJI.push(...FREQUENCY_2_IMPORTS);
+KANJI.push(...LEVEL_2_IMPORTS);
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
@@ -898,6 +901,12 @@ FREQUENCY_2_WORDS.forEach((word, index) => {
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
   item.frequency2SourceLabel = `LEVEL 1:2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
+LEVEL_2_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  item.level2SourceLabel = `LEVEL 2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
 });
 NUMBER_GROUPS.forEach((group) => {
   group.words.forEach((word) => {
@@ -946,6 +955,15 @@ for (let index = 0; index < FREQUENCY_2_WORDS.length; index += 10) {
   const key = `frequency-2-${start}-${end}`;
   const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
   DECKS[key] = { label: `L1:2 ${range}`, setLabel: `FREQUENCY · LEVEL 1:2 · ${range}`, words: FREQUENCY_2_WORDS.slice(index, end) };
+}
+
+DECKS["level-2-all"] = { label: `L2 ALL ${LEVEL_2_WORDS.length}`, setLabel: `FREQUENCY · LEVEL 2 · ALL ${LEVEL_2_WORDS.length}`, words: LEVEL_2_WORDS };
+for (let index = 0; index < LEVEL_2_WORDS.length; index += 10) {
+  const start = index + 1;
+  const end = Math.min(index + 10, LEVEL_2_WORDS.length);
+  const key = `level-2-${start}-${end}`;
+  const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  DECKS[key] = { label: `L2 ${range}`, setLabel: `FREQUENCY · LEVEL 2 · ${range}`, words: LEVEL_2_WORDS.slice(index, end) };
 }
 
 DECKS["numbers-all"] = { label: `NUM ALL ${NUMBER_WORDS.length}`, setLabel: `NUMBERS · ALL ${NUMBER_WORDS.length}`, words: NUMBER_WORDS.map((word) => NUMBER_DECK_KEYS.get(word) ?? word) };
@@ -1859,7 +1877,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel, item.numberSourceLabel].filter(Boolean).join(" · ");
+  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel, item.level2SourceLabel, item.numberSourceLabel].filter(Boolean).join(" · ");
 }
 
 function pronounceItem(item, button) {
@@ -2011,10 +2029,12 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `frequency-2-${start}-${start + 9}`;
     })];
+    const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
+      ["REAL KANA · FREQUENCY LEVEL 2", level2Keys, "level-2-deck-option"],
       ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option"],
     ].forEach(([label, keys, className]) => {
       const groupLabel = document.createElement("span");

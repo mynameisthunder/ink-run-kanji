@@ -876,6 +876,7 @@ NUMBER_IMPORTS.forEach((item) => {
     importedItems.set(item.word, item);
     NUMBER_DECK_KEYS.set(item.word, item.word);
   } else if (existing.reading === item.reading) {
+    existing.audioSrc ??= item.audioSrc;
     NUMBER_DECK_KEYS.set(item.word, item.word);
   } else {
     item.studyKey = `numbers:${item.word}`;
@@ -1909,13 +1910,13 @@ function pronounceItem(item, button) {
   pronunciationAudio?.pause();
   activePronounceButton?.classList.remove("speaking");
   activePronounceButton = button;
-  if (!BUNDLED_AUDIO_ITEMS.has(item)) {
+  if (!item.audioSrc && !BUNDLED_AUDIO_ITEMS.has(item)) {
     pronunciationAudio = null;
     speakWithBrowserVoice(reading, button);
     return;
   }
   const audioNumber = KANJI.indexOf(item) + 41;
-  pronunciationAudio = new Audio(`audio/${audioNumber}.wav`);
+  pronunciationAudio = new Audio(item.audioSrc ?? `audio/${audioNumber}.wav`);
   pronunciationAudio.addEventListener("play", () => button.classList.add("speaking"));
   pronunciationAudio.addEventListener("ended", () => button.classList.remove("speaking"));
   pronunciationAudio.addEventListener("error", () => {

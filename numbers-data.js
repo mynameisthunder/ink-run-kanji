@@ -211,7 +211,8 @@
     return result;
   };
 
-  groups.forEach((group) => group.words.forEach((item) => {
+  groups.forEach((group) => group.words.forEach((item, index) => {
+    item.audioSrc = `audio/numbers/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;
     item.romaji = [romanize(item.reading)];
     item.memory = `${item.breakdown.map(([character, part]) => `${character} is ${part || "part of the special reading"}`).join(" and ")}: ${item.reading}.`;
   }));

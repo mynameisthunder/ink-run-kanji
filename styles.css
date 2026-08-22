@@ -153,7 +153,7 @@ main { min-height: calc(100vh - 82px); }
   line-height: 1.35;
 }
 
-.deck-picker { position: relative; z-index: 1; width: min(680px, 100%); margin-bottom: 18px; }
+.deck-picker { position: relative; z-index: 1; width: 100%; margin-bottom: 18px; }
 .picker-label { display: block; margin-bottom: 8px; font: 600 9px var(--mono); letter-spacing: .08em; }
 .deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }
 .deck-group-label {

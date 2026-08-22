@@ -1164,6 +1164,17 @@ function progressLabel(item) {
   return `${stats.correctCount}/${attempts} CORRECT · ${accuracy}%${recovery}`;
 }
 
+function wordIsMastered(item) {
+  const stats = progressFor(itemKey(item));
+  return stats.correctCount >= RECALLS_PER_WORD + 1 && !needsWork(stats);
+}
+
+function deckIsMastered(key) {
+  if (["favorites", "done", "needs-work"].includes(key)) return false;
+  const items = itemsForDeck(key);
+  return items.length > 0 && items.every(wordIsMastered);
+}
+
 function dismissNeedsWork(item) {
   const key = itemKey(item);
   const stats = progressFor(key);
@@ -1417,6 +1428,18 @@ function updateProgressControls() {
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
     button.disabled = needsWorkCount === 0;
     button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} at 60% recall or lower` : "Words at 60% recall or lower will appear here";
+  });
+  document.querySelectorAll("[data-deck-choice]").forEach((button) => {
+    const key = button.dataset.deckChoice;
+    const mastered = deckIsMastered(key);
+    button.classList.toggle("mastered", mastered);
+    if (mastered) {
+      button.title = `${DECKS[key].label} mastered`;
+      button.setAttribute("aria-label", `${DECKS[key].label}, mastered`);
+    } else if (!["favorites", "done", "needs-work"].includes(key)) {
+      button.removeAttribute("title");
+      button.removeAttribute("aria-label");
+    }
   });
 }
 

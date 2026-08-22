@@ -165,6 +165,7 @@ main { min-height: calc(100vh - 82px); }
 }
 .n5-deck-option { border-color: var(--blue); }
 .deck-option {
+  position: relative;
   min-height: 36px;
   padding: 8px 12px;
   border: 1px solid var(--ink);
@@ -174,6 +175,17 @@ main { min-height: calc(100vh - 82px); }
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
+.deck-option.mastered { padding-right: 24px; }
+.deck-option.mastered::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--green);
+  font: 700 11px var(--mono);
+  opacity: .68;
+}
+.deck-option.mastered.active::after { color: var(--yellow); opacity: .9; }
 .deck-option small { color: var(--red); font: inherit; }
 .deck-option:hover { transform: translateY(-2px); }
 .deck-option:disabled { opacity: .4; cursor: not-allowed; transform: none; }

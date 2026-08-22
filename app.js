@@ -855,10 +855,38 @@ const REAL_KANA_N5_WORDS = window.INK_RUN_N5_WORDS ?? [];
 const REAL_KANA_N5_IMPORTS = window.INK_RUN_N5_IMPORTS ?? [];
 const FREQUENCY_2_WORDS = window.INK_RUN_FREQUENCY_2_WORDS ?? [];
 const FREQUENCY_2_IMPORTS = window.INK_RUN_FREQUENCY_2_IMPORTS ?? [];
+const NUMBER_GROUPS = window.INK_RUN_NUMBER_GROUPS ?? [];
+const NUMBER_WORDS = window.INK_RUN_NUMBER_WORDS ?? [];
+const NUMBER_IMPORTS = window.INK_RUN_NUMBER_IMPORTS ?? [];
 KANJI.push(...REAL_KANA_N5_IMPORTS);
 KANJI.push(...FREQUENCY_2_IMPORTS);
+const importedItems = new Map(KANJI.map((item) => [item.word, item]));
+const NUMBER_DECK_KEYS = new Map();
+NUMBER_IMPORTS.forEach((item) => {
+  const existing = importedItems.get(item.word);
+  const existingReadings = new Set([
+    ...(existing?.kana ?? []),
+    ...String(existing?.reading ?? "").split(/[、,]/),
+  ]);
+  if (!existing) {
+    KANJI.push(item);
+    importedItems.set(item.word, item);
+    NUMBER_DECK_KEYS.set(item.word, item.word);
+  } else if (existingReadings.has(item.reading)) {
+    NUMBER_DECK_KEYS.set(item.word, item.word);
+  } else {
+    item.studyKey = `numbers:${item.word}`;
+    KANJI.push(item);
+    NUMBER_DECK_KEYS.set(item.word, item.studyKey);
+  }
+});
 
-const KANJI_BY_WORD = new Map(KANJI.map((item) => [item.word, item]));
+const itemKey = (item) => item.studyKey ?? item.word;
+const KANJI_BY_WORD = new Map();
+KANJI.forEach((item) => {
+  if (!KANJI_BY_WORD.has(item.word)) KANJI_BY_WORD.set(item.word, item);
+  KANJI_BY_WORD.set(itemKey(item), item);
+});
 REAL_KANA_N5_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
   if (!item) return;
@@ -870,6 +898,12 @@ FREQUENCY_2_WORDS.forEach((word, index) => {
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
   item.frequency2SourceLabel = `LEVEL 1:2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
+NUMBER_GROUPS.forEach((group) => {
+  group.words.forEach((word) => {
+    const item = KANJI_BY_WORD.get(NUMBER_DECK_KEYS.get(word) ?? word);
+    if (item) item.numberSourceLabel = `NUMBERS · ${group.label}`;
+  });
 });
 
 const DECKS = {
@@ -914,6 +948,15 @@ for (let index = 0; index < FREQUENCY_2_WORDS.length; index += 10) {
   DECKS[key] = { label: `L1:2 ${range}`, setLabel: `FREQUENCY · LEVEL 1:2 · ${range}`, words: FREQUENCY_2_WORDS.slice(index, end) };
 }
 
+DECKS["numbers-all"] = { label: `NUM ALL ${NUMBER_WORDS.length}`, setLabel: `NUMBERS · ALL ${NUMBER_WORDS.length}`, words: NUMBER_WORDS.map((word) => NUMBER_DECK_KEYS.get(word) ?? word) };
+NUMBER_GROUPS.forEach((group) => {
+  DECKS[`numbers-${group.key}`] = {
+    label: `NUM ${group.label.split(" · ")[0]} ${group.words.length}`,
+    setLabel: `NUMBERS · ${group.label}`,
+    words: group.words.map((word) => NUMBER_DECK_KEYS.get(word) ?? word),
+  };
+});
+
 const BATCH_SIZE = 3;
 const RECALLS_PER_WORD = 2;
 const RECOVERY_STREAK = 3;
@@ -953,7 +996,7 @@ const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
 function loadFavoriteWords() {
   try {
     const stored = JSON.parse(window.localStorage.getItem(FAVORITES_STORAGE_KEY) ?? "[]");
-    const validWords = new Set(KANJI.map((item) => item.word));
+    const validWords = new Set(KANJI.map(itemKey));
     return new Set(Array.isArray(stored) ? stored.filter((word) => validWords.has(word)) : []);
   } catch {
     return new Set();
@@ -971,7 +1014,7 @@ function saveFavoriteWords(words) {
 function loadWordProgress() {
   try {
     const stored = JSON.parse(window.localStorage.getItem(WORD_PROGRESS_STORAGE_KEY) ?? "{}");
-    const validWords = new Set(KANJI.map((item) => item.word));
+    const validWords = new Set(KANJI.map(itemKey));
     return new Map(Object.entries(stored).filter(([word]) => validWords.has(word)).map(([word, value]) => {
       const correctCount = Math.max(0, Number(value?.correctCount) || 0);
       const wrongCount = Math.max(0, Number(value?.wrongCount) || 0);
@@ -1095,7 +1138,7 @@ function recordLocalAttempt(word, correct) {
 }
 
 function progressLabel(item) {
-  const stats = progressFor(item.word);
+  const stats = progressFor(itemKey(item));
   const attempts = stats.correctCount + stats.wrongCount;
   if (!attempts) return stats.seenCount ? "SEEN · NOT TESTED" : "";
   const accuracy = Math.round((stats.correctCount / attempts) * 100);
@@ -1104,8 +1147,9 @@ function progressLabel(item) {
 }
 
 function dismissNeedsWork(item) {
-  const stats = progressFor(item.word);
-  state.wordProgress.set(item.word, { ...stats, reviewRequired: false, reviewDismissed: true });
+  const key = itemKey(item);
+  const stats = progressFor(key);
+  state.wordProgress.set(key, { ...stats, reviewRequired: false, reviewDismissed: true });
   saveWordProgress(state.wordProgress);
   updateProgressControls();
   populateDeck();
@@ -1147,7 +1191,7 @@ async function synchronizeCloudProgress() {
   activeCloudSync = (async () => {
     setCloudStatus("SYNCING LOCAL + CLOUD PROGRESS…", "syncing");
     const rows = await window.inkRunCloud.loadProgress();
-    const validWords = new Set(KANJI.map((item) => item.word));
+    const validWords = new Set(KANJI.map(itemKey));
     rows.filter((row) => validWords.has(row.word)).forEach((row) => {
       const local = progressFor(row.word);
       const remoteCorrect = Math.max(0, Number(row.correct_count) || 0);
@@ -1259,13 +1303,13 @@ function orderedSelectedDeckKeys() {
 }
 
 function itemsForDeck(key) {
-  if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(item.word));
-  if (key === "done") return KANJI.filter((item) => progressFor(item.word).seenCount > 0)
-    .sort((a, b) => progressFor(b.word).lastReviewedAt.localeCompare(progressFor(a.word).lastReviewedAt));
-  if (key === "needs-work") return KANJI.filter((item) => needsWork(progressFor(item.word)))
+  if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(itemKey(item)));
+  if (key === "done") return KANJI.filter((item) => progressFor(itemKey(item)).seenCount > 0)
+    .sort((a, b) => progressFor(itemKey(b)).lastReviewedAt.localeCompare(progressFor(itemKey(a)).lastReviewedAt));
+  if (key === "needs-work") return KANJI.filter((item) => needsWork(progressFor(itemKey(item))))
     .sort((a, b) => {
-      const aStats = progressFor(a.word);
-      const bStats = progressFor(b.word);
+      const aStats = progressFor(itemKey(a));
+      const bStats = progressFor(itemKey(b));
       const aRate = aStats.correctCount / (aStats.correctCount + aStats.wrongCount);
       const bRate = bStats.correctCount / (bStats.correctCount + bStats.wrongCount);
       return aRate - bRate || bStats.wrongCount - aStats.wrongCount;
@@ -1279,8 +1323,9 @@ function selectedDeck() {
   if (state.selectedDeckKeys.has("all")) return itemsForDeck("all");
   const seen = new Set();
   return orderedSelectedDeckKeys().flatMap(itemsForDeck).filter((item) => {
-    if (seen.has(item.word)) return false;
-    seen.add(item.word);
+    const key = itemKey(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }
@@ -1319,7 +1364,7 @@ function selectedDeckMeta() {
 
 function updateFavoriteButton(button, item) {
   if (!button) return;
-  const active = Boolean(item && state.favoriteWords.has(item.word));
+  const active = Boolean(item && state.favoriteWords.has(itemKey(item)));
   button.disabled = !item;
   button.textContent = active ? "★" : "☆";
   button.classList.toggle("active", active);
@@ -1398,11 +1443,12 @@ function toggleDeckSelection(key) {
 
 function toggleFavorite(item) {
   if (!item) return;
-  if (state.favoriteWords.has(item.word)) state.favoriteWords.delete(item.word);
-  else state.favoriteWords.add(item.word);
-  const favorite = state.favoriteWords.has(item.word);
+  const key = itemKey(item);
+  if (state.favoriteWords.has(key)) state.favoriteWords.delete(key);
+  else state.favoriteWords.add(key);
+  const favorite = state.favoriteWords.has(key);
   saveFavoriteWords(state.favoriteWords);
-  queueFavoriteSync(item.word, favorite);
+  queueFavoriteSync(key, favorite);
 
   if (state.favoriteWords.size === 0 && state.selectedDeckKeys.has("favorites")) {
     const next = new Set(state.selectedDeckKeys);
@@ -1456,7 +1502,7 @@ function prepareRun(mode, deckOverride = null, studyLabelOverride = null) {
   const deck = deckOverride ? [...deckOverride] : selectedDeck();
   Object.assign(state, {
     mode, deck, batchIndex: 0, studyIndex: 0, batch: deck, queue: mode === "finalRecall" ? shuffle(deck) : [], current: null,
-    mastery: new Map(deck.map((item) => [item.word, 0])), mastered: new Set(), finalMastered: new Set(),
+    mastery: new Map(deck.map((item) => [itemKey(item), 0])), mastered: new Set(), finalMastered: new Set(),
     streak: 0, bestStreak: 0, recalls: 0, reteaches: 0, locked: false,
     studyLabel: studyLabelOverride ?? selectedDeckMeta().studyLabel,
   });
@@ -1512,7 +1558,7 @@ function buildParts(item, target, className) {
 
 function showStudyCard() {
   const item = state.deck[state.studyIndex];
-  markWordSeen(item.word);
+  markWordSeen(itemKey(item));
   renderWord(item);
   elements.feedback.classList.remove("show");
   elements.studyCard.classList.remove("hidden");
@@ -1554,7 +1600,7 @@ function beginFinalRecall() {
 }
 
 function remainingBatchRecalls() {
-  return state.batch.reduce((total, item) => total + Math.max(0, RECALLS_PER_WORD - state.mastery.get(item.word)), 0);
+  return state.batch.reduce((total, item) => total + Math.max(0, RECALLS_PER_WORD - state.mastery.get(itemKey(item))), 0);
 }
 
 function nextRecall() {
@@ -1726,19 +1772,20 @@ function recordCorrectRecall() {
   state.recalls += 1;
   state.streak += 1;
   state.bestStreak = Math.max(state.bestStreak, state.streak);
-  recordLocalAttempt(state.current.word, true);
-  queueCloudAttempt(state.current.word, true);
+  const key = itemKey(state.current);
+  recordLocalAttempt(key, true);
+  queueCloudAttempt(key, true);
   elements.readingInput.classList.add("input-correct");
 
   let title;
   if (state.mode === "batchRecall") {
-    const level = Math.min(RECALLS_PER_WORD, state.mastery.get(state.current.word) + 1);
-    state.mastery.set(state.current.word, level);
+    const level = Math.min(RECALLS_PER_WORD, state.mastery.get(key) + 1);
+    state.mastery.set(key, level);
     if (level < RECALLS_PER_WORD) state.queue.push(state.current);
-    else state.mastered.add(state.current.word);
+    else state.mastered.add(key);
     title = `RECALLED ${level}/${RECALLS_PER_WORD}`;
   } else {
-    state.finalMastered.add(state.current.word);
+    state.finalMastered.add(key);
     title = "FINAL RECALL LOCKED";
   }
 
@@ -1752,13 +1799,14 @@ function reteachCurrent() {
   state.locked = true;
   state.reteaches += 1;
   state.streak = 0;
-  recordLocalAttempt(state.current.word, false);
-  queueCloudAttempt(state.current.word, false);
+  const key = itemKey(state.current);
+  recordLocalAttempt(key, false);
+  queueCloudAttempt(key, false);
   elements.readingInput.classList.add("input-wrong");
 
   if (state.mode === "batchRecall") {
-    state.mastery.set(state.current.word, 0);
-    state.mastered.delete(state.current.word);
+    state.mastery.set(key, 0);
+    state.mastered.delete(key);
   }
   state.queue.push(state.current);
   showFeedback("NOT YET — REBUILD IT", state.current, true);
@@ -1811,7 +1859,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel].filter(Boolean).join(" · ");
+  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel, item.numberSourceLabel].filter(Boolean).join(" · ");
 }
 
 function pronounceItem(item, button) {
@@ -1915,7 +1963,7 @@ function populateDeck() {
     const row = document.createElement("div");
     const hasCharacterBreakdown = item.breakdown.length > 1;
     const trackedProgress = progressLabel(item);
-    const itemNeedsWork = needsWork(progressFor(item.word));
+    const itemNeedsWork = needsWork(progressFor(itemKey(item)));
     row.className = `deck-item${hasCharacterBreakdown ? " deck-item-detailed" : ""}`;
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
@@ -1963,9 +2011,11 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `frequency-2-${start}-${start + 9}`;
     })];
+    const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
+      ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option"],
     ].forEach(([label, keys, className]) => {
       const groupLabel = document.createElement("span");
       groupLabel.className = "deck-group-label";

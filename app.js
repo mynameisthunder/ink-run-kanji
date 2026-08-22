@@ -851,6 +851,10 @@ const KANJI = [
   },
 ];
 
+// The numbered WAV files cover the original word set only. Later imports,
+// including generated number/counter cards, use the browser's Japanese voice.
+const BUNDLED_AUDIO_ITEMS = new Set(KANJI);
+
 const REAL_KANA_N5_WORDS = window.INK_RUN_N5_WORDS ?? [];
 const REAL_KANA_N5_IMPORTS = window.INK_RUN_N5_IMPORTS ?? [];
 const FREQUENCY_2_WORDS = window.INK_RUN_FREQUENCY_2_WORDS ?? [];
@@ -867,15 +871,11 @@ const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   const existing = importedItems.get(item.word);
-  const existingReadings = new Set([
-    ...(existing?.kana ?? []),
-    ...String(existing?.reading ?? "").split(/[、,]/),
-  ]);
   if (!existing) {
     KANJI.push(item);
     importedItems.set(item.word, item);
     NUMBER_DECK_KEYS.set(item.word, item.word);
-  } else if (existingReadings.has(item.reading)) {
+  } else if (existing.reading === item.reading) {
     NUMBER_DECK_KEYS.set(item.word, item.word);
   } else {
     item.studyKey = `numbers:${item.word}`;
@@ -1906,10 +1906,15 @@ function sourceDeckLabel(item) {
 function pronounceItem(item, button) {
   if (!item) return;
   const reading = (item.kana ?? [item.reading])[0];
-  const audioNumber = KANJI.indexOf(item) + 41;
   pronunciationAudio?.pause();
   activePronounceButton?.classList.remove("speaking");
   activePronounceButton = button;
+  if (!BUNDLED_AUDIO_ITEMS.has(item)) {
+    pronunciationAudio = null;
+    speakWithBrowserVoice(reading, button);
+    return;
+  }
+  const audioNumber = KANJI.indexOf(item) + 41;
   pronunciationAudio = new Audio(`audio/${audioNumber}.wav`);
   pronunciationAudio.addEventListener("play", () => button.classList.add("speaking"));
   pronunciationAudio.addEventListener("ended", () => button.classList.remove("speaking"));

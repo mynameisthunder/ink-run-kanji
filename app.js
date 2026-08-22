@@ -853,7 +853,10 @@ const KANJI = [
 
 const REAL_KANA_N5_WORDS = window.INK_RUN_N5_WORDS ?? [];
 const REAL_KANA_N5_IMPORTS = window.INK_RUN_N5_IMPORTS ?? [];
+const FREQUENCY_2_WORDS = window.INK_RUN_FREQUENCY_2_WORDS ?? [];
+const FREQUENCY_2_IMPORTS = window.INK_RUN_FREQUENCY_2_IMPORTS ?? [];
 KANJI.push(...REAL_KANA_N5_IMPORTS);
+KANJI.push(...FREQUENCY_2_IMPORTS);
 
 const KANJI_BY_WORD = new Map(KANJI.map((item) => [item.word, item]));
 REAL_KANA_N5_WORDS.forEach((word, index) => {
@@ -861,6 +864,12 @@ REAL_KANA_N5_WORDS.forEach((word, index) => {
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
   item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
+FREQUENCY_2_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  item.frequency2SourceLabel = `LEVEL 1:2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
 });
 
 const DECKS = {
@@ -894,6 +903,15 @@ for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
   const key = `n5-${start}-${end}`;
   const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
   DECKS[key] = { label: `N5 ${range}`, setLabel: `JLPT N5 · ${range}`, words: REAL_KANA_N5_WORDS.slice(index, end) };
+}
+
+DECKS["frequency-2-all"] = { label: "L1:2 ALL 150", setLabel: "FREQUENCY · LEVEL 1:2 · ALL 150", words: FREQUENCY_2_WORDS };
+for (let index = 0; index < FREQUENCY_2_WORDS.length; index += 10) {
+  const start = index + 1;
+  const end = Math.min(index + 10, FREQUENCY_2_WORDS.length);
+  const key = `frequency-2-${start}-${end}`;
+  const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  DECKS[key] = { label: `L1:2 ${range}`, setLabel: `FREQUENCY · LEVEL 1:2 · ${range}`, words: FREQUENCY_2_WORDS.slice(index, end) };
 }
 
 const BATCH_SIZE = 3;
@@ -1793,7 +1811,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [originalLabel, item.n5SourceLabel].filter(Boolean).join(" · ");
+  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel].filter(Boolean).join(" · ");
 }
 
 function pronounceItem(item, button) {
@@ -1935,30 +1953,38 @@ function openDeckDialog(focusSearch = false) {
   if (focusSearch) window.requestAnimationFrame(() => elements.deckSearch.focus());
 }
 
-function appendN5DeckButtons() {
+function appendGeneratedDeckButtons() {
   document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
-    const groupLabel = document.createElement("span");
-    groupLabel.className = "deck-group-label";
-    groupLabel.textContent = "REAL KANA · JLPT N5";
-    container.append(groupLabel);
-
-    const keys = ["n5-all", ...Array.from({ length: 15 }, (_, index) => {
+    const n5Keys = ["n5-all", ...Array.from({ length: 15 }, (_, index) => {
       const start = index * 10 + 1;
       return `n5-${start}-${start + 9}`;
     })];
-    keys.forEach((key) => {
-      const button = document.createElement("button");
-      button.className = "deck-option n5-deck-option";
-      button.type = "button";
-      button.dataset.deckChoice = key;
-      button.setAttribute("aria-pressed", "false");
-      button.textContent = DECKS[key].label;
-      container.append(button);
+    const frequency2Keys = ["frequency-2-all", ...Array.from({ length: 15 }, (_, index) => {
+      const start = index * 10 + 1;
+      return `frequency-2-${start}-${start + 9}`;
+    })];
+    [
+      ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
+      ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
+    ].forEach(([label, keys, className]) => {
+      const groupLabel = document.createElement("span");
+      groupLabel.className = "deck-group-label";
+      groupLabel.textContent = label;
+      container.append(groupLabel);
+      keys.forEach((key) => {
+        const button = document.createElement("button");
+        button.className = `deck-option ${className}`;
+        button.type = "button";
+        button.dataset.deckChoice = key;
+        button.setAttribute("aria-pressed", "false");
+        button.textContent = DECKS[key].label;
+        container.append(button);
+      });
     });
   });
 }
 
-appendN5DeckButtons();
+appendGeneratedDeckButtons();
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.home.addEventListener("click", returnHome);

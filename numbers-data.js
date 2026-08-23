@@ -168,6 +168,8 @@
       ["十四日", "じゅうよっか", [["十", "じゅう"], ["四", "よっ"], ["日", "か", "day"]], "fourteenth day of the month; fourteen days"],
       ["二十日", "はつか", [["二", "はつ"], ["十", ""], ["日", "か", "day"]], "twentieth day of the month; twenty days"],
       ["二十四日", "にじゅうよっか", [["二", "に"], ["十", "じゅう"], ["四", "よっ"], ["日", "か", "day"]], "twenty-fourth day of the month; twenty-four days"],
+      ["十一日", "じゅういちにち", [["十", "じゅう"], ["一", "いち"], ["日", "にち", "day"]], "eleventh day of the month; eleven days"],
+      ["十二日", "じゅうににち", [["十", "じゅう"], ["二", "に"], ["日", "にち", "day"]], "twelfth day of the month; twelve days"],
     ].map(([word, reading, parts, meaning]) => ({
       word, reading, meaning,
       breakdown: parts.map(([character, partReading, definition]) => [character, partReading, definition ?? numberDefinitions[character]]),
@@ -232,12 +234,12 @@
   // are represented once and covered by the linked counter guide.
   const specialIndexes = {
     general: "all",
-    people: [0, 1],
-    age: [0, 10],
-    floors: [0, 2],
-    hours: [0, 3, 6, 8],
-    "calendar-days": "all",
-    months: [0, 3, 6, 8],
+    people: [0, 1, 2, 4],
+    age: [0, 1, 2, 10],
+    floors: [0, 1, 2, 3],
+    hours: [0, 1, 2, 3, 6, 8],
+    "calendar-days": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 10, 11, 12],
+    months: [0, 1, 2, 3, 6, 8],
   };
   groups.forEach((group) => {
     const indexes = specialIndexes[group.key];

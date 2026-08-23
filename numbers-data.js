@@ -211,6 +211,10 @@
     return result;
   };
 
+  // Counter readings follow reusable patterns, so keep one representative card
+  // per counter and send learners to the full guide for every variation.
+  groups.forEach((group) => { group.words = group.words.slice(0, 1); });
+
   groups.forEach((group) => group.words.forEach((item, index) => {
     item.audioSrc = `audio/numbers/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;
     item.romaji = [romanize(item.reading)];

@@ -2064,11 +2064,15 @@ function appendGeneratedDeckButtons() {
       ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 2", level2Keys, "level-2-deck-option"],
-      ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option"],
-    ].forEach(([label, keys, className]) => {
+      ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option", "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/"],
+    ].forEach(([label, keys, className, guideUrl]) => {
       const groupLabel = document.createElement("span");
       groupLabel.className = "deck-group-label";
-      groupLabel.textContent = label;
+      if (guideUrl) {
+        groupLabel.innerHTML = `${label} <a class="deck-guide-link" href="${guideUrl}" target="_blank" rel="noopener noreferrer" aria-label="Open the complete Japanese counters guide">COUNTER GUIDE ↗</a>`;
+      } else {
+        groupLabel.textContent = label;
+      }
       container.append(groupLabel);
       keys.forEach((key) => {
         const button = document.createElement("button");

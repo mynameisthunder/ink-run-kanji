@@ -740,6 +740,15 @@ kbd { font: inherit; color: var(--red); }
 .deck-dialog-actions { padding: 18px 28px 0; }
 .deck-dialog-actions .study-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }
+.deck-guide-link {
+  margin-left: 10px;
+  color: var(--blue);
+  font: inherit;
+  text-decoration: none;
+  opacity: .7;
+}
+.deck-guide-link:hover,
+.deck-guide-link:focus-visible { opacity: 1; text-decoration: underline; }
 
 .account-dialog {
   width: min(620px, calc(100% - 28px));

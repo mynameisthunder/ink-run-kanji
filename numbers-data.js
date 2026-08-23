@@ -194,6 +194,13 @@
     }),
   });
 
+  groups.find((group) => group.key === "general").words.push({
+    word: "十",
+    reading: "とお",
+    meaning: "ten things; general count",
+    breakdown: [["十", "とお", "ten"]],
+  });
+
   const kanaMap = { あ: "a", い: "i", う: "u", え: "e", お: "o", か: "ka", き: "ki", く: "ku", け: "ke", こ: "ko", が: "ga", ぎ: "gi", ぐ: "gu", げ: "ge", ご: "go", さ: "sa", し: "shi", す: "su", せ: "se", そ: "so", ざ: "za", じ: "ji", ず: "zu", ぜ: "ze", ぞ: "zo", た: "ta", ち: "chi", つ: "tsu", て: "te", と: "to", だ: "da", ぢ: "ji", づ: "zu", で: "de", ど: "do", な: "na", に: "ni", ぬ: "nu", ね: "ne", の: "no", は: "ha", ひ: "hi", ふ: "fu", へ: "he", ほ: "ho", ば: "ba", び: "bi", ぶ: "bu", べ: "be", ぼ: "bo", ぱ: "pa", ぴ: "pi", ぷ: "pu", ぺ: "pe", ぽ: "po", ま: "ma", み: "mi", む: "mu", め: "me", も: "mo", や: "ya", ゆ: "yu", よ: "yo", ら: "ra", り: "ri", る: "ru", れ: "re", ろ: "ro", わ: "wa", を: "o", ん: "n" };
   const digraphs = { きゃ: "kya", きゅ: "kyu", きょ: "kyo", しゃ: "sha", しゅ: "shu", しょ: "sho", ちゃ: "cha", ちゅ: "chu", ちょ: "cho", にゃ: "nya", にゅ: "nyu", にょ: "nyo", ひゃ: "hya", ひゅ: "hyu", ひょ: "hyo", みゃ: "mya", みゅ: "myu", みょ: "myo", りゃ: "rya", りゅ: "ryu", りょ: "ryo", ぎゃ: "gya", ぎゅ: "gyu", ぎょ: "gyo", じゃ: "ja", じゅ: "ju", じょ: "jo", びゃ: "bya", びゅ: "byu", びょ: "byo", ぴゃ: "pya", ぴゅ: "pyu", ぴょ: "pyo" };
   const romanize = (reading) => {
@@ -211,9 +218,11 @@
     return result;
   };
 
-  // Counter readings follow reusable patterns, so keep one representative card
-  // per counter and send learners to the full guide for every variation.
-  groups.forEach((group) => { group.words = group.words.slice(0, 1); });
+  // Keep the complete irregular native つ sequence. Other counters follow
+  // reusable patterns, so retain one representative and link to the full guide.
+  groups.forEach((group) => {
+    if (group.key !== "general") group.words = group.words.slice(0, 1);
+  });
 
   groups.forEach((group) => group.words.forEach((item, index) => {
     item.audioSrc = `audio/numbers/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;

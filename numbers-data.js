@@ -253,7 +253,18 @@
     item.memory = `${item.breakdown.map(([character, part]) => `${character} is ${part || "part of the special reading"}`).join(" and ")}: ${item.reading}.`;
   }));
 
-  window.INK_RUN_NUMBER_GROUPS = groups.map(({ key, label, words }) => ({ key, label, words: words.map((item) => item.word) }));
+  const counterTypes = {
+    key: "counter-types",
+    label: "COUNTER TYPES",
+    words: ["一つ", "一本", "一杯", "一人", "一匹", "一台", "一枚", "一冊"],
+  };
+
+  // This overview deck references representative cards from the full counter
+  // decks, so progress is shared and NUM ALL does not gain duplicate cards.
+  window.INK_RUN_NUMBER_GROUPS = [
+    counterTypes,
+    ...groups.map(({ key, label, words }) => ({ key, label, words: words.map((item) => item.word) })),
+  ];
   window.INK_RUN_NUMBER_WORDS = groups.flatMap((group) => group.words.map((item) => item.word));
   window.INK_RUN_NUMBER_IMPORTS = groups.flatMap((group) => group.words);
 })();

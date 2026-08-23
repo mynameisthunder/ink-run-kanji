@@ -970,8 +970,12 @@ for (let index = 0; index < LEVEL_2_WORDS.length; index += 10) {
 DECKS["numbers-all"] = { label: `NUM ALL ${NUMBER_WORDS.length}`, setLabel: `NUMBERS · ALL ${NUMBER_WORDS.length}`, words: NUMBER_WORDS.map((word) => NUMBER_DECK_KEYS.get(word) ?? word) };
 NUMBER_GROUPS.forEach((group) => {
   DECKS[`numbers-${group.key}`] = {
-    label: `NUM ${group.label.split(" · ")[0]} ${group.words.length}`,
-    setLabel: `NUMBERS · ${group.label}`,
+    label: group.key === "counter-types"
+      ? `COUNTER TYPES ${group.words.length}`
+      : `NUM ${group.label.split(" · ")[0]} ${group.words.length}`,
+    setLabel: group.key === "counter-types"
+      ? "COUNTER TYPES · QUICK GUIDE"
+      : `NUMBERS · ${group.label}`,
     words: group.words.map((word) => NUMBER_DECK_KEYS.get(word) ?? word),
   };
 });

@@ -870,6 +870,11 @@ KANJI.push(...LEVEL_2_IMPORTS);
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
+  if (item.studyKey) {
+    KANJI.push(item);
+    importedItems.set(item.studyKey, item);
+    return;
+  }
   const existing = importedItems.get(item.word);
   if (!existing) {
     KANJI.push(item);

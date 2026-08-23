@@ -253,10 +253,30 @@
     item.memory = `${item.breakdown.map(([character, part]) => `${character} is ${part || "part of the special reading"}`).join(" and ")}: ${item.reading}.`;
   }));
 
+  const counterTypeCards = [
+    ["つ", "つ", "general-object counter; used for ordinary things"],
+    ["本", "ほん", "counter for long or cylindrical objects; bottles and cans"],
+    ["杯", "はい", "counter for cups, glasses, and cupfuls"],
+    ["人", "にん", "counter for people; one and two people use special readings"],
+    ["匹", "ひき", "counter for small animals"],
+    ["台", "だい", "counter for machines and vehicles"],
+    ["枚", "まい", "counter for flat objects and sheets"],
+    ["冊", "さつ", "counter for books and bound volumes"],
+  ].map(([word, reading, meaning], index) => ({
+    studyKey: `counter-types:${word}`,
+    word,
+    reading,
+    meaning,
+    breakdown: [[word, reading, meaning]],
+    audioSrc: `audio/numbers/counter-types-${String(index + 1).padStart(2, "0")}.wav`,
+    romaji: [romanize(reading)],
+    memory: `${word} is read ${reading} as a counter suffix: ${meaning}.`,
+  }));
+
   const counterTypes = {
     key: "counter-types",
     label: "COUNTER TYPES",
-    words: ["一つ", "一本", "一杯", "一人", "一匹", "一台", "一枚", "一冊"],
+    words: counterTypeCards.map((item) => item.studyKey),
   };
 
   // This overview deck references representative cards from the full counter
@@ -266,5 +286,5 @@
     ...groups.map(({ key, label, words }) => ({ key, label, words: words.map((item) => item.word) })),
   ];
   window.INK_RUN_NUMBER_WORDS = groups.flatMap((group) => group.words.map((item) => item.word));
-  window.INK_RUN_NUMBER_IMPORTS = groups.flatMap((group) => group.words);
+  window.INK_RUN_NUMBER_IMPORTS = [...counterTypeCards, ...groups.flatMap((group) => group.words)];
 })();

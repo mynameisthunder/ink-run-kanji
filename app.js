@@ -1627,6 +1627,12 @@ function advanceStudy() {
   else beginFinalRecall();
 }
 
+function retreatStudy() {
+  if (state.mode !== "study" || state.studyIndex === 0) return;
+  state.studyIndex -= 1;
+  showStudyCard();
+}
+
 function beginBatchRecall() {
   state.mode = "batchRecall";
   state.queue = shuffle(state.batch);
@@ -2165,6 +2171,11 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowRight" && state.mode === "study" && elements.game.classList.contains("active")) {
     event.preventDefault();
     elements.studyNext.click();
+    return;
+  }
+  if (event.key === "ArrowLeft" && state.mode === "study" && elements.game.classList.contains("active")) {
+    event.preventDefault();
+    retreatStudy();
     return;
   }
   if (event.key.toLowerCase() === "h" && event.target !== elements.readingInput && !elements.hint.classList.contains("hidden")) reteachCurrent();

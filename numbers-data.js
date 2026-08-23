@@ -234,6 +234,7 @@
   // are represented once and covered by the linked counter guide.
   const specialIndexes = {
     general: "all",
+    "long-objects": "all",
     people: [0, 1, 2, 4],
     age: [0, 1, 2, 10],
     floors: [0, 1, 2, 3],

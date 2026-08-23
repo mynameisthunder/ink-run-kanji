@@ -1,6 +1,6 @@
 // Generated from RealKana's complete JLPT N5 word set.
 // Readings: RealKana. Meanings: Jisho/JMdict. Character meanings: KanjiAPI/KANJIDIC.
-window.INK_RUN_N5_WORDS = [
+export const N5_WORDS = [
   "風邪",
   "便利",
   "両親",
@@ -153,7 +153,7 @@ window.INK_RUN_N5_WORDS = [
   "部屋"
 ];
 
-window.INK_RUN_N5_IMPORTS = [
+export const N5_IMPORTS = [
   {
     "word": "風邪",
     "reading": "かぜ",

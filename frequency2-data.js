@@ -1,6 +1,6 @@
 // Generated from RealKana Frequency Level 1:2 screenshots.
 // Readings: RealKana. Meanings: Jisho/JMdict. Character meanings: KanjiAPI/KANJIDIC.
-window.INK_RUN_FREQUENCY_2_WORDS = [
+export const FREQUENCY_2_WORDS = [
   "引く",
   "権",
   "次",
@@ -153,7 +153,7 @@ window.INK_RUN_FREQUENCY_2_WORDS = [
   "社長"
 ];
 
-window.INK_RUN_FREQUENCY_2_IMPORTS = [
+export const FREQUENCY_2_IMPORTS = [
   {
     "word": "引く",
     "reading": "ひく",

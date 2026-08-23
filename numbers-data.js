@@ -1,4 +1,8 @@
 // RealKana number and counter combinations, organized by the thing being counted.
+export let NUMBER_GROUPS;
+export let NUMBER_WORDS;
+export let NUMBER_IMPORTS;
+
 (() => {
   const numerals = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
   const values = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
@@ -283,10 +287,10 @@
 
   // Counter suffixes have their own study keys, keeping their meaning-focused
   // progress separate without adding duplicate cards to NUM ALL.
-  window.INK_RUN_NUMBER_GROUPS = [
+  NUMBER_GROUPS = [
     counterTypes,
     ...groups.map(({ key, label, words }) => ({ key, label, words: words.map((item) => item.word) })),
   ];
-  window.INK_RUN_NUMBER_WORDS = groups.flatMap((group) => group.words.map((item) => item.word));
-  window.INK_RUN_NUMBER_IMPORTS = [...counterTypeCards, ...groups.flatMap((group) => group.words)];
+  NUMBER_WORDS = groups.flatMap((group) => group.words.map((item) => item.word));
+  NUMBER_IMPORTS = [...counterTypeCards, ...groups.flatMap((group) => group.words)];
 })();

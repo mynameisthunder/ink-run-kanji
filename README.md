@@ -21,6 +21,21 @@ INK RUN always saves favorites, seen words, correct recalls, misses, recovery st
 
 The public browser key in `cloud-config.js` is intentionally publishable. Privileged keys are never shipped to the client. Database access is protected by Row Level Security, and writes are limited to the authenticated RPC functions in `supabase/schema.sql`.
 
+## Architecture
+
+The app uses native browser modules with no framework or build step:
+
+- `app.js` — UI and game-flow orchestration
+- `src/vocabulary.js` — vocabulary assembly, deduplication, and deck definitions
+- `src/progress.js` — mastery and Needs Work rules
+- `src/storage.js` — local progress and sync snapshots
+- `src/cloud-sync.js` — offline-first Supabase reconciliation
+- `src/kana.js` — romaji conversion and answer normalization
+- `src/audio.js` — bundled pronunciation, speech fallback, and feedback tones
+- `src/effects.js` — visual effects
+
+Generated vocabulary files export data directly into the module graph. `cloud.js` remains the small Supabase SDK adapter loaded before the application module.
+
 ## Run locally
 
 ```bash

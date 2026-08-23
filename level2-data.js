@@ -1,6 +1,6 @@
 // RealKana Frequency Level 2 vocabulary.
 // Readings: RealKana. Meanings and character notes: JMdict/KANJIDIC-style glosses.
-window.INK_RUN_LEVEL_2_WORDS = [
+export const LEVEL_2_WORDS = [
   "頭",
   "態度",
   "着る",
@@ -13,7 +13,7 @@ window.INK_RUN_LEVEL_2_WORDS = [
   "命",
 ];
 
-window.INK_RUN_LEVEL_2_IMPORTS = [
+export const LEVEL_2_IMPORTS = [
   {
     word: "頭",
     reading: "あたま",

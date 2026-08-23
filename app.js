@@ -1020,6 +1020,8 @@ elements.libraryWordCount.textContent = String(KANJI.length);
 const FAVORITES_STORAGE_KEY = "ink-run-favorites-v1";
 const WORD_PROGRESS_STORAGE_KEY = "ink-run-word-progress-v1";
 const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
+const CLOUD_PROGRESS_SNAPSHOT_PREFIX = "ink-run-cloud-progress-snapshot-v2:";
+const LEGACY_PROGRESS_MIGRATION_TIME = new Date().toISOString();
 
 function loadFavoriteWords() {
   try {
@@ -1050,6 +1052,8 @@ function loadWordProgress() {
       const reviewDismissed = Boolean(value?.reviewDismissed);
       const reviewRequired = Boolean(value?.reviewRequired)
         || (!reviewDismissed && wrongCount > 0 && correctCount / attempts <= NEEDS_WORK_ENTRY_ACCURACY);
+      const progressUpdatedAt = value?.progressUpdatedAt
+        || (attempts || reviewRequired || reviewDismissed ? LEGACY_PROGRESS_MIGRATION_TIME : "");
       return [word, {
         seenCount: Math.max(0, Number(value?.seenCount) || 0),
         correctCount,
@@ -1059,6 +1063,7 @@ function loadWordProgress() {
         reviewDismissed,
         lastResult: value?.lastResult === "correct" || value?.lastResult === "wrong" ? value.lastResult : "",
         lastReviewedAt: value?.lastReviewedAt || "",
+        progressUpdatedAt,
       }];
     }));
   } catch {
@@ -1093,6 +1098,37 @@ function saveCloudSnapshot(userId, words) {
   }
 }
 
+function loadCloudProgressSnapshot(userId) {
+  try {
+    const stored = window.localStorage.getItem(`${CLOUD_PROGRESS_SNAPSHOT_PREFIX}${userId}`);
+    if (stored === null) return null;
+    const snapshot = JSON.parse(stored);
+    return new Map(Object.entries(snapshot).map(([word, value]) => [word, {
+      correctCount: Math.max(0, Number(value?.correctCount) || 0),
+      wrongCount: Math.max(0, Number(value?.wrongCount) || 0),
+    }]));
+  } catch {
+    return null;
+  }
+}
+
+function saveCloudProgressSnapshot(userId, progress) {
+  try {
+    window.localStorage.setItem(
+      `${CLOUD_PROGRESS_SNAPSHOT_PREFIX}${userId}`,
+      JSON.stringify(Object.fromEntries(progress)),
+    );
+  } catch {
+    // A later sync can safely reconcile from the current cloud totals.
+  }
+}
+
+function updateCloudProgressSnapshot(userId, word, stats) {
+  const snapshot = loadCloudProgressSnapshot(userId) ?? new Map();
+  snapshot.set(word, { correctCount: stats.correctCount, wrongCount: stats.wrongCount });
+  saveCloudProgressSnapshot(userId, snapshot);
+}
+
 const state = {
   selectedDeckKeys: new Set(["all"]),
   favoriteWords: loadFavoriteWords(),
@@ -1119,7 +1155,8 @@ const state = {
 
 function progressFor(word) {
   return state.wordProgress.get(word) ?? {
-    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, reviewRequired: false, reviewDismissed: false, lastResult: "", lastReviewedAt: "",
+    seenCount: 0, correctCount: 0, wrongCount: 0, correctStreak: 0, reviewRequired: false,
+    reviewDismissed: false, lastResult: "", lastReviewedAt: "", progressUpdatedAt: "",
   };
 }
 
@@ -1150,7 +1187,7 @@ function recordLocalAttempt(word, correct) {
   const reviewRequired = correct
     ? currentlyNeedsWork && !graduated
     : currentlyNeedsWork || accuracy <= NEEDS_WORK_ENTRY_ACCURACY;
-  state.wordProgress.set(word, {
+  const nextStats = {
     ...stats,
     seenCount: Math.max(1, stats.seenCount),
     correctCount,
@@ -1160,9 +1197,12 @@ function recordLocalAttempt(word, correct) {
     reviewDismissed: correct || accuracy > NEEDS_WORK_ENTRY_ACCURACY ? stats.reviewDismissed : false,
     lastResult: correct ? "correct" : "wrong",
     lastReviewedAt: new Date().toISOString(),
-  });
+    progressUpdatedAt: new Date().toISOString(),
+  };
+  state.wordProgress.set(word, nextStats);
   saveWordProgress(state.wordProgress);
   updateProgressControls();
+  return nextStats;
 }
 
 function progressLabel(item) {
@@ -1188,8 +1228,14 @@ function deckIsMastered(key) {
 function dismissNeedsWork(item) {
   const key = itemKey(item);
   const stats = progressFor(key);
-  state.wordProgress.set(key, { ...stats, reviewRequired: false, reviewDismissed: true });
+  state.wordProgress.set(key, {
+    ...stats,
+    reviewRequired: false,
+    reviewDismissed: true,
+    progressUpdatedAt: new Date().toISOString(),
+  });
   saveWordProgress(state.wordProgress);
+  queueCloudDismiss(key);
   updateProgressControls();
   populateDeck();
 }
@@ -1229,8 +1275,39 @@ async function synchronizeCloudProgress() {
   const userId = state.cloudUser.id;
   activeCloudSync = (async () => {
     setCloudStatus("SYNCING LOCAL + CLOUD PROGRESS…", "syncing");
-    const rows = await window.inkRunCloud.loadProgress();
+    await cloudWriteQueue.catch(() => {});
+    let rows = await window.inkRunCloud.loadProgress();
+    const exactProgressSync = window.inkRunCloud.supportsExactProgressSync?.() !== false;
     const validWords = new Set(KANJI.map(itemKey));
+    const remoteByWord = new Map(rows.filter((row) => validWords.has(row.word)).map((row) => [row.word, row]));
+    const previousProgressSnapshot = loadCloudProgressSnapshot(userId);
+    const progressChanges = [...state.wordProgress.entries()]
+      .filter(([word, stats]) => validWords.has(word) && (
+        stats.correctCount || stats.wrongCount || stats.reviewRequired || stats.reviewDismissed
+      ))
+      .map(([word, stats]) => {
+        const remote = remoteByWord.get(word);
+        const baseline = previousProgressSnapshot?.get(word) ?? {
+          correctCount: Math.max(0, Number(remote?.correct_count) || 0),
+          wrongCount: Math.max(0, Number(remote?.wrong_count) || 0),
+        };
+        return {
+          word,
+          correct_delta: Math.max(0, stats.correctCount - baseline.correctCount),
+          wrong_delta: Math.max(0, stats.wrongCount - baseline.wrongCount),
+          correct_streak: stats.correctStreak,
+          review_required: stats.reviewRequired,
+          review_dismissed: stats.reviewDismissed,
+          last_reviewed_at: stats.lastReviewedAt || null,
+          progress_updated_at: stats.progressUpdatedAt || stats.lastReviewedAt || null,
+        };
+      });
+    if (exactProgressSync && progressChanges.length) {
+      await window.inkRunCloud.syncProgress(progressChanges);
+      rows = await window.inkRunCloud.loadProgress();
+    }
+
+    const cloudProgressSnapshot = new Map();
     rows.filter((row) => validWords.has(row.word)).forEach((row) => {
       const local = progressFor(row.word);
       const remoteCorrect = Math.max(0, Number(row.correct_count) || 0);
@@ -1238,18 +1315,24 @@ async function synchronizeCloudProgress() {
       const remoteAttempts = remoteCorrect + remoteWrong;
       const correctCount = Math.max(local.correctCount, remoteCorrect);
       const wrongCount = Math.max(local.wrongCount, remoteWrong);
-      const attempts = correctCount + wrongCount;
+      cloudProgressSnapshot.set(row.word, { correctCount: remoteCorrect, wrongCount: remoteWrong });
       state.wordProgress.set(row.word, {
         ...local,
         seenCount: Math.max(local.seenCount, remoteAttempts ? 1 : 0),
         correctCount,
         wrongCount,
-        reviewRequired: local.reviewRequired
-          || (!local.reviewDismissed && wrongCount > 0 && correctCount / attempts <= NEEDS_WORK_ENTRY_ACCURACY),
+        correctStreak: exactProgressSync ? Math.max(0, Number(row.correct_streak) || 0) : local.correctStreak,
+        reviewRequired: exactProgressSync
+          ? Boolean(row.review_required)
+          : local.reviewRequired || (!local.reviewDismissed && remoteWrong > 0
+            && remoteCorrect / remoteAttempts <= NEEDS_WORK_ENTRY_ACCURACY),
+        reviewDismissed: exactProgressSync ? Boolean(row.review_dismissed) : local.reviewDismissed,
         lastReviewedAt: [local.lastReviewedAt, row.last_reviewed_at].filter(Boolean).sort().at(-1) ?? "",
+        progressUpdatedAt: row.progress_updated_at || local.progressUpdatedAt || "",
       });
     });
     saveWordProgress(state.wordProgress);
+    saveCloudProgressSnapshot(userId, cloudProgressSnapshot);
     const remoteFavorites = new Set(rows.filter((row) => row.favorite && validWords.has(row.word)).map((row) => row.word));
     const localFavorites = new Set([...state.favoriteWords].filter((word) => validWords.has(word)));
     const previousSnapshot = loadCloudSnapshot(userId);
@@ -1273,7 +1356,13 @@ async function synchronizeCloudProgress() {
     saveFavoriteWords(mergedFavorites);
     saveCloudSnapshot(userId, mergedFavorites);
     renderDeckSelection();
-    setCloudStatus(`SYNCED · ${mergedFavorites.size} STARRED · RECALL HISTORY ON`, "success");
+    updateProgressControls();
+    setCloudStatus(
+      exactProgressSync
+        ? `SYNCED · ${mergedFavorites.size} STARRED · NEEDS WORK UP TO DATE`
+        : `SYNCED · ${mergedFavorites.size} STARRED · DATABASE UPGRADE PENDING`,
+      "success",
+    );
   })().catch((error) => {
     setCloudStatus(`SYNC PAUSED · ${error.message} · LOCAL SAVE IS SAFE`, "error");
   }).finally(() => {
@@ -1297,9 +1386,21 @@ function queueFavoriteSync(word, favorite) {
 }
 
 function queueCloudAttempt(word, correct) {
-  if (!state.cloudUser || !window.inkRunCloud?.available) return;
-  cloudWriteQueue = cloudWriteQueue.catch(() => {}).then(() => window.inkRunCloud.recordAttempt(word, correct)).catch((error) => {
+  const user = state.cloudUser;
+  if (!user || !window.inkRunCloud?.available) return;
+  const stats = { ...progressFor(word) };
+  cloudWriteQueue = cloudWriteQueue.catch(() => {}).then(async () => {
+    await window.inkRunCloud.recordAttempt(word, correct);
+    updateCloudProgressSnapshot(user.id, word, stats);
+  }).catch((error) => {
     setCloudStatus(`RECALL SAVED LOCALLY ONLY · ${error.message}`, "error");
+  });
+}
+
+function queueCloudDismiss(word) {
+  if (!state.cloudUser || !window.inkRunCloud?.available) return;
+  cloudWriteQueue = cloudWriteQueue.catch(() => {}).then(() => window.inkRunCloud.dismissReview(word)).catch((error) => {
+    setCloudStatus(`REMOVAL SAVED LOCALLY ONLY · ${error.message}`, "error");
   });
 }
 

@@ -17,7 +17,7 @@
     <meta property="og:site_name" content="Ink Run" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Ink Run — Read Kanji on Sight" />
-    <meta property="og:description" content="Build reliable kanji recall with 307 words, JLPT N5 decks, pronunciation, breakdowns, and focused review." />
+    <meta property="og:description" content="Build reliable kanji recall with 622 words, JLPT N5 decks, pronunciation, breakdowns, and focused review." />
     <meta property="og:url" content="https://mynameisthunder.github.io/ink-run-kanji/" />
     <meta property="og:image" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
     <meta property="og:image:secure_url" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
@@ -289,7 +289,7 @@
       </div>
 
       <div class="account-panel" id="signedOutPanel">
-        <p>Sign in with an email link to sync starred words and recall history across devices. Your current browser stars will be carried into your account.</p>
+        <p>Sign in with an email link to sync starred words, recall history, and Needs Work across devices. Your current browser progress will be carried into your account.</p>
         <form class="auth-form" id="signInForm">
           <label for="emailInput">EMAIL ADDRESS</label>
           <input id="emailInput" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
@@ -300,7 +300,7 @@
       <div class="account-panel hidden" id="signedInPanel">
         <span class="account-state-label">SIGNED IN + SYNCING</span>
         <strong class="account-email" id="accountEmail"></strong>
-        <p>Your stars sync automatically. Correct and missed recalls are saved privately to build richer review tools later.</p>
+        <p>Your stars, recall history, recovery streaks, and Needs Work removals sync automatically.</p>
         <div class="account-actions">
           <button class="study-button" id="syncNowButton" type="button">SYNC NOW <span>↻</span></button>
           <button class="secondary-button" id="signOutButton" type="button">SIGN OUT</button>
@@ -312,11 +312,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
-    <script src="cloud.js?v=cloud-1" defer></script>
+    <script src="cloud.js?v=needs-work-sync-1" defer></script>
     <script src="n5-data.js?v=n5-1" defer></script>
     <script src="frequency2-data.js?v=frequency-2-1" defer></script>
     <script src="level2-data.js?v=level-2-1" defer></script>
     <script src="numbers-data.js?v=numbers-audio-1" defer></script>
-    <script src="app.js?v=study-arrow-navigation-1" defer></script>
+    <script src="app.js?v=needs-work-sync-1" defer></script>
   </body>
 </html>

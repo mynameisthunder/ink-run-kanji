@@ -1,42 +1,16 @@
-create table public.user_word_progress (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  word text not null check (char_length(word) between 1 and 32),
-  favorite boolean not null default false,
-  correct_count bigint not null default 0 check (correct_count >= 0),
-  wrong_count bigint not null default 0 check (wrong_count >= 0),
-  correct_streak bigint not null default 0 check (correct_streak >= 0),
-  review_required boolean not null default false,
-  review_dismissed boolean not null default false,
-  last_reviewed_at timestamptz,
-  progress_updated_at timestamptz,
-  updated_at timestamptz not null default now(),
-  primary key (user_id, word)
-);
+alter table public.user_word_progress
+  add column if not exists correct_streak bigint not null default 0 check (correct_streak >= 0),
+  add column if not exists review_required boolean not null default false,
+  add column if not exists review_dismissed boolean not null default false,
+  add column if not exists progress_updated_at timestamptz;
 
-alter table public.user_word_progress enable row level security;
-
-create policy "Users can read their own word progress"
-on public.user_word_progress
-for select
-to authenticated
-using ((select auth.uid()) = user_id);
-
-grant select on public.user_word_progress to authenticated;
-
-create or replace function public.set_word_favorite(p_word text, p_favorite boolean)
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if auth.uid() is null then raise exception 'Authentication required'; end if;
-  insert into public.user_word_progress (user_id, word, favorite, updated_at)
-  values (auth.uid(), p_word, p_favorite, now())
-  on conflict (user_id, word) do update
-    set favorite = excluded.favorite, updated_at = now();
-end;
-$$;
+-- Existing cloud rows do not contain streak history. Seed only the state that can
+-- be derived safely; the first signed-in client sync supplies its exact local state.
+update public.user_word_progress
+set review_required = wrong_count > 0
+    and correct_count::double precision / nullif(correct_count + wrong_count, 0) <= .6,
+    progress_updated_at = coalesce(progress_updated_at, last_reviewed_at)
+where progress_updated_at is null;
 
 create or replace function public.record_word_attempt(p_word text, p_correct boolean)
 returns void
@@ -195,14 +169,9 @@ begin
 end;
 $$;
 
-revoke all on function public.set_word_favorite(text, boolean) from public;
 revoke all on function public.record_word_attempt(text, boolean) from public;
 revoke all on function public.dismiss_word_review(text) from public;
 revoke all on function public.sync_word_progress(jsonb) from public;
-grant execute on function public.set_word_favorite(text, boolean) to authenticated;
 grant execute on function public.record_word_attempt(text, boolean) to authenticated;
 grant execute on function public.dismiss_word_review(text) to authenticated;
 grant execute on function public.sync_word_progress(jsonb) to authenticated;
-
-create index user_word_progress_reviewed_idx
-on public.user_word_progress (user_id, last_reviewed_at desc);

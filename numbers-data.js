@@ -263,6 +263,7 @@
     ["枚", "まい", "counter for flat objects and sheets"],
     ["冊", "さつ", "counter for books and bound volumes"],
     ["歳", "さい", "counter for years of age"],
+    ["階", "かい", "counter for floors and building stories"],
   ].map(([word, reading, meaning], index) => ({
     studyKey: `counter-types:${word}`,
     word,

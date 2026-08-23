@@ -175,7 +175,10 @@ main { min-height: calc(100vh - 82px); }
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
-.deck-option.mastered { padding-right: 24px; }
+.deck-option.mastered {
+  padding-right: 24px;
+  border-color: var(--green);
+}
 .deck-option.mastered::after {
   content: "✓";
   position: absolute;

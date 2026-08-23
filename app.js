@@ -2158,6 +2158,11 @@ elements.sound.addEventListener("click", () => {
 
 window.addEventListener("keydown", (event) => {
   if (elements.deckDialog.open) return;
+  if (event.key === "ArrowRight" && state.mode === "study" && elements.game.classList.contains("active")) {
+    event.preventDefault();
+    elements.studyNext.click();
+    return;
+  }
   if (event.key.toLowerCase() === "h" && event.target !== elements.readingInput && !elements.hint.classList.contains("hidden")) reteachCurrent();
   if (event.key === "Enter" && elements.feedback.classList.contains("show")) {
     event.preventDefault();

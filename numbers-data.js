@@ -262,6 +262,7 @@
     ["台", "だい", "counter for machines and vehicles"],
     ["枚", "まい", "counter for flat objects and sheets"],
     ["冊", "さつ", "counter for books and bound volumes"],
+    ["歳", "さい", "counter for years of age"],
   ].map(([word, reading, meaning], index) => ({
     studyKey: `counter-types:${word}`,
     word,
@@ -279,8 +280,8 @@
     words: counterTypeCards.map((item) => item.studyKey),
   };
 
-  // This overview deck references representative cards from the full counter
-  // decks, so progress is shared and NUM ALL does not gain duplicate cards.
+  // Counter suffixes have their own study keys, keeping their meaning-focused
+  // progress separate without adding duplicate cards to NUM ALL.
   window.INK_RUN_NUMBER_GROUPS = [
     counterTypes,
     ...groups.map(({ key, label, words }) => ({ key, label, words: words.map((item) => item.word) })),

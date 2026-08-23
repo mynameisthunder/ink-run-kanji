@@ -230,27 +230,7 @@
     item.audioSrc = `audio/numbers/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;
   }));
 
-  // Keep genuinely exceptional readings in the app. Routine counter variations
-  // are represented once and covered by the linked counter guide.
-  const specialIndexes = {
-    general: "all",
-    "long-objects": "all",
-    people: [0, 1, 2, 4],
-    age: [0, 1, 2, 10],
-    floors: [0, 1, 2, 3],
-    hours: [0, 1, 2, 3, 6, 8],
-    "calendar-days": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 10, 11, 12],
-    months: [0, 1, 2, 3, 6, 8],
-  };
-  groups.forEach((group) => {
-    const indexes = specialIndexes[group.key];
-    if (indexes === "all") return;
-    group.words = Array.isArray(indexes)
-      ? indexes.map((index) => group.words[index])
-      : group.words.slice(0, 1);
-  });
-
-  groups.forEach((group) => group.words.forEach((item, index) => {
+  groups.forEach((group) => group.words.forEach((item) => {
     item.romaji = [romanize(item.reading)];
     item.memory = `${item.breakdown.map(([character, part]) => `${character} is ${part || "part of the special reading"}`).join(" and ")}: ${item.reading}.`;
   }));

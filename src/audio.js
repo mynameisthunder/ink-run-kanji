@@ -59,5 +59,13 @@ export function createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled }) {
     });
   }
 
-  return { playTone, pronounceItem };
+  function cancelPronunciation() {
+    pronunciationAudio?.pause();
+    pronunciationAudio = null;
+    activePronounceButton?.classList.remove("speaking");
+    activePronounceButton = null;
+    window.speechSynthesis?.cancel();
+  }
+
+  return { cancelPronunciation, playTone, pronounceItem };
 }

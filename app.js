@@ -20,29 +20,31 @@ import {
   needsWork,
   progressIsMastered,
 } from "./src/progress.js";
+import { parseRoute, selectionUrl, studyUrl, wordUrl } from "./src/routes.js";
 import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
+let restoringRoute = false;
 
 const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), copyStudyLink: $("#copyStudyLinkButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
   favorite: $("#favoriteButton"),
-  dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
+  dialogStudy: $("#dialogStudyButton"), dialogCopyStudyLink: $("#dialogCopyStudyLinkButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
-  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
+  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyShare: $("#studyShareButton"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
-  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
+  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"), feedbackShare: $("#feedbackShareButton"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
@@ -83,9 +85,11 @@ const state = {
   sound: true,
   cloudUser: null,
   studyLabel: "ALL 110",
+  sharedWordView: false,
+  routeStudy: true,
 };
 
-const { playTone, pronounceItem } = createAudio({
+const { cancelPronunciation, playTone, pronounceItem } = createAudio({
   KANJI,
   BUNDLED_AUDIO_ITEMS,
   isSoundEnabled: () => state.sound,
@@ -179,6 +183,23 @@ function shuffle(items) {
 
 function orderedSelectedDeckKeys() {
   return Object.keys(DECKS).filter((key) => state.selectedDeckKeys.has(key));
+}
+
+function routePath(url) {
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function writeRoute(url, method = "replaceState") {
+  if (restoringRoute) return;
+  window.history[method]({}, "", routePath(url));
+}
+
+function writeSelectionRoute(method = "replaceState") {
+  writeRoute(selectionUrl(window.location.href, orderedSelectedDeckKeys()), method);
+}
+
+function writeStudyRoute(method = "replaceState") {
+  writeRoute(studyUrl(window.location.href, orderedSelectedDeckKeys(), state.studyIndex), method);
 }
 
 function itemsForDeck(key) {
@@ -309,11 +330,12 @@ function renderDeckSelection() {
   populateDeck();
 }
 
-function setDeckSelection(keys) {
+function setDeckSelection(keys, { updateRoute = true } = {}) {
   const validKeys = keys.filter((key) => DECKS[key]);
   state.selectedDeckKeys = new Set(validKeys.length ? validKeys : ["all"]);
   if (state.selectedDeckKeys.has("all") && state.selectedDeckKeys.size > 1) state.selectedDeckKeys = new Set(["all"]);
   renderDeckSelection();
+  if (updateRoute) writeSelectionRoute();
 }
 
 function toggleDeckSelection(key) {
@@ -341,13 +363,71 @@ function toggleFavorite(item) {
   saveFavoriteWords(state.favoriteWords);
   queueFavoriteSync(key, favorite);
 
+  let selectionChanged = false;
   if (state.favoriteWords.size === 0 && state.selectedDeckKeys.has("favorites")) {
     const next = new Set(state.selectedDeckKeys);
     next.delete("favorites");
     state.selectedDeckKeys = next.size ? next : new Set(["all"]);
+    selectionChanged = true;
   }
   renderDeckSelection();
+  if (selectionChanged) writeSelectionRoute();
   updateFavoriteButton(elements.favorite, state.current);
+}
+
+function flashButtonLabel(button, label) {
+  const original = button.dataset.defaultLabel ?? button.textContent;
+  button.dataset.defaultLabel = original;
+  button.textContent = label;
+  window.setTimeout(() => { button.textContent = original; }, 1800);
+}
+
+async function copyToClipboard(value) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Copy unavailable");
+}
+
+async function copyStudyLink(button) {
+  const url = studyUrl(window.location.href, orderedSelectedDeckKeys());
+  try {
+    await copyToClipboard(url.href);
+    flashButtonLabel(button, "COPIED ✓");
+  } catch {
+    flashButtonLabel(button, "COPY FAILED");
+  }
+}
+
+async function shareWord(item, button) {
+  if (!item) return;
+  const url = wordUrl(window.location.href, itemKey(item));
+  const shareData = {
+    title: `Ink Run — ${item.word}`,
+    text: `${item.word} · ${item.reading} · ${item.meaning}`,
+    url: url.href,
+  };
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      flashButtonLabel(button, "SHARED ✓");
+    } else {
+      await copyToClipboard(url.href);
+      flashButtonLabel(button, "COPIED ✓");
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") flashButtonLabel(button, "SHARE FAILED");
+  }
 }
 
 function startStarredStudy() {
@@ -365,16 +445,49 @@ function returnHome(event) {
   elements.feedback.classList.remove("show");
   elements.deckDialog.close();
   elements.accountDialog.close();
-  window.speechSynthesis?.cancel();
-  if (pronunciationAudio) {
-    pronunciationAudio.pause();
-    pronunciationAudio = null;
-  }
+  cancelPronunciation();
   state.locked = false;
   state.current = null;
+  state.sharedWordView = false;
   renderDeckSelection();
   showScreen(elements.intro);
+  writeSelectionRoute("pushState");
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function applyCurrentRoute() {
+  const route = parseRoute(window.location.href, Object.keys(DECKS));
+  restoringRoute = true;
+  try {
+    setDeckSelection(route.decks, { updateRoute: false });
+    elements.feedback.classList.remove("show");
+    if (elements.deckDialog.open) elements.deckDialog.close();
+    cancelPronunciation();
+
+    const sharedItem = route.word ? KANJI_BY_WORD.get(route.word) : null;
+    if (sharedItem) {
+      prepareRun("study", [sharedItem], `SHARED WORD · ${sharedItem.word}`, false);
+      state.sharedWordView = true;
+      showStudyCard({ trackSeen: false });
+      return;
+    }
+
+    if (route.view === "study") {
+      const deck = selectedDeck();
+      if (deck.length > 0) {
+        prepareRun("study");
+        state.studyIndex = Math.min(route.card, deck.length - 1);
+        showStudyCard();
+        return;
+      }
+    }
+
+    state.current = null;
+    state.sharedWordView = false;
+    showScreen(elements.intro);
+  } finally {
+    restoringRoute = false;
+  }
 }
 
 function renderWord(item) {
@@ -389,13 +502,15 @@ function renderWord(item) {
   elements.kanji.parentElement.classList.add("swap");
 }
 
-function prepareRun(mode, deckOverride = null, studyLabelOverride = null) {
+function prepareRun(mode, deckOverride = null, studyLabelOverride = null, routeStudyOverride = null) {
   const deck = deckOverride ? [...deckOverride] : selectedDeck();
   Object.assign(state, {
     mode, deck, batchIndex: 0, studyIndex: 0, batch: deck, queue: mode === "finalRecall" ? shuffle(deck) : [], current: null,
     mastery: new Map(deck.map((item) => [itemKey(item), 0])), mastered: new Set(), finalMastered: new Set(),
     streak: 0, bestStreak: 0, recalls: 0, reteaches: 0, locked: false,
     studyLabel: studyLabelOverride ?? selectedDeckMeta().studyLabel,
+    sharedWordView: false,
+    routeStudy: routeStudyOverride ?? deckOverride === null,
   });
   elements.progress.style.background = "var(--red)";
   elements.feedback.classList.remove("show");
@@ -404,12 +519,15 @@ function prepareRun(mode, deckOverride = null, studyLabelOverride = null) {
 
 function startGame() {
   prepareRun("finalRecall");
+  writeSelectionRoute();
   nextRecall();
 }
 
 function startStudyDeck() {
   if (elements.deckDialog.open) elements.deckDialog.close();
+  if (selectedDeck().length === 0) return;
   prepareRun("study");
+  writeStudyRoute("pushState");
   showStudyCard();
 }
 
@@ -422,7 +540,7 @@ function startDialogStudy() {
   const results = searchKanji(query);
   if (results.length === 0) return;
   elements.deckDialog.close();
-  prepareRun("study", results, `SEARCH · ${results.length} ${results.length === 1 ? "RESULT" : "RESULTS"}`);
+  prepareRun("study", results, `SEARCH · ${results.length} ${results.length === 1 ? "RESULT" : "RESULTS"}`, false);
   showStudyCard();
 }
 
@@ -447,9 +565,10 @@ function buildParts(item, target, className) {
   }));
 }
 
-function showStudyCard() {
+function showStudyCard({ trackSeen = true } = {}) {
   const item = state.deck[state.studyIndex];
-  markWordSeen(itemKey(item));
+  if (!item) return;
+  if (trackSeen) markWordSeen(itemKey(item));
   renderWord(item);
   elements.feedback.classList.remove("show");
   elements.studyCard.classList.remove("hidden");
@@ -466,6 +585,7 @@ function showStudyCard() {
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
   elements.studyNext.firstChild.textContent = state.studyIndex === state.deck.length - 1 ? "START RECALL RUN " : "NEXT STUDY CARD ";
+  if (state.routeStudy) writeStudyRoute();
   updateStatus();
 }
 
@@ -493,6 +613,7 @@ function beginFinalRecall() {
   state.queue = shuffle(state.deck);
   state.finalMastered = new Set();
   elements.progress.style.background = "var(--red)";
+  if (state.routeStudy) writeSelectionRoute();
   nextRecall();
 }
 
@@ -677,10 +798,12 @@ function populateDeck() {
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${itemNeedsWork ? " needs-work" : ""}">${trackedProgress}</span>` : ""}${itemNeedsWork ? `<button class="deck-review-dismiss" type="button" aria-label="Remove ${item.word} from Needs Work" title="Remove from Needs Work">REMOVE ×</button>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><button class="share-button deck-share-button" type="button" aria-label="Share ${item.word}" title="Share ${item.word}">SHARE</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${itemNeedsWork ? " needs-work" : ""}">${trackedProgress}</span>` : ""}${itemNeedsWork ? `<button class="deck-review-dismiss" type="button" aria-label="Remove ${item.word} from Needs Work" title="Remove from Needs Work">REMOVE ×</button>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));
+    const shareButton = row.querySelector(".deck-share-button");
+    shareButton.addEventListener("click", () => shareWord(item, shareButton));
     row.querySelector(".deck-review-dismiss")?.addEventListener("click", () => dismissNeedsWork(item));
     return row;
   });
@@ -698,6 +821,8 @@ function populateDeck() {
     ? `SEARCHING ALL ${KANJI.length} WORDS · ${items.length} ${items.length === 1 ? "MATCH" : "MATCHES"}`
     : `SHOWING ${selectedDeckMeta().summary}`;
   elements.dialogStudy.disabled = items.length === 0;
+  elements.dialogCopyStudyLink.disabled = Boolean(query) || selectedDeck().length === 0;
+  elements.dialogCopyStudyLink.title = query ? "Clear search to copy a deck study link" : "Copy a link that opens this selection in study mode";
   elements.dialogStudy.firstChild.textContent = query
     ? `STUDY ${items.length} ${items.length === 1 ? "RESULT" : "RESULTS"} `
     : "STUDY SELECTION ";
@@ -755,6 +880,7 @@ document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEv
 elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
+elements.copyStudyLink.addEventListener("click", () => copyStudyLink(elements.copyStudyLink));
 elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", () => {
   const replayDeck = [...state.deck];
@@ -769,6 +895,8 @@ elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
 elements.pronounce.addEventListener("click", pronounceCurrentWord);
 elements.studyPronounce.addEventListener("click", pronounceStudyWord);
+elements.studyShare.addEventListener("click", () => shareWord(state.current, elements.studyShare));
+elements.feedbackShare.addEventListener("click", () => shareWord(state.current, elements.feedbackShare));
 elements.favorite.addEventListener("click", () => toggleFavorite(state.current));
 elements.review.addEventListener("click", () => openDeckDialog());
 elements.search.addEventListener("click", () => openDeckDialog(true));
@@ -812,6 +940,7 @@ elements.signOut.addEventListener("click", async () => {
   }
 });
 elements.dialogStudy.addEventListener("click", startDialogStudy);
+elements.dialogCopyStudyLink.addEventListener("click", () => copyStudyLink(elements.dialogCopyStudyLink));
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
   if (event.target === elements.deckDialog) elements.deckDialog.close();
@@ -845,5 +974,10 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-setDeckSelection(["all"]);
-initializeCloudSync();
+window.addEventListener("popstate", applyCurrentRoute);
+
+applyCurrentRoute();
+initializeCloudSync().then(() => {
+  const route = parseRoute(window.location.href, Object.keys(DECKS));
+  if (route.view === "study" && elements.intro.classList.contains("active") && selectedDeck().length > 0) applyCurrentRoute();
+});

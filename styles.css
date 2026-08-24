@@ -260,7 +260,7 @@ main { min-height: calc(100vh - 82px); }
 }
 .study-button span { margin-left: 10px; color: var(--red); }
 .study-button:hover { background: var(--yellow); transform: translateY(-2px); }
-.link-button, .share-button {
+.link-button {
   padding: 10px 0;
   border: 0;
   border-bottom: 1px solid currentColor;
@@ -271,7 +271,7 @@ main { min-height: calc(100vh - 82px); }
   cursor: pointer;
   transition: color 120ms ease, transform 120ms ease;
 }
-.link-button:hover, .share-button:hover { color: var(--red); transform: translateY(-2px); }
+.link-button:hover { color: var(--red); transform: translateY(-2px); }
 .link-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 
 .best-score {
@@ -439,7 +439,6 @@ kbd { font: inherit; color: var(--red); }
 .study-reading-row { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .study-reading { min-width: 0; font: 800 clamp(34px, 4vw, 54px)/1 var(--jp); white-space: nowrap; }
 .study-tools { display: flex; align-items: center; gap: 8px; }
-.study-share-button { margin-right: 4px; white-space: nowrap; }
 .study-lookup-link {
   position: absolute;
   top: 18px;
@@ -546,7 +545,6 @@ kbd { font: inherit; color: var(--red); }
 .feedback-head strong { font: 600 12px var(--mono); letter-spacing: .05em; }
 .feedback-reading-tools { display: flex; align-items: center; gap: 10px; }
 .feedback-reading-tools > span { font: 700 24px var(--jp); }
-.feedback-share-button { color: var(--paper); white-space: nowrap; }
 .feedback-lookup-link {
   color: var(--paper);
   font: 700 18px/1 var(--mono);
@@ -710,15 +708,6 @@ kbd { font: inherit; color: var(--red); }
 .deck-favorite-button.active { opacity: .7; }
 .deck-favorite-button:hover,
 .deck-favorite-button:focus-visible { opacity: 1; }
-.deck-share-button {
-  position: absolute;
-  top: 47px;
-  right: 14px;
-  padding: 0;
-  border-bottom-style: dotted;
-  color: rgba(23,23,20,.48);
-  font-size: 7px;
-}
 .deck-details { min-width: 0; }
 .deck-reading { display: block; font: 700 16px var(--jp); }
 .deck-meaning { display: block; margin-top: 3px; color: rgba(23,23,20,.62); font: 500 9px var(--mono); text-transform: uppercase; }

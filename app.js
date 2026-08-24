@@ -20,7 +20,7 @@ import {
   needsWork,
   progressIsMastered,
 } from "./src/progress.js";
-import { parseRoute, selectionUrl, studyUrl, wordUrl } from "./src/routes.js";
+import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
@@ -42,9 +42,9 @@ const elements = {
   selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
-  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyShare: $("#studyShareButton"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
+  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
-  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"), feedbackShare: $("#feedbackShareButton"),
+  feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
 };
@@ -406,27 +406,6 @@ async function copyStudyLink(button) {
     flashButtonLabel(button, "COPIED ✓");
   } catch {
     flashButtonLabel(button, "COPY FAILED");
-  }
-}
-
-async function shareWord(item, button) {
-  if (!item) return;
-  const url = wordUrl(window.location.href, itemKey(item));
-  const shareData = {
-    title: `Ink Run — ${item.word}`,
-    text: `${item.word} · ${item.reading} · ${item.meaning}`,
-    url: url.href,
-  };
-  try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-      flashButtonLabel(button, "SHARED ✓");
-    } else {
-      await copyToClipboard(url.href);
-      flashButtonLabel(button, "COPIED ✓");
-    }
-  } catch (error) {
-    if (error?.name !== "AbortError") flashButtonLabel(button, "SHARE FAILED");
   }
 }
 
@@ -798,12 +777,10 @@ function populateDeck() {
     const breakdown = hasCharacterBreakdown
       ? `<span class="deck-breakdown-label">CHARACTER BREAKDOWN</span><span class="deck-breakdown">${item.breakdown.map(([character, reading, definition]) => `<span class="deck-breakdown-part"><b>${character}</b> ${reading}<small>${definition}</small></span>`).join("")}</span>`
       : "";
-    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><button class="share-button deck-share-button" type="button" aria-label="Share ${item.word}" title="Share ${item.word}">SHARE</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${itemNeedsWork ? " needs-work" : ""}">${trackedProgress}</span>` : ""}${itemNeedsWork ? `<button class="deck-review-dismiss" type="button" aria-label="Remove ${item.word} from Needs Work" title="Remove from Needs Work">REMOVE ×</button>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
+    row.innerHTML = `<span class="deck-kanji">${item.word}</span><button class="favorite-button deck-favorite-button" type="button" aria-pressed="false">☆</button><span class="deck-details"><span class="deck-reading">${item.reading}</span><span class="deck-meaning">${item.meaning}</span>${breakdown}</span>${trackedProgress ? `<span class="deck-progress${itemNeedsWork ? " needs-work" : ""}">${trackedProgress}</span>` : ""}${itemNeedsWork ? `<button class="deck-review-dismiss" type="button" aria-label="Remove ${item.word} from Needs Work" title="Remove from Needs Work">REMOVE ×</button>` : ""}<span class="deck-source">${sourceDeckLabel(item)}</span>`;
     const favoriteButton = row.querySelector(".deck-favorite-button");
     updateFavoriteButton(favoriteButton, item);
     favoriteButton.addEventListener("click", () => toggleFavorite(item));
-    const shareButton = row.querySelector(".deck-share-button");
-    shareButton.addEventListener("click", () => shareWord(item, shareButton));
     row.querySelector(".deck-review-dismiss")?.addEventListener("click", () => dismissNeedsWork(item));
     return row;
   });
@@ -895,8 +872,6 @@ elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);
 elements.pronounce.addEventListener("click", pronounceCurrentWord);
 elements.studyPronounce.addEventListener("click", pronounceStudyWord);
-elements.studyShare.addEventListener("click", () => shareWord(state.current, elements.studyShare));
-elements.feedbackShare.addEventListener("click", () => shareWord(state.current, elements.feedbackShare));
 elements.favorite.addEventListener("click", () => toggleFavorite(state.current));
 elements.review.addEventListener("click", () => openDeckDialog());
 elements.search.addEventListener("click", () => openDeckDialog(true));

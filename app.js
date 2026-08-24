@@ -31,14 +31,14 @@ const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), copyStudyLink: $("#copyStudyLinkButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
   favorite: $("#favoriteButton"),
-  dialogStudy: $("#dialogStudyButton"), dialogCopyStudyLink: $("#dialogCopyStudyLinkButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
+  dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
@@ -373,40 +373,6 @@ function toggleFavorite(item) {
   renderDeckSelection();
   if (selectionChanged) writeSelectionRoute();
   updateFavoriteButton(elements.favorite, state.current);
-}
-
-function flashButtonLabel(button, label) {
-  const original = button.dataset.defaultLabel ?? button.textContent;
-  button.dataset.defaultLabel = original;
-  button.textContent = label;
-  window.setTimeout(() => { button.textContent = original; }, 1800);
-}
-
-async function copyToClipboard(value) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value);
-    return;
-  }
-  const textarea = document.createElement("textarea");
-  textarea.value = value;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.append(textarea);
-  textarea.select();
-  const copied = document.execCommand("copy");
-  textarea.remove();
-  if (!copied) throw new Error("Copy unavailable");
-}
-
-async function copyStudyLink(button) {
-  const url = studyUrl(window.location.href, orderedSelectedDeckKeys());
-  try {
-    await copyToClipboard(url.href);
-    flashButtonLabel(button, "COPIED ✓");
-  } catch {
-    flashButtonLabel(button, "COPY FAILED");
-  }
 }
 
 function startStarredStudy() {
@@ -798,8 +764,6 @@ function populateDeck() {
     ? `SEARCHING ALL ${KANJI.length} WORDS · ${items.length} ${items.length === 1 ? "MATCH" : "MATCHES"}`
     : `SHOWING ${selectedDeckMeta().summary}`;
   elements.dialogStudy.disabled = items.length === 0;
-  elements.dialogCopyStudyLink.disabled = Boolean(query) || selectedDeck().length === 0;
-  elements.dialogCopyStudyLink.title = query ? "Clear search to copy a deck study link" : "Copy a link that opens this selection in study mode";
   elements.dialogStudy.firstChild.textContent = query
     ? `STUDY ${items.length} ${items.length === 1 ? "RESULT" : "RESULTS"} `
     : "STUDY SELECTION ";
@@ -857,7 +821,6 @@ document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEv
 elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
-elements.copyStudyLink.addEventListener("click", () => copyStudyLink(elements.copyStudyLink));
 elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", () => {
   const replayDeck = [...state.deck];
@@ -915,7 +878,6 @@ elements.signOut.addEventListener("click", async () => {
   }
 });
 elements.dialogStudy.addEventListener("click", startDialogStudy);
-elements.dialogCopyStudyLink.addEventListener("click", () => copyStudyLink(elements.dialogCopyStudyLink));
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
   if (event.target === elements.deckDialog) elements.deckDialog.close();

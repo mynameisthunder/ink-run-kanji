@@ -260,20 +260,6 @@ main { min-height: calc(100vh - 82px); }
 }
 .study-button span { margin-left: 10px; color: var(--red); }
 .study-button:hover { background: var(--yellow); transform: translateY(-2px); }
-.link-button {
-  padding: 10px 0;
-  border: 0;
-  border-bottom: 1px solid currentColor;
-  background: transparent;
-  color: var(--ink);
-  font: 600 9px var(--mono);
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: color 120ms ease, transform 120ms ease;
-}
-.link-button:hover { color: var(--red); transform: translateY(-2px); }
-.link-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
-
 .best-score {
   min-width: 150px;
   padding: 9px 18px;
@@ -750,7 +736,7 @@ kbd { font: inherit; color: var(--red); }
   cursor: pointer;
 }
 .deck-review-dismiss:hover, .deck-review-dismiss:focus-visible { opacity: 1; }
-.deck-dialog-actions { padding: 18px 28px 0; display: flex; align-items: center; gap: 18px; }
+.deck-dialog-actions { padding: 18px 28px 0; }
 .deck-dialog-actions .study-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .deck-note { margin: 18px 28px 22px; font: 500 9px var(--mono); color: rgba(23,23,20,.55); }
 .deck-guide-link {

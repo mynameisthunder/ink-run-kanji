@@ -320,7 +320,7 @@ main { min-height: calc(100vh - 82px); }
   position: relative;
   z-index: 1;
   margin: 0;
-  font: 900 clamp(120px, 19vw, 290px)/1 var(--jp);
+  font: 600 clamp(120px, 19vw, 290px)/1 var(--jp);
   letter-spacing: -0.12em;
   transform: translateX(-.04em);
 }

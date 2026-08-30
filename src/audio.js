@@ -1,3 +1,22 @@
+const PREFERRED_JAPANESE_VOICES = [
+  /\bkyoko\b/i,
+  /\botoya\b/i,
+  /google.*(?:日本語|japanese)/i,
+  /microsoft.*(?:nanami|haruka|ayumi)/i,
+  /siri.*(?:日本語|japanese)/i,
+];
+
+const NOVELTY_JAPANESE_VOICES = /^(?:eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)(?:\s|$)/i;
+
+export function pickJapaneseVoice(voices) {
+  const japaneseVoices = voices.filter((voice) => /^ja(?:-|_)/i.test(voice.lang));
+  for (const preferred of PREFERRED_JAPANESE_VOICES) {
+    const match = japaneseVoices.find((voice) => preferred.test(`${voice.name} ${voice.voiceURI ?? ""}`));
+    if (match) return match;
+  }
+  return japaneseVoices.find((voice) => !NOVELTY_JAPANESE_VOICES.test(voice.name)) ?? japaneseVoices[0];
+}
+
 export function createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled }) {
   let pronunciationAudio;
   let activePronounceButton;
@@ -6,9 +25,9 @@ export function createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled }) {
   function speakWithBrowserVoice(reading, button) {
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
     const utterance = new SpeechSynthesisUtterance(reading);
-    const japaneseVoice = window.speechSynthesis.getVoices().find((voice) => /^ja(?:-|_)/i.test(voice.lang));
+    const japaneseVoice = pickJapaneseVoice(window.speechSynthesis.getVoices());
     utterance.lang = "ja-JP";
-    utterance.rate = 0.78;
+    utterance.rate = 0.92;
     utterance.pitch = 1;
     if (japaneseVoice) utterance.voice = japaneseVoice;
     utterance.addEventListener("start", () => button.classList.add("speaking"));

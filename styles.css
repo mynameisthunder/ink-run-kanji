@@ -563,7 +563,7 @@ kbd { font: inherit; color: var(--red); }
 .breakdown { display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 .feedback.detailed .breakdown { display: grid; }
 .breakdown-item { padding: 10px 12px; border: 1px solid rgba(242,237,223,.26); }
-.breakdown-char { display: block; font: 700 23px var(--jp); }
+.breakdown-char { display: block; font: 400 23px var(--jp); }
 .breakdown-definition { display: block; margin-top: 3px; color: rgba(242,237,223,.75); font: 500 9px/1.35 var(--mono); text-transform: uppercase; }
 
 .feedback-next {

@@ -9,6 +9,7 @@ import {
 } from "./src/vocabulary.js";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
+import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
 import { burst } from "./src/effects.js";
 import { answerIsCorrect, romajiToHiragana } from "./src/kana.js";
 import {
@@ -277,8 +278,11 @@ function updateFavoriteControls() {
   const count = state.favoriteWords.size;
   document.querySelectorAll("[data-favorite-count]").forEach((node) => { node.textContent = String(count); });
   document.querySelectorAll('[data-deck-choice="favorites"]').forEach((button) => {
-    button.disabled = count === 0;
-    button.title = count === 0 ? "Star words to build this deck" : `Study ${count} favorite ${count === 1 ? "word" : "words"}`;
+    const selected = state.selectedDeckKeys.has("favorites");
+    button.disabled = dynamicDeckIsDisabled(count, selected);
+    button.title = count === 0
+      ? selected ? "Remove empty Favorites deck from selection" : "Star words to build this deck"
+      : `Study ${count} favorite ${count === 1 ? "word" : "words"}`;
   });
   elements.studyStarred.disabled = count === 0;
   elements.studyStarred.title = count === 0 ? "Star words during a run to study them here" : `Study ${count} starred ${count === 1 ? "word" : "words"}`;
@@ -293,12 +297,18 @@ function updateProgressControls() {
   document.querySelectorAll("[data-done-count]").forEach((node) => { node.textContent = String(doneCount); });
   document.querySelectorAll("[data-needs-work-count]").forEach((node) => { node.textContent = String(needsWorkCount); });
   document.querySelectorAll('[data-deck-choice="done"]').forEach((button) => {
-    button.disabled = doneCount === 0;
-    button.title = doneCount ? `Review ${doneCount} seen ${doneCount === 1 ? "word" : "words"}` : "Complete recalls to build this deck";
+    const selected = state.selectedDeckKeys.has("done");
+    button.disabled = dynamicDeckIsDisabled(doneCount, selected);
+    button.title = doneCount
+      ? `Review ${doneCount} seen ${doneCount === 1 ? "word" : "words"}`
+      : selected ? "Remove empty Done deck from selection" : "Complete recalls to build this deck";
   });
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
-    button.disabled = needsWorkCount === 0;
-    button.title = needsWorkCount ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} at 60% recall or lower` : "Words at 60% recall or lower will appear here";
+    const selected = state.selectedDeckKeys.has("needs-work");
+    button.disabled = dynamicDeckIsDisabled(needsWorkCount, selected);
+    button.title = needsWorkCount
+      ? `Practice ${needsWorkCount} ${needsWorkCount === 1 ? "word" : "words"} at 60% recall or lower`
+      : selected ? "Remove empty Needs Work deck from selection" : "Words at 60% recall or lower will appear here";
   });
   document.querySelectorAll("[data-deck-choice]").forEach((button) => {
     const key = button.dataset.deckChoice;
@@ -340,8 +350,9 @@ function setDeckSelection(keys, { updateRoute = true } = {}) {
 
 function toggleDeckSelection(key) {
   if (!DECKS[key]) return;
-  if (key === "favorites" && state.favoriteWords.size === 0) return;
-  if ((key === "done" || key === "needs-work") && itemsForDeck(key).length === 0) return;
+  if (key === "favorites" && dynamicDeckIsDisabled(state.favoriteWords.size, state.selectedDeckKeys.has(key))) return;
+  if ((key === "done" || key === "needs-work")
+    && dynamicDeckIsDisabled(itemsForDeck(key).length, state.selectedDeckKeys.has(key))) return;
   if (key === "all") {
     setDeckSelection(["all"]);
     return;

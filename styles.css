@@ -145,14 +145,6 @@ main { min-height: calc(100vh - 82px); }
   -webkit-text-stroke: 2px var(--ink);
 }
 
-.intro-copy {
-  width: min(430px, 85%);
-  margin: clamp(20px, 3vw, 38px) 0 18px;
-  font-size: clamp(17px, 2vw, 22px);
-  font-weight: 500;
-  line-height: 1.35;
-}
-
 .deck-picker { position: relative; z-index: 1; width: 100%; margin-bottom: 18px; }
 .picker-label { display: block; margin-bottom: 8px; font: 600 9px var(--mono); letter-spacing: .08em; }
 .deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }

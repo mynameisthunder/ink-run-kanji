@@ -356,6 +356,11 @@ function renderDeckSelection() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  if ([...state.selectedDeckKeys].some((key) => key.startsWith("n5-") && key !== "n5-all")) {
+    document.querySelectorAll('[data-deck-range-toggle="n5"]').forEach((toggle) => {
+      setDeckRangeExpanded(toggle, true);
+    });
+  }
   elements.selectedDeckSummary.textContent = meta.summary;
   elements.introSetLabel.textContent = meta.setLabel;
   elements.deckDialogTitle.textContent = meta.setLabel;
@@ -812,8 +817,17 @@ function openDeckDialog(focusSearch = false) {
   if (focusSearch) window.requestAnimationFrame(() => elements.deckSearch.focus());
 }
 
+function setDeckRangeExpanded(toggle, expanded) {
+  const rangeContainer = document.getElementById(toggle.getAttribute("aria-controls"));
+  if (!rangeContainer) return;
+  const count = toggle.dataset.rangeCount;
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggle.textContent = `${expanded ? "HIDE" : "SHOW"} ${count} SMALL DECKS ${expanded ? "−" : "+"}`;
+  rangeContainer.hidden = !expanded;
+}
+
 function appendGeneratedDeckButtons() {
-  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
+  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container, containerIndex) => {
     const n5Keys = ["n5-all", ...Array.from({ length: Math.ceil(REAL_KANA_N5_WORDS.length / 10) }, (_, index) => {
       const start = index * 10 + 1;
       return `n5-${start}-${Math.min(start + 9, REAL_KANA_N5_WORDS.length)}`;
@@ -825,12 +839,17 @@ function appendGeneratedDeckButtons() {
     const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
-      ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
-      ["REAL KANA · FREQUENCY LEVEL 2", level2Keys, "level-2-deck-option"],
-      ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
-      ["REAL KANA · JLPT N1 / N2 / N3 STARTERS", JLPT_SAMPLE_GROUPS.map((group) => group.key), "jlpt-sample-deck-option"],
-      ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option", "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/"],
-    ].forEach(([label, keys, className, guideUrl]) => {
+      { label: "REAL KANA · FREQUENCY LEVEL 1:2", keys: frequency2Keys, className: "frequency-2-deck-option" },
+      { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
+      { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option", collapsibleRanges: true },
+      { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },
+      {
+        label: "REAL KANA · NUMBERS + COUNTERS",
+        keys: numberKeys,
+        className: "number-deck-option",
+        guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
+      },
+    ].forEach(({ label, keys, className, guideUrl, collapsibleRanges = false }) => {
       const groupLabel = document.createElement("span");
       groupLabel.className = "deck-group-label";
       if (guideUrl) {
@@ -839,15 +858,41 @@ function appendGeneratedDeckButtons() {
         groupLabel.textContent = label;
       }
       container.append(groupLabel);
-      keys.forEach((key) => {
+
+      const appendDeckButton = (parent, key) => {
         const button = document.createElement("button");
         button.className = `deck-option ${className}`;
         button.type = "button";
         button.dataset.deckChoice = key;
         button.setAttribute("aria-pressed", "false");
         button.textContent = DECKS[key].label;
-        container.append(button);
+        parent.append(button);
+      };
+
+      if (!collapsibleRanges) {
+        keys.forEach((key) => appendDeckButton(container, key));
+        return;
+      }
+
+      appendDeckButton(container, keys[0]);
+      const rangeContainer = document.createElement("div");
+      rangeContainer.className = "deck-range-options";
+      rangeContainer.id = `n5DeckRanges${containerIndex}`;
+      rangeContainer.hidden = true;
+      keys.slice(1).forEach((key) => appendDeckButton(rangeContainer, key));
+
+      const toggle = document.createElement("button");
+      toggle.className = "deck-option deck-range-toggle";
+      toggle.type = "button";
+      toggle.dataset.deckRangeToggle = "n5";
+      toggle.dataset.rangeCount = String(keys.length - 1);
+      toggle.setAttribute("aria-controls", rangeContainer.id);
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.addEventListener("click", () => {
+        setDeckRangeExpanded(toggle, toggle.getAttribute("aria-expanded") !== "true");
       });
+      container.append(toggle, rangeContainer);
+      setDeckRangeExpanded(toggle, false);
     });
   });
 }
@@ -927,6 +972,7 @@ elements.sound.addEventListener("click", () => {
 
 window.addEventListener("keydown", (event) => {
   if (elements.deckDialog.open) return;
+  if (event.target.closest?.("button, a, input, textarea, select, summary")) return;
   if (event.key === "ArrowRight" && state.mode === "study" && elements.game.classList.contains("active")) {
     event.preventDefault();
     elements.studyNext.click();

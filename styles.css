@@ -197,6 +197,20 @@ main { min-height: calc(100vh - 82px); }
 .deck-option.active small { color: var(--yellow); }
 .needs-work-deck-option { border-color: var(--red); }
 .daily-review-deck-option { border-color: var(--yellow); }
+.deck-range-toggle {
+  border-style: dashed;
+  color: var(--red);
+}
+.deck-range-options {
+  flex: 1 0 100%;
+  width: 100%;
+  padding: 5px 0 7px 12px;
+  border-left: 2px solid var(--blue);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.deck-range-options[hidden] { display: none; }
 .starred-study {
   position: absolute;
   z-index: 1;
@@ -806,6 +820,12 @@ kbd { font: inherit; color: var(--red); }
   .intro::after { right: -14vw; bottom: 4vh; font-size: 88vw; opacity: .26; }
   .deck-options { display: grid; grid-template-columns: repeat(3, 1fr); }
   .deck-group-label { grid-column: 1 / -1; }
+  .deck-range-options {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .deck-range-options[hidden] { display: none; }
   .deck-option { padding: 8px; }
   .starred-study {
     position: static;

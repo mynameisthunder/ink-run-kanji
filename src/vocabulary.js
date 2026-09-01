@@ -908,7 +908,7 @@ REAL_KANA_N5_WORDS.forEach((word, index) => {
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
   const end = Math.min(start + 9, REAL_KANA_N5_WORDS.length);
-  item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  item.n5SourceLabel = `REAL KANA N5 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
 });
 FREQUENCY_2_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
@@ -977,13 +977,13 @@ const DECKS = {
   "extra-51-60": { label: "EXTRA 51—60", setLabel: "EXTRA 1 · 51—60", start: 160, end: 170 },
 };
 
-DECKS["n5-all"] = { label: `N5 ALL ${REAL_KANA_N5_WORDS.length}`, setLabel: `JLPT N5 · ALL ${REAL_KANA_N5_WORDS.length}`, words: REAL_KANA_N5_WORDS };
+DECKS["n5-all"] = { label: `N5 ALL ${REAL_KANA_N5_WORDS.length}`, setLabel: `REAL KANA · N5 WORDS · ALL ${REAL_KANA_N5_WORDS.length}`, words: REAL_KANA_N5_WORDS };
 for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
   const start = index + 1;
   const end = Math.min(index + 10, REAL_KANA_N5_WORDS.length);
   const key = `n5-${start}-${end}`;
   const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
-  DECKS[key] = { label: `N5 ${range}`, setLabel: `JLPT N5 · ${range}`, words: REAL_KANA_N5_WORDS.slice(index, end) };
+  DECKS[key] = { label: `N5 ${range}`, setLabel: `REAL KANA · N5 WORDS · ${range}`, words: REAL_KANA_N5_WORDS.slice(index, end) };
 }
 
 DECKS["frequency-2-all"] = { label: "L1:2 ALL 150", setLabel: "FREQUENCY · LEVEL 1:2 · ALL 150", words: FREQUENCY_2_WORDS };

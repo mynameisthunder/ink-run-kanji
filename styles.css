@@ -155,56 +155,12 @@ main { min-height: calc(100vh - 82px); }
 
 .deck-picker { position: relative; z-index: 1; width: 100%; margin-bottom: 18px; }
 .picker-label { display: block; margin-bottom: 8px; font: 600 9px var(--mono); letter-spacing: .08em; }
-.deck-category-nav {
-  margin: 0 0 10px;
-  padding: 8px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  border: 1px solid var(--ink);
-  background: rgba(255,255,255,.28);
-}
-.deck-category-nav-copy {
-  grid-column: 1 / -1;
-  padding: 1px 2px 3px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--red);
-  font: 600 8px var(--mono);
-  letter-spacing: .09em;
-}
-.deck-category-nav-copy small { color: rgba(23,23,20,.46); font: inherit; letter-spacing: .04em; }
-.deck-category-tab {
-  min-width: 0;
-  min-height: 40px;
-  padding: 7px 9px;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  color: var(--ink);
-  font: 700 9px var(--mono);
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
-}
-.deck-category-tab:hover { transform: translateY(-1px); }
-.deck-category-tab:focus-visible, .deck-option:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-.deck-category-tab.active { background: var(--ink); color: var(--paper); }
-.deck-category-tab small {
-  min-width: 17px;
-  margin-left: 6px;
-  padding: 2px 5px;
-  border-radius: 999px;
-  background: var(--yellow);
-  color: var(--ink);
-  font: 700 8px var(--mono);
-}
-.deck-category-tab small[hidden] { display: none; }
 .deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }
-.deck-options > [hidden], .dialog-deck-options > [hidden] { display: none; }
 .deck-group-label {
   flex: 1 0 100%;
-  margin-top: 5px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(23,23,20,.2);
   color: var(--red);
   font: 600 8px var(--mono);
   letter-spacing: .1em;
@@ -238,6 +194,7 @@ main { min-height: calc(100vh - 82px); }
 .deck-option.mastered.active::after { color: var(--yellow); opacity: .9; }
 .deck-option small { color: var(--red); font: inherit; }
 .deck-option:hover { transform: translateY(-2px); }
+.deck-option:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 .deck-option:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 .deck-option.active { background: var(--blue); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
 .deck-option.active small { color: var(--yellow); }
@@ -682,7 +639,6 @@ kbd { font: inherit; color: var(--red); }
 .dialog-head h2 { margin: 4px 0 0; font-size: 32px; letter-spacing: -.06em; }
 .close-button { flex: 0 0 auto; padding: 0; border: 0; background: transparent; font: 400 42px/1 var(--sans); cursor: pointer; }
 .dialog-deck-options { padding: 14px 28px; border-bottom: 1px solid var(--line); }
-.deck-dialog > .deck-category-nav { margin: 0; padding: 10px 28px; border: 0; border-bottom: 1px solid var(--line); }
 .deck-search { width: clamp(280px, 30vw, 580px); flex: 0 1 auto; }
 .deck-search label { display: block; margin-bottom: 7px; color: var(--red); font: 600 8px var(--mono); letter-spacing: .08em; }
 .deck-search-control { position: relative; }
@@ -853,9 +809,7 @@ kbd { font: inherit; color: var(--red); }
   .intro::after { right: -14vw; bottom: 4vh; font-size: 88vw; opacity: .26; }
   .deck-options { display: grid; grid-template-columns: repeat(3, 1fr); }
   .deck-group-label { grid-column: 1 / -1; }
-  .deck-category-nav-copy { display: block; }
-  .deck-category-nav-copy small { display: block; margin-top: 3px; }
-  .deck-category-tab, .deck-option { min-height: 44px; }
+  .deck-option { min-height: 44px; }
   .deck-option { padding: 8px; }
   .starred-study {
     position: static;
@@ -897,7 +851,6 @@ kbd { font: inherit; color: var(--red); }
   .deck-item:nth-child(odd) { border-right: 0; }
   .deck-item { grid-template-columns: minmax(90px, .4fr) 1fr; }
   .dialog-deck-options { padding: 12px 18px; }
-  .deck-dialog > .deck-category-nav { padding: 10px 18px; }
   .dialog-deck-options .deck-option { flex: 1 1 28%; }
   .deck-dialog .dialog-head {
     padding: 20px 18px 16px;

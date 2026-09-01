@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "audio:frequency-1-2": "node scripts/generate-frequency-1-2-audio.mjs",
-    "audio:n5": "node scripts/generate-n5-audio.mjs",
-    "audio:jlpt-samples": "node scripts/generate-jlpt-sample-audio.mjs",
     "data:jlpt-samples": "node scripts/generate-jlpt-sample-data.mjs",
     "data:n5": "node scripts/generate-complete-n5-data.mjs",
     "dev": "node server.mjs",

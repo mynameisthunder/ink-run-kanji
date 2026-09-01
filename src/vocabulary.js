@@ -909,7 +909,6 @@ REAL_KANA_N5_WORDS.forEach((word, index) => {
   const start = Math.floor(index / 10) * 10 + 1;
   const end = Math.min(start + 9, REAL_KANA_N5_WORDS.length);
   item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
-  item.audioSrc = `audio/n5/${String(index + 1).padStart(3, "0")}.wav`;
 });
 FREQUENCY_2_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
@@ -928,7 +927,6 @@ JLPT_SAMPLE_GROUPS.forEach((group) => {
     const item = KANJI_BY_WORD.get(word);
     if (!item) return;
     item.jlptSampleSourceLabel = `${group.level} · 001—010`;
-    item.audioSrc = `audio/jlpt-samples/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;
   });
 });
 NUMBER_GROUPS.forEach((group) => {

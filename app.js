@@ -31,7 +31,14 @@ import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
+const DECK_CATEGORIES = [
+  { key: "review", label: "REVIEW" },
+  { key: "frequency", label: "FREQUENCY" },
+  { key: "jlpt", label: "JLPT" },
+  { key: "numbers", label: "NUMBERS" },
+];
 let restoringRoute = false;
+let activeDeckCategory = "frequency";
 
 const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
@@ -358,12 +365,7 @@ function renderDeckSelection() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-  document.querySelectorAll("[data-deck-range-toggle]").forEach((toggle) => {
-    const prefix = toggle.dataset.deckRangeToggle;
-    if ([...state.selectedDeckKeys].some((key) => key.startsWith(`${prefix}-`) && key !== `${prefix}-all`)) {
-      setDeckRangeExpanded(toggle, true);
-    }
-  });
+  updateDeckCategoryCounts();
   elements.selectedDeckSummary.textContent = meta.summary;
   elements.introSetLabel.textContent = meta.setLabel;
   elements.deckDialogTitle.textContent = meta.setLabel;
@@ -448,6 +450,7 @@ function applyCurrentRoute() {
   const route = parseRoute(window.location.href, Object.keys(DECKS));
   restoringRoute = true;
   try {
+    setActiveDeckCategory(categoryForDeckKey(route.decks[0] ?? "all"));
     setDeckSelection(route.decks, { updateRoute: false });
     elements.feedback.classList.remove("show");
     if (elements.deckDialog.open) elements.deckDialog.close();
@@ -820,17 +823,74 @@ function openDeckDialog(focusSearch = false) {
   if (focusSearch) window.requestAnimationFrame(() => elements.deckSearch.focus());
 }
 
-function setDeckRangeExpanded(toggle, expanded) {
-  const rangeContainer = document.getElementById(toggle.getAttribute("aria-controls"));
-  if (!rangeContainer) return;
-  const count = toggle.dataset.rangeCount;
-  toggle.setAttribute("aria-expanded", String(expanded));
-  toggle.textContent = `${expanded ? "HIDE" : "SHOW"} ${count} SMALL DECKS ${expanded ? "−" : "+"}`;
-  rangeContainer.hidden = !expanded;
+function categoryForDeckKey(key) {
+  if (DYNAMIC_DECK_KEYS.has(key)) return "review";
+  if (key.startsWith("n5-") || key.startsWith("jlpt-")) return "jlpt";
+  if (key.startsWith("numbers-")) return "numbers";
+  return "frequency";
+}
+
+function updateDeckCategoryCounts() {
+  const counts = Object.fromEntries(DECK_CATEGORIES.map(({ key }) => [key, 0]));
+  state.selectedDeckKeys.forEach((key) => { counts[categoryForDeckKey(key)] += 1; });
+  document.querySelectorAll("[data-deck-category-tab]").forEach((button) => {
+    const count = counts[button.dataset.deckCategoryTab];
+    const label = DECK_CATEGORIES.find(({ key }) => key === button.dataset.deckCategoryTab)?.label ?? "DECKS";
+    const badge = button.querySelector("small");
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+    button.setAttribute("aria-label", count === 0 ? label : `${label}, ${count} selected`);
+  });
+}
+
+function setActiveDeckCategory(category) {
+  if (!DECK_CATEGORIES.some(({ key }) => key === category)) return;
+  activeDeckCategory = category;
+  document.querySelectorAll("[data-deck-category-tab]").forEach((button) => {
+    const active = button.dataset.deckCategoryTab === category;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  document.querySelectorAll("[data-deck-category]").forEach((item) => {
+    item.hidden = item.dataset.deckCategory !== category;
+  });
+}
+
+function initializeDeckCategories() {
+  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container, index) => {
+    container.id = `deckCategoryPanel${index}`;
+    container.querySelectorAll(":scope > .deck-group-label:not([data-deck-category])").forEach((label) => {
+      label.dataset.deckCategory = label.textContent.includes("YOUR REVIEW") ? "review" : "frequency";
+    });
+    container.querySelectorAll(":scope > [data-deck-choice]:not([data-deck-category])").forEach((button) => {
+      button.dataset.deckCategory = categoryForDeckKey(button.dataset.deckChoice);
+    });
+
+    const nav = document.createElement("div");
+    nav.className = "deck-category-nav";
+    nav.setAttribute("aria-label", "Browse deck categories");
+    const copy = document.createElement("div");
+    copy.className = "deck-category-nav-copy";
+    copy.innerHTML = '<span>BROWSE DECKS</span><small>SELECTIONS STAY ACTIVE BETWEEN CATEGORIES</small>';
+    nav.append(copy);
+    DECK_CATEGORIES.forEach(({ key, label }) => {
+      const button = document.createElement("button");
+      button.className = "deck-category-tab";
+      button.type = "button";
+      button.dataset.deckCategoryTab = key;
+      button.setAttribute("aria-controls", container.id);
+      button.setAttribute("aria-pressed", "false");
+      button.append(document.createTextNode(label), Object.assign(document.createElement("small"), { hidden: true }));
+      button.addEventListener("click", () => setActiveDeckCategory(key));
+      nav.append(button);
+    });
+    container.before(nav);
+  });
+  setActiveDeckCategory(activeDeckCategory);
 }
 
 function appendGeneratedDeckButtons() {
-  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container, containerIndex) => {
+  document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
     const n5Keys = ["n5-all", ...Array.from({ length: Math.ceil(REAL_KANA_N5_WORDS.length / 10) }, (_, index) => {
       const start = index * 10 + 1;
       return `n5-${start}-${Math.min(start + 9, REAL_KANA_N5_WORDS.length)}`;
@@ -850,21 +910,23 @@ function appendGeneratedDeckButtons() {
     const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
-      { label: "REAL KANA · FREQUENCY LEVEL 1:2", keys: frequency2Keys, className: "frequency-2-deck-option" },
-      { label: "REAL KANA · FREQUENCY LEVEL 1:3", keys: frequency3Keys, className: "frequency-3-deck-option", collapsibleRanges: true, rangeKey: "frequency-3" },
-      { label: "REAL KANA · FREQUENCY LEVEL 1:4", keys: frequency4Keys, className: "frequency-4-deck-option", collapsibleRanges: true, rangeKey: "frequency-4" },
-      { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
-      { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option", collapsibleRanges: true, rangeKey: "n5" },
-      { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },
+      { label: "REAL KANA · FREQUENCY LEVEL 1:2", keys: frequency2Keys, className: "frequency-2-deck-option", category: "frequency" },
+      { label: "REAL KANA · FREQUENCY LEVEL 1:3", keys: frequency3Keys, className: "frequency-3-deck-option", category: "frequency" },
+      { label: "REAL KANA · FREQUENCY LEVEL 1:4", keys: frequency4Keys, className: "frequency-4-deck-option", category: "frequency" },
+      { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option", category: "frequency" },
+      { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option", category: "jlpt" },
+      { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option", category: "jlpt" },
       {
         label: "REAL KANA · NUMBERS + COUNTERS",
         keys: numberKeys,
         className: "number-deck-option",
+        category: "numbers",
         guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
       },
-    ].forEach(({ label, keys, className, guideUrl, collapsibleRanges = false, rangeKey = "" }) => {
+    ].forEach(({ label, keys, className, category, guideUrl }) => {
       const groupLabel = document.createElement("span");
       groupLabel.className = "deck-group-label";
+      groupLabel.dataset.deckCategory = category;
       if (guideUrl) {
         groupLabel.innerHTML = `${label} <a class="deck-guide-link" href="${guideUrl}" target="_blank" rel="noopener noreferrer" aria-label="Open the complete Japanese counters guide">COUNTER GUIDE ↗</a>`;
       } else {
@@ -877,40 +939,18 @@ function appendGeneratedDeckButtons() {
         button.className = `deck-option ${className}`;
         button.type = "button";
         button.dataset.deckChoice = key;
+        button.dataset.deckCategory = category;
         button.setAttribute("aria-pressed", "false");
         button.textContent = DECKS[key].label;
         parent.append(button);
       };
-
-      if (!collapsibleRanges) {
-        keys.forEach((key) => appendDeckButton(container, key));
-        return;
-      }
-
-      appendDeckButton(container, keys[0]);
-      const rangeContainer = document.createElement("div");
-      rangeContainer.className = "deck-range-options";
-      rangeContainer.id = `${rangeKey.replace(/-/g, "")}DeckRanges${containerIndex}`;
-      rangeContainer.hidden = true;
-      keys.slice(1).forEach((key) => appendDeckButton(rangeContainer, key));
-
-      const toggle = document.createElement("button");
-      toggle.className = "deck-option deck-range-toggle";
-      toggle.type = "button";
-      toggle.dataset.deckRangeToggle = rangeKey;
-      toggle.dataset.rangeCount = String(keys.length - 1);
-      toggle.setAttribute("aria-controls", rangeContainer.id);
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.addEventListener("click", () => {
-        setDeckRangeExpanded(toggle, toggle.getAttribute("aria-expanded") !== "true");
-      });
-      container.append(toggle, rangeContainer);
-      setDeckRangeExpanded(toggle, false);
+      keys.forEach((key) => appendDeckButton(container, key));
     });
   });
 }
 
 appendGeneratedDeckButtons();
+initializeDeckCategories();
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.home.addEventListener("click", returnHome);

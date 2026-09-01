@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "data:jlpt-samples": "node scripts/generate-jlpt-sample-data.mjs",
+    "data:frequency-3-4": "node scripts/generate-frequency-3-4-data.mjs",
     "data:n5": "node scripts/generate-complete-n5-data.mjs",
     "dev": "node server.mjs",
     "start": "node server.mjs",

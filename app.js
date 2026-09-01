@@ -1,6 +1,8 @@
 import {
   BUNDLED_AUDIO_ITEMS,
   DECKS,
+  FREQUENCY_3_WORDS,
+  FREQUENCY_4_WORDS,
   KANJI,
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
@@ -356,11 +358,12 @@ function renderDeckSelection() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-  if ([...state.selectedDeckKeys].some((key) => key.startsWith("n5-") && key !== "n5-all")) {
-    document.querySelectorAll('[data-deck-range-toggle="n5"]').forEach((toggle) => {
+  document.querySelectorAll("[data-deck-range-toggle]").forEach((toggle) => {
+    const prefix = toggle.dataset.deckRangeToggle;
+    if ([...state.selectedDeckKeys].some((key) => key.startsWith(`${prefix}-`) && key !== `${prefix}-all`)) {
       setDeckRangeExpanded(toggle, true);
-    });
-  }
+    }
+  });
   elements.selectedDeckSummary.textContent = meta.summary;
   elements.introSetLabel.textContent = meta.setLabel;
   elements.deckDialogTitle.textContent = meta.setLabel;
@@ -836,12 +839,22 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `frequency-2-${start}-${start + 9}`;
     })];
+    const frequency3Keys = ["frequency-3-all", ...Array.from({ length: Math.ceil(FREQUENCY_3_WORDS.length / 10) }, (_, index) => {
+      const start = index * 10 + 1;
+      return `frequency-3-${start}-${Math.min(start + 9, FREQUENCY_3_WORDS.length)}`;
+    })];
+    const frequency4Keys = ["frequency-4-all", ...Array.from({ length: Math.ceil(FREQUENCY_4_WORDS.length / 10) }, (_, index) => {
+      const start = index * 10 + 1;
+      return `frequency-4-${start}-${Math.min(start + 9, FREQUENCY_4_WORDS.length)}`;
+    })];
     const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       { label: "REAL KANA · FREQUENCY LEVEL 1:2", keys: frequency2Keys, className: "frequency-2-deck-option" },
+      { label: "REAL KANA · FREQUENCY LEVEL 1:3", keys: frequency3Keys, className: "frequency-3-deck-option", collapsibleRanges: true, rangeKey: "frequency-3" },
+      { label: "REAL KANA · FREQUENCY LEVEL 1:4", keys: frequency4Keys, className: "frequency-4-deck-option", collapsibleRanges: true, rangeKey: "frequency-4" },
       { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
-      { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option", collapsibleRanges: true },
+      { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option", collapsibleRanges: true, rangeKey: "n5" },
       { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },
       {
         label: "REAL KANA · NUMBERS + COUNTERS",
@@ -849,7 +862,7 @@ function appendGeneratedDeckButtons() {
         className: "number-deck-option",
         guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
       },
-    ].forEach(({ label, keys, className, guideUrl, collapsibleRanges = false }) => {
+    ].forEach(({ label, keys, className, guideUrl, collapsibleRanges = false, rangeKey = "" }) => {
       const groupLabel = document.createElement("span");
       groupLabel.className = "deck-group-label";
       if (guideUrl) {
@@ -877,14 +890,14 @@ function appendGeneratedDeckButtons() {
       appendDeckButton(container, keys[0]);
       const rangeContainer = document.createElement("div");
       rangeContainer.className = "deck-range-options";
-      rangeContainer.id = `n5DeckRanges${containerIndex}`;
+      rangeContainer.id = `${rangeKey.replace(/-/g, "")}DeckRanges${containerIndex}`;
       rangeContainer.hidden = true;
       keys.slice(1).forEach((key) => appendDeckButton(rangeContainer, key));
 
       const toggle = document.createElement("button");
       toggle.className = "deck-option deck-range-toggle";
       toggle.type = "button";
-      toggle.dataset.deckRangeToggle = "n5";
+      toggle.dataset.deckRangeToggle = rangeKey;
       toggle.dataset.rangeCount = String(keys.length - 1);
       toggle.setAttribute("aria-controls", rangeContainer.id);
       toggle.setAttribute("aria-expanded", "false");

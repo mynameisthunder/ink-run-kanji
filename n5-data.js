@@ -1,6 +1,8 @@
-// Generated from RealKana's complete JLPT N5 word set.
+import { N5_ADDITIONAL_IMPORTS, N5_ADDITIONAL_WORDS } from "./n5-additional-data.js";
+
+// Generated from RealKana's middle JLPT N5 word page.
 // Readings: RealKana. Meanings: Jisho/JMdict. Character meanings: KanjiAPI/KANJIDIC.
-export const N5_WORDS = [
+export const N5_PAGE_2_WORDS = [
   "風邪",
   "便利",
   "両親",
@@ -153,7 +155,7 @@ export const N5_WORDS = [
   "部屋"
 ];
 
-export const N5_IMPORTS = [
+export const N5_PAGE_2_IMPORTS = [
   {
     "word": "風邪",
     "reading": "かぜ",
@@ -461,20 +463,20 @@ export const N5_IMPORTS = [
       [
         "木",
         "もく",
-        "tree; wood"
+        "wood; Jupiter's element; marks Thursday"
       ],
       [
         "曜",
         "よう",
-        "weekday"
+        "weekday; day of the week"
       ],
       [
         "日",
         "び",
-        "day; sun; japan; counter for days"
+        "day; voiced from ひ in this weekday ending"
       ]
     ],
-    "memory": "Read 木 as もく + 曜 as よう + 日 as び: もくようび.",
+    "memory": "Japanese weekdays use the sun, moon, and five planetary elements. 木 is wood and the element linked to Jupiter (木星), so Thursday is 木曜日—literally the wood/Jupiter weekday. Read 木 as もく + 曜日 as ようび: もくようび.",
     "n5SourceLabel": "N5 · 011—020"
   },
   {
@@ -3314,3 +3316,11 @@ export const N5_IMPORTS = [
     "n5SourceLabel": "N5 · 141—150"
   }
 ];
+
+export const N5_WORDS = [
+  ...N5_ADDITIONAL_WORDS.slice(0, 150),
+  ...N5_PAGE_2_WORDS,
+  ...N5_ADDITIONAL_WORDS.slice(150),
+];
+
+export const N5_IMPORTS = [...N5_PAGE_2_IMPORTS, ...N5_ADDITIONAL_IMPORTS];

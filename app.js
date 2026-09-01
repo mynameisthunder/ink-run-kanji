@@ -3,7 +3,9 @@ import {
   DECKS,
   KANJI,
   KANJI_BY_WORD,
+  JLPT_SAMPLE_GROUPS,
   NUMBER_GROUPS,
+  REAL_KANA_N5_WORDS,
   itemKey,
   sourceDeckLabel,
 } from "./src/vocabulary.js";
@@ -18,6 +20,7 @@ import {
   applyAttempt,
   emptyProgress,
   formatProgressLabel,
+  needsDailyReview,
   needsWork,
   progressIsMastered,
 } from "./src/progress.js";
@@ -25,6 +28,7 @@ import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
+const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
 let restoringRoute = false;
 
 const $ = (selector) => document.querySelector(selector);
@@ -128,7 +132,7 @@ function wordIsMastered(item) {
 }
 
 function deckIsMastered(key) {
-  if (["favorites", "done", "needs-work"].includes(key)) return false;
+  if (DYNAMIC_DECK_KEYS.has(key)) return false;
   const items = itemsForDeck(key);
   return items.length > 0 && items.every(wordIsMastered);
 }
@@ -207,6 +211,18 @@ function itemsForDeck(key) {
   if (key === "favorites") return KANJI.filter((item) => state.favoriteWords.has(itemKey(item)));
   if (key === "done") return KANJI.filter((item) => progressFor(itemKey(item)).seenCount > 0)
     .sort((a, b) => progressFor(itemKey(b)).lastReviewedAt.localeCompare(progressFor(itemKey(a)).lastReviewedAt));
+  if (key === "daily-review") return KANJI.filter((item) => needsDailyReview(progressFor(itemKey(item))))
+    .sort((a, b) => {
+      const aStats = progressFor(itemKey(a));
+      const bStats = progressFor(itemKey(b));
+      const aAttempts = aStats.correctCount + aStats.wrongCount;
+      const bAttempts = bStats.correctCount + bStats.wrongCount;
+      const aRate = aStats.correctCount / aAttempts;
+      const bRate = bStats.correctCount / bAttempts;
+      return bStats.wrongCount - aStats.wrongCount
+        || aRate - bRate
+        || aStats.lastReviewedAt.localeCompare(bStats.lastReviewedAt);
+    });
   if (key === "needs-work") return KANJI.filter((item) => needsWork(progressFor(itemKey(item))))
     .sort((a, b) => {
       const aStats = progressFor(itemKey(a));
@@ -244,8 +260,8 @@ function selectedDeckMeta() {
         wordCount,
       };
     }
-    if (keys[0] === "done" || keys[0] === "needs-work") {
-      const label = keys[0] === "done" ? "DONE" : "NEEDS WORK";
+    if (["done", "daily-review", "needs-work"].includes(keys[0])) {
+      const label = DECKS[keys[0]].label;
       return {
         summary: `${label} · ${wordCount}`,
         setLabel: `RECALL HISTORY · ${label} · ${wordCount}`,
@@ -293,8 +309,10 @@ function updateFavoriteControls() {
 
 function updateProgressControls() {
   const doneCount = itemsForDeck("done").length;
+  const dailyReviewCount = itemsForDeck("daily-review").length;
   const needsWorkCount = itemsForDeck("needs-work").length;
   document.querySelectorAll("[data-done-count]").forEach((node) => { node.textContent = String(doneCount); });
+  document.querySelectorAll("[data-daily-review-count]").forEach((node) => { node.textContent = String(dailyReviewCount); });
   document.querySelectorAll("[data-needs-work-count]").forEach((node) => { node.textContent = String(needsWorkCount); });
   document.querySelectorAll('[data-deck-choice="done"]').forEach((button) => {
     const selected = state.selectedDeckKeys.has("done");
@@ -302,6 +320,13 @@ function updateProgressControls() {
     button.title = doneCount
       ? `Review ${doneCount} seen ${doneCount === 1 ? "word" : "words"}`
       : selected ? "Remove empty Done deck from selection" : "Complete recalls to build this deck";
+  });
+  document.querySelectorAll('[data-deck-choice="daily-review"]').forEach((button) => {
+    const selected = state.selectedDeckKeys.has("daily-review");
+    button.disabled = dynamicDeckIsDisabled(dailyReviewCount, selected);
+    button.title = dailyReviewCount
+      ? `Daily practice for ${dailyReviewCount} repeatedly missed ${dailyReviewCount === 1 ? "word" : "words"}`
+      : selected ? "Remove empty Daily Review deck from selection" : "Words missed at least twice will appear here";
   });
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {
     const selected = state.selectedDeckKeys.has("needs-work");
@@ -317,7 +342,7 @@ function updateProgressControls() {
     if (mastered) {
       button.title = `${DECKS[key].label} mastered`;
       button.setAttribute("aria-label", `${DECKS[key].label}, mastered`);
-    } else if (!["favorites", "done", "needs-work"].includes(key)) {
+    } else if (!DYNAMIC_DECK_KEYS.has(key)) {
       button.removeAttribute("title");
       button.removeAttribute("aria-label");
     }
@@ -351,7 +376,7 @@ function setDeckSelection(keys, { updateRoute = true } = {}) {
 function toggleDeckSelection(key) {
   if (!DECKS[key]) return;
   if (key === "favorites" && dynamicDeckIsDisabled(state.favoriteWords.size, state.selectedDeckKeys.has(key))) return;
-  if ((key === "done" || key === "needs-work")
+  if (["done", "daily-review", "needs-work"].includes(key)
     && dynamicDeckIsDisabled(itemsForDeck(key).length, state.selectedDeckKeys.has(key))) return;
   if (key === "all") {
     setDeckSelection(["all"]);
@@ -789,9 +814,9 @@ function openDeckDialog(focusSearch = false) {
 
 function appendGeneratedDeckButtons() {
   document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
-    const n5Keys = ["n5-all", ...Array.from({ length: 15 }, (_, index) => {
+    const n5Keys = ["n5-all", ...Array.from({ length: Math.ceil(REAL_KANA_N5_WORDS.length / 10) }, (_, index) => {
       const start = index * 10 + 1;
-      return `n5-${start}-${start + 9}`;
+      return `n5-${start}-${Math.min(start + 9, REAL_KANA_N5_WORDS.length)}`;
     })];
     const frequency2Keys = ["frequency-2-all", ...Array.from({ length: 15 }, (_, index) => {
       const start = index * 10 + 1;
@@ -801,6 +826,7 @@ function appendGeneratedDeckButtons() {
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
+      ["REAL KANA · JLPT N1 / N2 / N3 STARTERS", JLPT_SAMPLE_GROUPS.map((group) => group.key), "jlpt-sample-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 2", level2Keys, "level-2-deck-option"],
       ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option", "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/"],

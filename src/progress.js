@@ -2,6 +2,9 @@ export const RECALLS_PER_WORD = 2;
 export const RECOVERY_STREAK = 3;
 export const NEEDS_WORK_ENTRY_ACCURACY = .6;
 export const NEEDS_WORK_EXIT_ACCURACY = .75;
+export const DAILY_REVIEW_MIN_MISSES = 2;
+export const DAILY_REVIEW_RECOVERY_STREAK = 5;
+export const DAILY_REVIEW_EXIT_ACCURACY = .85;
 
 export function emptyProgress() {
   return {
@@ -22,6 +25,13 @@ export function needsWork(stats) {
   if (!attempts || !stats.reviewRequired || stats.reviewDismissed) return false;
   return stats.correctStreak < RECOVERY_STREAK
     && stats.correctCount / attempts < NEEDS_WORK_EXIT_ACCURACY;
+}
+
+export function needsDailyReview(stats) {
+  const attempts = stats.correctCount + stats.wrongCount;
+  if (!attempts || stats.wrongCount < DAILY_REVIEW_MIN_MISSES) return false;
+  return stats.correctStreak < DAILY_REVIEW_RECOVERY_STREAK
+    || stats.correctCount / attempts < DAILY_REVIEW_EXIT_ACCURACY;
 }
 
 export function applyAttempt(stats, correct, reviewedAt = new Date().toISOString()) {

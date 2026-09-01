@@ -1,4 +1,5 @@
 import { FREQUENCY_2_IMPORTS, FREQUENCY_2_WORDS } from "../frequency2-data.js";
+import { JLPT_SAMPLE_GROUPS, JLPT_SAMPLE_IMPORTS } from "../jlpt-sample-data.js";
 import { LEVEL_2_IMPORTS, LEVEL_2_WORDS } from "../level2-data.js";
 import { N5_IMPORTS as REAL_KANA_N5_IMPORTS, N5_WORDS as REAL_KANA_N5_WORDS } from "../n5-data.js";
 import { NUMBER_GROUPS, NUMBER_IMPORTS, NUMBER_WORDS } from "../numbers-data.js";
@@ -745,9 +746,9 @@ const KANJI = [
     memory: "動 gives うご; add く: うご + く = うごく.",
   },
   {
-    word: "一月", reading: "いちがつ", romaji: ["ichigatsu"], meaning: "January",
-    breakdown: [["一", "いち", "one"], ["月", "がつ", "month"]],
-    memory: "The first month is いち + がつ = いちがつ.",
+    word: "一月", reading: "いちがつ、ひとつき", kana: ["いちがつ", "ひとつき"], romaji: ["ichigatsu", "hitotsuki"], meaning: "January; one month",
+    breakdown: [["一", "いち／ひと", "one"], ["月", "がつ／つき", "month"]],
+    memory: "一月 is いちがつ when it means January, but ひとつき when it means a period of one month.",
   },
   {
     word: "六月", reading: "ろくがつ", romaji: ["rokugatsu"], meaning: "June",
@@ -860,10 +861,20 @@ const KANJI = [
 // including generated number/counter cards, use the browser's Japanese voice.
 const BUNDLED_AUDIO_ITEMS = new Set(KANJI);
 
-KANJI.push(...REAL_KANA_N5_IMPORTS);
-KANJI.push(...FREQUENCY_2_IMPORTS);
-KANJI.push(...LEVEL_2_IMPORTS);
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
+function addImportedItems(items) {
+  items.forEach((item) => {
+    const existing = importedItems.get(item.word);
+    if (existing) return;
+    KANJI.push(item);
+    importedItems.set(item.word, item);
+  });
+}
+
+addImportedItems(REAL_KANA_N5_IMPORTS);
+addImportedItems(FREQUENCY_2_IMPORTS);
+addImportedItems(LEVEL_2_IMPORTS);
+addImportedItems(JLPT_SAMPLE_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -896,7 +907,9 @@ REAL_KANA_N5_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
-  item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+  const end = Math.min(start + 9, REAL_KANA_N5_WORDS.length);
+  item.n5SourceLabel = `N5 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  item.audioSrc = `audio/n5/${String(index + 1).padStart(3, "0")}.wav`;
 });
 FREQUENCY_2_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
@@ -909,6 +922,14 @@ LEVEL_2_WORDS.forEach((word, index) => {
   if (!item) return;
   const start = Math.floor(index / 10) * 10 + 1;
   item.level2SourceLabel = `LEVEL 2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
+JLPT_SAMPLE_GROUPS.forEach((group) => {
+  group.words.forEach((word, index) => {
+    const item = KANJI_BY_WORD.get(word);
+    if (!item) return;
+    item.jlptSampleSourceLabel = `${group.level} · 001—010`;
+    item.audioSrc = `audio/jlpt-samples/${group.key}-${String(index + 1).padStart(2, "0")}.wav`;
+  });
 });
 NUMBER_GROUPS.forEach((group) => {
   group.words.forEach((word) => {
@@ -928,7 +949,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [originalLabel, item.n5SourceLabel, item.frequency2SourceLabel, item.level2SourceLabel, item.numberSourceLabel]
+  return [originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.level2SourceLabel, item.numberSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -937,6 +958,7 @@ const DECKS = {
   all: { label: "ALL 110", setLabel: "SET 041—150", start: 0, end: 110 },
   favorites: { label: "★ FAVORITES", setLabel: "FAVORITES", dynamic: true },
   done: { label: "DONE", setLabel: "RECALL HISTORY · DONE", dynamic: true },
+  "daily-review": { label: "DAILY REVIEW", setLabel: "RECALL HISTORY · DAILY REVIEW", dynamic: true },
   "needs-work": { label: "NEEDS WORK", setLabel: "RECALL HISTORY · NEEDS WORK", dynamic: true },
   "41-50": { label: "41—50", setLabel: "SET 041—050", start: 0, end: 10 },
   "51-60": { label: "51—60", setLabel: "SET 051—060", start: 10, end: 20 },
@@ -957,7 +979,7 @@ const DECKS = {
   "extra-51-60": { label: "EXTRA 51—60", setLabel: "EXTRA 1 · 51—60", start: 160, end: 170 },
 };
 
-DECKS["n5-all"] = { label: "N5 ALL 150", setLabel: "JLPT N5 · ALL 150", words: REAL_KANA_N5_WORDS };
+DECKS["n5-all"] = { label: `N5 ALL ${REAL_KANA_N5_WORDS.length}`, setLabel: `JLPT N5 · ALL ${REAL_KANA_N5_WORDS.length}`, words: REAL_KANA_N5_WORDS };
 for (let index = 0; index < REAL_KANA_N5_WORDS.length; index += 10) {
   const start = index + 1;
   const end = Math.min(index + 10, REAL_KANA_N5_WORDS.length);
@@ -984,6 +1006,14 @@ for (let index = 0; index < LEVEL_2_WORDS.length; index += 10) {
   DECKS[key] = { label: `L2 ${range}`, setLabel: `FREQUENCY · LEVEL 2 · ${range}`, words: LEVEL_2_WORDS.slice(index, end) };
 }
 
+JLPT_SAMPLE_GROUPS.forEach((group) => {
+  DECKS[group.key] = {
+    label: `${group.level} 001—010`,
+    setLabel: `JLPT ${group.level} · 001—010`,
+    words: group.words,
+  };
+});
+
 DECKS["numbers-all"] = { label: `NUM ALL ${NUMBER_WORDS.length}`, setLabel: `NUMBERS · ALL ${NUMBER_WORDS.length}`, words: NUMBER_WORDS.map((word) => NUMBER_DECK_KEYS.get(word) ?? word) };
 NUMBER_GROUPS.forEach((group) => {
   DECKS[`numbers-${group.key}`] = {
@@ -1004,6 +1034,7 @@ export {
   FREQUENCY_2_WORDS,
   KANJI,
   KANJI_BY_WORD,
+  JLPT_SAMPLE_GROUPS,
   LEVEL_2_WORDS,
   NUMBER_GROUPS,
   REAL_KANA_N5_WORDS,

@@ -164,6 +164,7 @@ main { min-height: calc(100vh - 82px); }
   letter-spacing: .1em;
 }
 .n5-deck-option { border-color: var(--blue); }
+.jlpt-sample-deck-option { border-color: var(--green); }
 .deck-option {
   position: relative;
   min-height: 36px;
@@ -195,6 +196,7 @@ main { min-height: calc(100vh - 82px); }
 .deck-option.active { background: var(--blue); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
 .deck-option.active small { color: var(--yellow); }
 .needs-work-deck-option { border-color: var(--red); }
+.daily-review-deck-option { border-color: var(--yellow); }
 .starred-study {
   position: absolute;
   z-index: 1;

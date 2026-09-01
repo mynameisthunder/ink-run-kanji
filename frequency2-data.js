@@ -3056,3 +3056,12 @@ export const FREQUENCY_2_IMPORTS = [
     "memory": "社 is しゃ and 長 is ちょう: しゃちょう."
   }
 ];
+
+const frequency2PositionByWord = new Map(
+  FREQUENCY_2_WORDS.map((word, index) => [word, index + 1]),
+);
+
+FREQUENCY_2_IMPORTS.forEach((item) => {
+  const position = frequency2PositionByWord.get(item.word);
+  item.audioSrc = `audio/frequency-1-2/${String(position).padStart(3, "0")}.wav`;
+});

@@ -835,9 +835,9 @@ function appendGeneratedDeckButtons() {
     const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
-      { label: "REAL KANA · FREQUENCY LEVEL 1:2", keys: frequency2Keys, className: "frequency-2-deck-option" },
-      { label: "REAL KANA · FREQUENCY LEVEL 1:3", keys: frequency3Keys, className: "frequency-3-deck-option" },
-      { label: "REAL KANA · FREQUENCY LEVEL 1:4", keys: frequency4Keys, className: "frequency-4-deck-option" },
+      { label: "", keys: frequency2Keys, className: "frequency-2-deck-option" },
+      { label: "", keys: frequency3Keys, className: "frequency-3-deck-option" },
+      { label: "", keys: frequency4Keys, className: "frequency-4-deck-option" },
       { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
       { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option" },
       { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },
@@ -848,14 +848,16 @@ function appendGeneratedDeckButtons() {
         guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {
-      const groupLabel = document.createElement("span");
-      groupLabel.className = "deck-group-label";
-      if (guideUrl) {
-        groupLabel.innerHTML = `${label} <a class="deck-guide-link" href="${guideUrl}" target="_blank" rel="noopener noreferrer" aria-label="Open the complete Japanese counters guide">COUNTER GUIDE ↗</a>`;
-      } else {
-        groupLabel.textContent = label;
+      if (label) {
+        const groupLabel = document.createElement("span");
+        groupLabel.className = "deck-group-label";
+        if (guideUrl) {
+          groupLabel.innerHTML = `${label} <a class="deck-guide-link" href="${guideUrl}" target="_blank" rel="noopener noreferrer" aria-label="Open the complete Japanese counters guide">COUNTER GUIDE ↗</a>`;
+        } else {
+          groupLabel.textContent = label;
+        }
+        container.append(groupLabel);
       }
-      container.append(groupLabel);
 
       const appendDeckButton = (parent, key) => {
         const button = document.createElement("button");

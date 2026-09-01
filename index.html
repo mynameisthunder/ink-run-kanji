@@ -17,7 +17,7 @@
     <meta property="og:site_name" content="Ink Run" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Ink Run — Read Kanji on Sight" />
-    <meta property="og:description" content="Build reliable kanji recall with 623 words, JLPT N5 decks, pronunciation, breakdowns, and focused review." />
+    <meta property="og:description" content="Build reliable kanji recall with 852 words, JLPT decks, pronunciation, breakdowns, and focused review." />
     <meta property="og:url" content="https://mynameisthunder.github.io/ink-run-kanji/" />
     <meta property="og:image" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
     <meta property="og:image:secure_url" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
@@ -78,11 +78,13 @@
         <div class="deck-picker" aria-labelledby="deckPickerLabel">
           <span class="picker-label" id="deckPickerLabel">CHOOSE YOUR DECKS · TAP TO TOGGLE</span>
           <div class="deck-options">
-            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
+            <span class="deck-group-label">YOUR REVIEW</span>
             <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
             <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
             <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
             <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
+            <span class="deck-group-label">REAL KANA · FREQUENCY LEVEL 1</span>
+            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>110</small></button>
             <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
             <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
             <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -94,6 +96,7 @@
             <button class="deck-option" type="button" data-deck-choice="121-130" aria-pressed="false">121—130</button>
             <button class="deck-option" type="button" data-deck-choice="131-140" aria-pressed="false">131—140</button>
             <button class="deck-option" type="button" data-deck-choice="141-150" aria-pressed="false">141—150</button>
+            <span class="deck-group-label">EXTRA VOCABULARY</span>
             <button class="deck-option" type="button" data-deck-choice="extra-1-10" aria-pressed="false">EXTRA 01—10</button>
             <button class="deck-option" type="button" data-deck-choice="extra-11-20" aria-pressed="false">EXTRA 11—20</button>
             <button class="deck-option" type="button" data-deck-choice="extra-21-30" aria-pressed="false">EXTRA 21—30</button>
@@ -123,12 +126,12 @@
           </div>
           <div class="best-score">
             <span>SELECTED</span>
-            <strong id="selectedDeckSummary">ALL 110</strong>
+            <strong id="selectedDeckSummary">L1 ALL 110</strong>
           </div>
         </div>
 
         <div class="intro-footer">
-          <span id="introSetLabel">SET 041—150</span>
+          <span id="introSetLabel">FREQUENCY · LEVEL 1 · 041—150</span>
           <span>TYPE HIRAGANA OR ROMAJI</span>
         </div>
       </section>
@@ -238,10 +241,10 @@
       <div class="dialog-head">
         <div class="dialog-title">
           <span class="eyebrow">YOUR LOADOUT</span>
-          <h2 id="deckDialogTitle">SET 041—150</h2>
+          <h2 id="deckDialogTitle">FREQUENCY · LEVEL 1 · 041—150</h2>
         </div>
         <div class="deck-search">
-          <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">623</span> WORDS · ENGLISH OR JAPANESE</label>
+          <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">852</span> WORDS · ENGLISH OR JAPANESE</label>
           <div class="deck-search-control">
             <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
             <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
@@ -251,11 +254,13 @@
         <button class="close-button" id="closeDeckButton" type="button" aria-label="Close deck">×</button>
       </div>
       <div class="dialog-deck-options" aria-label="Choose one or more decks to review">
-        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">ALL <small>110</small></button>
+        <span class="deck-group-label">YOUR REVIEW</span>
         <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
         <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
         <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
         <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
+        <span class="deck-group-label">REAL KANA · FREQUENCY LEVEL 1</span>
+        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>110</small></button>
         <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
         <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
         <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -267,6 +272,7 @@
         <button class="deck-option" type="button" data-deck-choice="121-130" aria-pressed="false">121—130</button>
         <button class="deck-option" type="button" data-deck-choice="131-140" aria-pressed="false">131—140</button>
         <button class="deck-option" type="button" data-deck-choice="141-150" aria-pressed="false">141—150</button>
+        <span class="deck-group-label">EXTRA VOCABULARY</span>
         <button class="deck-option" type="button" data-deck-choice="extra-1-10" aria-pressed="false">EXTRA 01—10</button>
         <button class="deck-option" type="button" data-deck-choice="extra-11-20" aria-pressed="false">EXTRA 11—20</button>
         <button class="deck-option" type="button" data-deck-choice="extra-21-30" aria-pressed="false">EXTRA 21—30</button>
@@ -315,6 +321,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=daily-review-1"></script>
+    <script type="module" src="app.js?v=deck-sections-1"></script>
   </body>
 </html>

@@ -89,7 +89,7 @@ const state = {
   locked: false,
   sound: true,
   cloudUser: null,
-  studyLabel: "ALL 110",
+  studyLabel: "L1 ALL 110",
   sharedWordView: false,
   routeStudy: true,
 };
@@ -825,10 +825,10 @@ function appendGeneratedDeckButtons() {
     const level2Keys = ["level-2-all", "level-2-1-10"];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
-      ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
-      ["REAL KANA · JLPT N1 / N2 / N3 STARTERS", JLPT_SAMPLE_GROUPS.map((group) => group.key), "jlpt-sample-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 1:2", frequency2Keys, "frequency-2-deck-option"],
       ["REAL KANA · FREQUENCY LEVEL 2", level2Keys, "level-2-deck-option"],
+      ["REAL KANA · JLPT N5", n5Keys, "n5-deck-option"],
+      ["REAL KANA · JLPT N1 / N2 / N3 STARTERS", JLPT_SAMPLE_GROUPS.map((group) => group.key), "jlpt-sample-deck-option"],
       ["REAL KANA · NUMBERS + COUNTERS", numberKeys, "number-deck-option", "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/"],
     ].forEach(([label, keys, className, guideUrl]) => {
       const groupLabel = document.createElement("span");

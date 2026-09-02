@@ -25,7 +25,7 @@ import {
   needsDailyReview,
   needsWork,
   progressIsMastered,
-} from "./src/progress.js";
+} from "./src/progress.js?v=review-rules-3";
 import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";

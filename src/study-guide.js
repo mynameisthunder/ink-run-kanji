@@ -56,6 +56,10 @@ function fitFontSize(doc, value, width, preferred, minimum) {
   return size;
 }
 
+function formatBreakdownPart([character, reading, meaning]) {
+  return `${character} (${reading})${meaning ? `: ${meaning}` : ""}`;
+}
+
 function drawPdfHeader(doc, { selectionLabel, wordCount, generatedLabel, pageNumber, totalPages }) {
   const pageWidth = doc.internal.pageSize.getWidth();
   doc.setTextColor(...COLORS.red);
@@ -123,15 +127,18 @@ function drawPdfCard(doc, item, index, sourceLabel, x, y, width, height) {
 
   doc.setTextColor(...COLORS.ink);
   doc.setFontSize(6.7);
-  const meaningLines = limitedLines(doc, item.meaning, width - 17, 3);
+  const meaningLines = limitedLines(doc, item.meaning, width - 17, 4);
   doc.text(meaningLines, x + 12, y + 22, { lineHeightFactor: 1.25 });
 
-  const breakdown = item.breakdown?.map(([character, partReading]) => `${character} ${partReading}`).join(" · ") ?? "";
+  const breakdown = item.breakdown?.map(formatBreakdownPart).join("  /  ") ?? "";
   if (breakdown) {
     doc.setTextColor(...COLORS.muted);
-    doc.setFontSize(6.1);
+    doc.setFontSize(5);
     const breakdownY = y + 23.5 + meaningLines.length * 2.6;
-    doc.text(limitedLines(doc, breakdown, width - 17, 2), x + 12, breakdownY, { lineHeightFactor: 1.2 });
+    const lineHeight = 2.1;
+    const breakdownBottom = y + height - 6;
+    const maximumLines = Math.max(1, Math.floor((breakdownBottom - breakdownY) / lineHeight) + 1);
+    doc.text(limitedLines(doc, breakdown, width - 17, maximumLines), x + 12, breakdownY, { lineHeightFactor: 1.2 });
   }
 
   if (sourceLabel) {
@@ -231,8 +238,8 @@ export async function downloadStudyGuidePdf(options) {
 
 function renderBreakdown(item) {
   if (!item.breakdown?.length) return "";
-  return `<div class="breakdown">${item.breakdown.map(([character, reading]) => (
-    `<span><b>${escapeHtml(character)}</b> ${escapeHtml(reading)}</span>`
+  return `<div class="breakdown">${item.breakdown.map(([character, reading, meaning]) => (
+    `<span><b>${escapeHtml(character)}</b> <em>${escapeHtml(reading)}</em>${meaning ? ` — ${escapeHtml(meaning)}` : ""}</span>`
   )).join("")}</div>`;
 }
 
@@ -306,9 +313,10 @@ export function createStudyGuideHtml({
     .word { min-width: 0; font: 800 20pt/1.05 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; overflow-wrap: anywhere; }
     .reading { margin: 1.4mm 0 1.6mm 10mm; color: var(--blue); font: 700 10.5pt/1.2 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
     .meaning { margin: 0 0 1.5mm 10mm; font: 7.6pt/1.32 ui-sans-serif, system-ui, -apple-system, "Noto Sans JP", sans-serif; }
-    .breakdown { margin-left: 10mm; display: flex; flex-wrap: wrap; gap: 1mm 2.5mm; color: #4e4a44; }
-    .breakdown span { font: 6.8pt/1.25 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
+    .breakdown { margin-left: 10mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1mm 2.5mm; color: #4e4a44; }
+    .breakdown span { min-width: 0; font: 6.2pt/1.25 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
     .breakdown b { color: var(--ink); font-size: 8pt; }
+    .breakdown em { color: var(--blue); font-style: normal; }
     .source { position: absolute; right: 3.5mm; bottom: 2mm; left: 3.5mm; color: #847e74; font-size: 5.2pt; font-weight: 700; letter-spacing: .025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     footer { position: absolute; right: 11mm; bottom: 5mm; left: 11mm; min-height: 6mm; padding-top: 2.5mm; display: flex; justify-content: space-between; color: #6f6a62; font-size: 6.5pt; font-weight: 700; letter-spacing: .08em; }
     @page { size: Letter portrait; margin: 0; }

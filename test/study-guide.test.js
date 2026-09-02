@@ -11,7 +11,7 @@ const item = (index) => ({
   word: `語${index}`,
   reading: `ご${index}`,
   meaning: `word ${index}`,
-  breakdown: [["語", "ご", "word"]],
+  breakdown: [["語", "ご", `character meaning ${index}`]],
 });
 
 test("study guide paginates cards and labels every printed page", () => {
@@ -30,6 +30,7 @@ test("study guide paginates cards and labels every printed page", () => {
   assert.match(html, /1 \/ 2/);
   assert.match(html, /2 \/ 2/);
   assert.match(html, /LEVEL 1 · 001—010/);
+  assert.match(html, /character meaning 1/);
 });
 
 test("study guide escapes card and heading content", () => {

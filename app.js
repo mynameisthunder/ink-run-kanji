@@ -329,7 +329,7 @@ function updateProgressControls() {
     const selected = state.selectedDeckKeys.has("daily-review");
     button.disabled = dynamicDeckIsDisabled(dailyReviewCount, selected);
     button.title = dailyReviewCount
-      ? `Daily practice for ${dailyReviewCount} repeatedly missed ${dailyReviewCount === 1 ? "word" : "words"}`
+      ? `Practice ${dailyReviewCount} recurring ${dailyReviewCount === 1 ? "miss" : "misses"} · clears at 3 straight or 85% accuracy`
       : selected ? "Remove empty Daily Review deck from selection" : "Words missed at least twice will appear here";
   });
   document.querySelectorAll('[data-deck-choice="needs-work"]').forEach((button) => {

@@ -43,15 +43,20 @@ test("two misses add a recurring problem word to Daily Review", () => {
   assert.equal(needsDailyReview(stats), true);
 });
 
-test("Daily Review requires both a strong streak and 85% lifetime accuracy", () => {
+test("Daily Review clears after either three correct recalls or 85% lifetime accuracy", () => {
   let stats = applyAttempt(emptyProgress(), false);
   stats = applyAttempt(stats, false);
-  for (let index = 0; index < 5; index += 1) stats = applyAttempt(stats, true);
-  assert.equal(stats.correctStreak, 5);
-  assert.equal(needsDailyReview(stats), true);
+  for (let index = 0; index < 3; index += 1) stats = applyAttempt(stats, true);
+  assert.equal(stats.correctStreak, 3);
+  assert.equal(stats.correctCount / (stats.correctCount + stats.wrongCount), .6);
+  assert.equal(needsDailyReview(stats), false);
 
-  for (let index = 0; index < 7; index += 1) stats = applyAttempt(stats, true);
+  stats = emptyProgress();
+  for (let index = 0; index < 12; index += 1) stats = applyAttempt(stats, true);
+  stats = applyAttempt(stats, false);
+  stats = applyAttempt(stats, false);
   assert.ok(stats.correctCount / (stats.correctCount + stats.wrongCount) >= .85);
+  assert.equal(stats.correctStreak, 0);
   assert.equal(needsDailyReview(stats), false);
 
   stats = applyAttempt(stats, false);

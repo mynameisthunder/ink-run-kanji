@@ -13,6 +13,7 @@ A focused kanji reading game with frequency decks, 60 Extra 1 words, and the com
 - Star words to build a persistent Favorites deck with a dedicated Study Starred route.
 - Review every seen word in the Done deck, with per-word attempts and recall accuracy.
 - Practice misses in a Needs Work deck until recall reaches 75% or two correct answers in a row.
+- Keep repeatedly missed words in Daily Review until recall reaches 85% or three correct answers in a row.
 - Sign in by email to sync stars, recall history, recovery streaks, and manual Needs Work removals across devices.
 
 ## Persistence

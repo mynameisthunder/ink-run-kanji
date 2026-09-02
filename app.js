@@ -30,7 +30,7 @@ import {
 import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
-import { downloadStudyGuidePdf, openStudyGuidePrint } from "./src/study-guide.js?v=jspdf-1";
+import { downloadStudyGuidePdf, openStudyGuidePreview, openStudyGuidePrint } from "./src/study-guide.js?v=preview-1";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
@@ -41,7 +41,7 @@ const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), exportGuide: $("#exportGuideButton"), dialogExportGuide: $("#dialogExportGuideButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), exportGuide: $("#exportGuideButton"), previewGuide: $("#previewGuideButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogPreviewGuide: $("#dialogPreviewGuideButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
@@ -371,6 +371,10 @@ function renderDeckSelection() {
     button.disabled = meta.wordCount === 0 || state.exportingGuide;
     button.title = meta.wordCount ? `Download ${meta.wordCount} words as a PDF study guide` : "Select a deck with words to export";
   });
+  [elements.previewGuide, elements.dialogPreviewGuide].forEach((button) => {
+    button.disabled = meta.wordCount === 0;
+    button.title = meta.wordCount ? `Open ${meta.wordCount} words as a study guide in a new tab` : "Select a deck with words to preview";
+  });
   updateFavoriteControls();
   updateProgressControls();
   populateDeck();
@@ -428,18 +432,30 @@ function startStarredStudy() {
   startStudyDeck();
 }
 
-async function exportSelectedStudyGuide() {
-  if (state.exportingGuide) return;
+function selectedStudyGuideOptions() {
   const items = selectedDeck();
-  if (!items.length) return;
+  if (!items.length) return null;
   const meta = selectedDeckMeta();
   const deckLabels = orderedSelectedDeckKeys().map((key) => DECKS[key].label);
-  const options = {
+  return {
     selectionLabel: meta.setLabel,
     deckLabels,
     items,
     sourceLabelFor: sourceDeckLabel,
   };
+}
+
+function previewSelectedStudyGuide() {
+  const options = selectedStudyGuideOptions();
+  if (!options) return;
+  const opened = openStudyGuidePreview(options);
+  if (!opened) window.alert("Allow pop-ups for Ink Run, then try opening the study guide again.");
+}
+
+async function exportSelectedStudyGuide() {
+  if (state.exportingGuide) return;
+  const options = selectedStudyGuideOptions();
+  if (!options) return;
   const exportButtons = [elements.exportGuide, elements.dialogExportGuide];
   const buttonLabels = exportButtons.map((button) => button.innerHTML);
   state.exportingGuide = true;
@@ -933,6 +949,8 @@ elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
 elements.exportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.dialogExportGuide.addEventListener("click", exportSelectedStudyGuide);
+elements.previewGuide.addEventListener("click", previewSelectedStudyGuide);
+elements.dialogPreviewGuide.addEventListener("click", previewSelectedStudyGuide);
 elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", () => {
   const replayDeck = [...state.deck];

@@ -67,7 +67,7 @@ const elements = {
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
-  memoryHook: $("#memoryHook"), studyNext: $("#studyNextButton"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
+  memoryHook: $("#memoryHook"), studyPrevious: $("#studyPreviousButton"), studyNext: $("#studyNextButton"), studyNextLabel: $("#studyNextLabel"), studyNextIcon: $("#studyNextIcon"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
@@ -632,6 +632,8 @@ function buildParts(item, target, className) {
 function showStudyCard({ trackSeen = true } = {}) {
   const item = state.deck[state.studyIndex];
   if (!item) return;
+  const isFirstCard = state.studyIndex === 0;
+  const isLastCard = state.studyIndex === state.deck.length - 1;
   if (trackSeen) markWordSeen(itemKey(item));
   renderWord(item);
   elements.feedback.classList.remove("show");
@@ -648,7 +650,12 @@ function showStudyCard({ trackSeen = true } = {}) {
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
-  elements.studyNext.firstChild.textContent = state.studyIndex === state.deck.length - 1 ? "START RECALL RUN " : "NEXT STUDY CARD ";
+  elements.studyPrevious.disabled = isFirstCard;
+  elements.studyPrevious.setAttribute("aria-label", isFirstCard ? "Previous study card, unavailable on the first card" : `Previous study card, card ${state.studyIndex}`);
+  elements.studyNextLabel.textContent = isLastCard ? "START RECALL" : "NEXT STUDY CARD";
+  elements.studyNextIcon.textContent = isLastCard ? "↗" : "→";
+  elements.studyNext.setAttribute("aria-label", isLastCard ? "Start recall run" : `Next study card, card ${state.studyIndex + 2}`);
+  elements.studyNext.title = isLastCard ? "Start recall run (→)" : "Next card (→)";
   if (state.routeStudy) writeStudyRoute();
   updateStatus();
 }
@@ -968,6 +975,7 @@ elements.replay.addEventListener("click", () => {
   nextRecall();
 });
 elements.studyNext.addEventListener("click", advanceStudy);
+elements.studyPrevious.addEventListener("click", retreatStudy);
 elements.readingInput.addEventListener("input", convertReadingInput);
 elements.recallForm.addEventListener("submit", checkRecall);
 elements.hint.addEventListener("click", reteachCurrent);
@@ -1029,7 +1037,6 @@ elements.sound.addEventListener("click", () => {
 
 window.addEventListener("keydown", (event) => {
   if (elements.deckDialog.open) return;
-  if (event.target.closest?.("button, a, input, textarea, select, summary")) return;
   if (event.key === "ArrowRight" && state.mode === "study" && elements.game.classList.contains("active")) {
     event.preventDefault();
     elements.studyNext.click();
@@ -1040,6 +1047,7 @@ window.addEventListener("keydown", (event) => {
     retreatStudy();
     return;
   }
+  if (event.target.closest?.("button, a, input, textarea, select, summary")) return;
   if (event.key.toLowerCase() === "h" && event.target !== elements.readingInput && !elements.hint.classList.contains("hidden")) reteachCurrent();
   if (event.key === "Enter" && elements.feedback.classList.contains("show")) {
     event.preventDefault();

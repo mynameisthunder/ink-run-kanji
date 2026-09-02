@@ -185,7 +185,15 @@
               <p class="study-meaning" id="studyMeaning"></p>
               <div class="study-breakdown" id="studyBreakdown"></div>
               <p class="memory-hook" id="memoryHook"></p>
-              <button class="study-next" id="studyNextButton" type="button">PUT IT IN MEMORY <span>→</span></button>
+              <nav class="study-navigation" aria-label="Study card navigation">
+                <button class="study-previous" id="studyPreviousButton" type="button" aria-label="Previous study card" title="Previous card (←)" disabled>
+                  <span aria-hidden="true">←</span>
+                </button>
+                <button class="study-next" id="studyNextButton" type="button" aria-label="Next study card" title="Next card (→)">
+                  <span id="studyNextLabel">NEXT STUDY CARD</span>
+                  <span id="studyNextIcon" aria-hidden="true">→</span>
+                </button>
+              </nav>
             </article>
 
             <form class="recall-form hidden" id="recallForm">

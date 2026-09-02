@@ -17,7 +17,7 @@
     <meta property="og:site_name" content="Ink Run" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Ink Run — Read Kanji on Sight" />
-    <meta property="og:description" content="Build reliable kanji recall with 1,027 words, JLPT decks, pronunciation, breakdowns, and focused review." />
+    <meta property="og:description" content="Build reliable kanji recall with 1,057 words, JLPT decks, pronunciation, breakdowns, and focused review." />
     <meta property="og:url" content="https://mynameisthunder.github.io/ink-run-kanji/" />
     <meta property="og:image" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
     <meta property="og:image:secure_url" content="https://mynameisthunder.github.io/ink-run-kanji/assets/social-preview.png" />
@@ -63,7 +63,7 @@
       </a>
       <div class="top-actions">
         <button class="text-button" id="searchButton" type="button">SEARCH</button>
-        <button class="text-button" id="deckButton" type="button">DECK <span>110</span></button>
+        <button class="text-button" id="deckButton" type="button">DECK <span>150</span></button>
         <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
         <button class="text-button account-button" id="accountButton" type="button"><i aria-hidden="true"></i><span>SIGN IN</span></button>
       </div>
@@ -82,7 +82,11 @@
             <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
             <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
             <span class="deck-group-label">REAL KANA · FREQUENCY · LEVEL 1 SERIES</span>
-            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>110</small></button>
+            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>150</small></button>
+            <button class="deck-option" type="button" data-deck-choice="1-10" aria-pressed="false">1—10</button>
+            <button class="deck-option" type="button" data-deck-choice="11-20" aria-pressed="false">11—20</button>
+            <button class="deck-option" type="button" data-deck-choice="21-30" aria-pressed="false">21—30</button>
+            <button class="deck-option" type="button" data-deck-choice="31-40" aria-pressed="false">31—40</button>
             <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
             <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
             <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -123,12 +127,12 @@
           </div>
           <div class="best-score">
             <span>SELECTED</span>
-            <strong id="selectedDeckSummary">L1 ALL 110</strong>
+            <strong id="selectedDeckSummary">L1 ALL 150</strong>
           </div>
         </div>
 
         <div class="intro-footer">
-          <span id="introSetLabel">FREQUENCY · LEVEL 1 · 041—150</span>
+          <span id="introSetLabel">FREQUENCY · LEVEL 1 · ALL 150</span>
           <span>TYPE HIRAGANA OR ROMAJI</span>
         </div>
       </section>
@@ -137,7 +141,7 @@
         <div class="game-status">
           <div class="status-block">
             <span class="status-label">MASTERED</span>
-            <strong id="score">0/110</strong>
+            <strong id="score">0/150</strong>
           </div>
           <div class="status-block status-block-center">
             <span class="status-label" id="roundLabel">MAIN RUN</span>
@@ -151,7 +155,7 @@
 
         <div class="playfield" id="playfield">
           <div class="prompt-zone">
-            <span class="question-count" id="questionCount">0 / 110 PROVED</span>
+            <span class="question-count" id="questionCount">0 / 150 PROVED</span>
             <button class="favorite-button prompt-favorite-button" id="favoriteButton" type="button" aria-pressed="false" aria-label="Add this word to favorites" title="Add to favorites">☆</button>
             <div class="kanji-wrap">
               <span class="accent-shape" aria-hidden="true"></span>
@@ -227,7 +231,7 @@
         <h2 id="resultTitle">PROVED.<br /><em>NOT GUESSED.</em></h2>
 
         <div class="result-grid">
-          <div><span>MASTERED</span><strong id="finalScore">110/110</strong></div>
+          <div><span>MASTERED</span><strong id="finalScore">150/150</strong></div>
           <div><span>TYPED RECALLS</span><strong id="accuracy">0</strong></div>
           <div><span>BEST CHAIN</span><strong id="bestStreak">0×</strong></div>
           <div><span>RETEACHES</span><strong id="hintsUsed">0</strong></div>
@@ -246,10 +250,10 @@
       <div class="dialog-head">
         <div class="dialog-title">
           <span class="eyebrow">YOUR LOADOUT</span>
-          <h2 id="deckDialogTitle">FREQUENCY · LEVEL 1 · 041—150</h2>
+          <h2 id="deckDialogTitle">FREQUENCY · LEVEL 1 · ALL 150</h2>
         </div>
         <div class="deck-search">
-          <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">1027</span> WORDS · ENGLISH OR JAPANESE</label>
+          <label for="deckSearchInput">SEARCH ALL <span id="libraryWordCount">1057</span> WORDS · ENGLISH OR JAPANESE</label>
           <div class="deck-search-control">
             <input id="deckSearchInput" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Try: feeling, かんじる, 感, or kanjiru" />
             <button class="deck-search-clear hidden" id="clearDeckSearchButton" type="button" aria-label="Clear search">×</button>
@@ -265,7 +269,11 @@
         <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
         <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
         <span class="deck-group-label">REAL KANA · FREQUENCY · LEVEL 1 SERIES</span>
-        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>110</small></button>
+        <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>150</small></button>
+        <button class="deck-option" type="button" data-deck-choice="1-10" aria-pressed="false">1—10</button>
+        <button class="deck-option" type="button" data-deck-choice="11-20" aria-pressed="false">11—20</button>
+        <button class="deck-option" type="button" data-deck-choice="21-30" aria-pressed="false">21—30</button>
+        <button class="deck-option" type="button" data-deck-choice="31-40" aria-pressed="false">31—40</button>
         <button class="deck-option" type="button" data-deck-choice="41-50" aria-pressed="false">41—50</button>
         <button class="deck-option" type="button" data-deck-choice="51-60" aria-pressed="false">51—60</button>
         <button class="deck-option" type="button" data-deck-choice="61-70" aria-pressed="false">61—70</button>
@@ -325,6 +333,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=review-rules-3"></script>
+    <script type="module" src="app.js?v=frequency-1-start"></script>
   </body>
 </html>

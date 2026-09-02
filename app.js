@@ -1,6 +1,7 @@
 import {
   BUNDLED_AUDIO_ITEMS,
   DECKS,
+  FREQUENCY_1_WORDS,
   FREQUENCY_3_WORDS,
   FREQUENCY_4_WORDS,
   KANJI,
@@ -10,7 +11,7 @@ import {
   REAL_KANA_N5_WORDS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js";
+} from "./src/vocabulary.js?v=frequency-1-start";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
@@ -75,7 +76,7 @@ const state = {
   selectedDeckKeys: new Set(["all"]),
   favoriteWords: loadFavoriteWords(),
   wordProgress: loadWordProgress(),
-  deck: KANJI.slice(0, 110),
+  deck: FREQUENCY_1_WORDS.map((word) => KANJI_BY_WORD.get(word)).filter(Boolean),
   mode: "study",
   batchIndex: 0,
   studyIndex: 0,
@@ -92,7 +93,7 @@ const state = {
   locked: false,
   sound: true,
   cloudUser: null,
-  studyLabel: "L1 ALL 110",
+  studyLabel: "L1 ALL 150",
   sharedWordView: false,
   routeStudy: true,
   singlePassNeedsWork: false,

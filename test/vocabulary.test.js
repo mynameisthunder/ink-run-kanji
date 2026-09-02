@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { DECKS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js";
+import { DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 1027);
+  assert.equal(KANJI.length, 1057);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
 });
 
@@ -15,6 +15,14 @@ test("counter overview teaches bare suffixes", () => {
 });
 
 test("core generated decks remain complete", () => {
+  assert.equal(FREQUENCY_1_WORDS.length, 150);
+  assert.equal(DECKS.all.words.length, 150);
+  assert.equal(new Set(DECKS.all.words).size, 150);
+  assert.ok(DECKS.all.words.every((word) => KANJI_BY_WORD.has(word)));
+  assert.deepEqual(FREQUENCY_1_WORDS.slice(0, 4), ["人", "一", "大きな", "日本"]);
+  assert.deepEqual(DECKS["31-40"].words, ["地域", "気", "事業", "学校", "利用", "前", "規定", "体", "理由", "活動"]);
+  assert.equal(KANJI_BY_WORD.get("人").reading, "ひと");
+  assert.equal(KANJI_BY_WORD.get("活動").frequency1SourceLabel, "LEVEL 1 · 031—040");
   assert.equal(DECKS["n5-all"].words.length, 396);
   assert.equal(DECKS["n5-all"].setLabel, "REAL KANA · N5 WORDS · ALL 396");
   assert.equal(DECKS["n5-391-396"].words.length, 6);

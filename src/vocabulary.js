@@ -1,3 +1,4 @@
+import { FREQUENCY_1_START_IMPORTS, FREQUENCY_1_START_WORDS } from "../frequency1-start-data.js";
 import { FREQUENCY_2_IMPORTS, FREQUENCY_2_WORDS } from "../frequency2-data.js";
 import { FREQUENCY_3_4_IMPORTS, FREQUENCY_3_WORDS, FREQUENCY_4_WORDS } from "../frequency3-4-data.js";
 import { JLPT_SAMPLE_GROUPS, JLPT_SAMPLE_IMPORTS } from "../jlpt-sample-data.js";
@@ -872,6 +873,7 @@ function addImportedItems(items) {
   });
 }
 
+addImportedItems(FREQUENCY_1_START_IMPORTS);
 addImportedItems(REAL_KANA_N5_IMPORTS);
 addImportedItems(FREQUENCY_2_IMPORTS);
 addImportedItems(FREQUENCY_3_4_IMPORTS);
@@ -900,6 +902,10 @@ NUMBER_IMPORTS.forEach((item) => {
 });
 
 const itemKey = (item) => item.studyKey ?? item.word;
+const FREQUENCY_1_WORDS = [
+  ...FREQUENCY_1_START_WORDS,
+  ...KANJI.slice(0, 110).map((item) => item.word),
+];
 const KANJI_BY_WORD = new Map();
 KANJI.forEach((item) => {
   if (!KANJI_BY_WORD.has(item.word)) KANJI_BY_WORD.set(item.word, item);
@@ -949,40 +955,39 @@ NUMBER_GROUPS.forEach((group) => {
     if (item) item.numberSourceLabel = `NUMBERS · ${group.label}`;
   });
 });
+FREQUENCY_1_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  item.frequency1SourceLabel = `LEVEL 1 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
 
 function sourceDeckLabel(item) {
   const index = KANJI.indexOf(item);
   if (index < 0) return "";
   let originalLabel = "";
-  if (index < 110) {
-    const start = 41 + Math.floor(index / 10) * 10;
-    originalLabel = `LEVEL 1 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
-  } else if (index < 170) {
+  if (index >= 110 && index < 170) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
 
 const DECKS = {
-  all: { label: "L1 ALL 110", setLabel: "FREQUENCY · LEVEL 1 · 041—150", start: 0, end: 110 },
+  all: { label: "L1 ALL 150", setLabel: "FREQUENCY · LEVEL 1 · ALL 150", words: FREQUENCY_1_WORDS },
   favorites: { label: "★ FAVORITES", setLabel: "FAVORITES", dynamic: true },
   done: { label: "DONE", setLabel: "RECALL HISTORY · DONE", dynamic: true },
   "daily-review": { label: "DAILY REVIEW", setLabel: "RECALL HISTORY · DAILY REVIEW", dynamic: true },
   "needs-work": { label: "NEEDS WORK", setLabel: "RECALL HISTORY · NEEDS WORK", dynamic: true },
-  "41-50": { label: "41—50", setLabel: "FREQUENCY · LEVEL 1 · 041—050", start: 0, end: 10 },
-  "51-60": { label: "51—60", setLabel: "FREQUENCY · LEVEL 1 · 051—060", start: 10, end: 20 },
-  "61-70": { label: "61—70", setLabel: "FREQUENCY · LEVEL 1 · 061—070", start: 20, end: 30 },
-  "71-80": { label: "71—80", setLabel: "FREQUENCY · LEVEL 1 · 071—080", start: 30, end: 40 },
-  "81-90": { label: "81—90", setLabel: "FREQUENCY · LEVEL 1 · 081—090", start: 40, end: 50 },
-  "91-100": { label: "91—100", setLabel: "FREQUENCY · LEVEL 1 · 091—100", start: 50, end: 60 },
-  "101-110": { label: "101—110", setLabel: "FREQUENCY · LEVEL 1 · 101—110", start: 60, end: 70 },
-  "111-120": { label: "111—120", setLabel: "FREQUENCY · LEVEL 1 · 111—120", start: 70, end: 80 },
-  "121-130": { label: "121—130", setLabel: "FREQUENCY · LEVEL 1 · 121—130", start: 80, end: 90 },
-  "131-140": { label: "131—140", setLabel: "FREQUENCY · LEVEL 1 · 131—140", start: 90, end: 100 },
-  "141-150": { label: "141—150", setLabel: "FREQUENCY · LEVEL 1 · 141—150", start: 100, end: 110 },
+  ...Object.fromEntries(Array.from({ length: 15 }, (_, index) => {
+    const start = index * 10 + 1;
+    const end = start + 9;
+    const key = `${start}-${end}`;
+    const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+    return [key, { label: `${start}—${end}`, setLabel: `FREQUENCY · LEVEL 1 · ${range}`, words: FREQUENCY_1_WORDS.slice(index * 10, end) }];
+  })),
   "extra-1-10": { label: "EXTRA 01—10", setLabel: "EXTRA 1 · 01—10", start: 110, end: 120 },
   "extra-11-20": { label: "EXTRA 11—20", setLabel: "EXTRA 1 · 11—20", start: 120, end: 130 },
   "extra-21-30": { label: "EXTRA 21—30", setLabel: "EXTRA 1 · 21—30", start: 130, end: 140 },
@@ -1061,6 +1066,7 @@ NUMBER_GROUPS.forEach((group) => {
 export {
   BUNDLED_AUDIO_ITEMS,
   DECKS,
+  FREQUENCY_1_WORDS,
   FREQUENCY_2_WORDS,
   FREQUENCY_3_WORDS,
   FREQUENCY_4_WORDS,

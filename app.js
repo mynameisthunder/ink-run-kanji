@@ -30,6 +30,7 @@ import {
 import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
+import { openStudyGuidePrint } from "./src/study-guide.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
@@ -40,7 +41,7 @@ const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), exportGuide: $("#exportGuideButton"), dialogExportGuide: $("#dialogExportGuideButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
@@ -365,6 +366,10 @@ function renderDeckSelection() {
   elements.introSetLabel.textContent = meta.setLabel;
   elements.deckDialogTitle.textContent = meta.setLabel;
   elements.deckButton.innerHTML = `DECK <span>${meta.wordCount}</span>`;
+  [elements.exportGuide, elements.dialogExportGuide].forEach((button) => {
+    button.disabled = meta.wordCount === 0;
+    button.title = meta.wordCount ? `Export ${meta.wordCount} words as a printable PDF study guide` : "Select a deck with words to export";
+  });
   updateFavoriteControls();
   updateProgressControls();
   populateDeck();
@@ -420,6 +425,20 @@ function startStarredStudy() {
   if (state.favoriteWords.size === 0) return;
   setDeckSelection(["favorites"]);
   startStudyDeck();
+}
+
+function exportSelectedStudyGuide() {
+  const items = selectedDeck();
+  if (!items.length) return;
+  const meta = selectedDeckMeta();
+  const deckLabels = orderedSelectedDeckKeys().map((key) => DECKS[key].label);
+  const opened = openStudyGuidePrint({
+    selectionLabel: meta.setLabel,
+    deckLabels,
+    items,
+    sourceLabelFor: sourceDeckLabel,
+  });
+  if (!opened) window.alert("Allow pop-ups for Ink Run, then try exporting the study guide again.");
 }
 
 function showScreen(target) {
@@ -893,6 +912,8 @@ document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEv
 elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
+elements.exportGuide.addEventListener("click", exportSelectedStudyGuide);
+elements.dialogExportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", () => {
   const replayDeck = [...state.deck];

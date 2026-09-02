@@ -8,6 +8,7 @@
     "data:jlpt-samples": "node scripts/generate-jlpt-sample-data.mjs",
     "data:frequency-3-4": "node scripts/generate-frequency-3-4-data.mjs",
     "data:n5": "node scripts/generate-complete-n5-data.mjs",
+    "qa:study-guide": "node scripts/generate-study-guide-preview.mjs",
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "test": "node --test"

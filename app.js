@@ -34,6 +34,7 @@ import {
   progressIsMastered,
 } from "./src/progress.js";
 import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
+import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
@@ -111,6 +112,7 @@ const state = {
   studyLabel: "L1 ALL 110",
   sharedWordView: false,
   routeStudy: true,
+  singlePassNeedsWork: false,
 };
 
 const { cancelPronunciation, playTone, pronounceItem } = createAudio({
@@ -568,6 +570,7 @@ function renderWord(item) {
 
 function prepareRun(mode, deckOverride = null, studyLabelOverride = null, routeStudyOverride = null) {
   const deck = deckOverride ? [...deckOverride] : selectedDeck();
+  const singlePassNeedsWork = isNeedsWorkOnlySelection(orderedSelectedDeckKeys());
   Object.assign(state, {
     mode, deck, batchIndex: 0, studyIndex: 0, batch: deck, queue: mode === "finalRecall" ? shuffle(deck) : [], current: null,
     mastery: new Map(deck.map((item) => [itemKey(item), 0])), mastered: new Set(), finalMastered: new Set(),
@@ -575,6 +578,7 @@ function prepareRun(mode, deckOverride = null, studyLabelOverride = null, routeS
     studyLabel: studyLabelOverride ?? selectedDeckMeta().studyLabel,
     sharedWordView: false,
     routeStudy: routeStudyOverride ?? deckOverride === null,
+    singlePassNeedsWork,
   });
   elements.progress.style.background = "var(--red)";
   elements.feedback.classList.remove("show");
@@ -794,8 +798,10 @@ function reteachCurrent() {
     state.mastery.set(key, 0);
     state.mastered.delete(key);
   }
-  state.queue.push(state.current);
-  showFeedback("NOT YET — REBUILD IT", state.current, true);
+  const requeueMiss = shouldRequeueMiss(state.mode, state.singlePassNeedsWork);
+  if (requeueMiss) state.queue.push(state.current);
+  showFeedback(requeueMiss ? "NOT YET — REBUILD IT" : "STAYS IN NEEDS WORK", state.current, true);
+  if (!requeueMiss) elements.next.firstChild.textContent = "NEXT NEEDS WORK CARD ";
   updateStatus();
   playTone("wrong");
 }

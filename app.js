@@ -13,6 +13,13 @@ import {
 } from "./src/vocabulary.js";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
+import {
+  DAILY_REVIEW_CHUNK_SIZE,
+  dailyReviewChunkKey,
+  dailyReviewChunkRanges,
+  dailyReviewChunkStart,
+  formatDailyReviewRange,
+} from "./src/daily-review-decks.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
 import { burst } from "./src/effects.js";
 import { answerIsCorrect, romajiToHiragana } from "./src/kana.js";
@@ -31,6 +38,16 @@ import { createStorage } from "./src/storage.js";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
+dailyReviewChunkRanges(KANJI.length).forEach(({ start, end, key }) => {
+  const range = formatDailyReviewRange(start, end);
+  DECKS[key] = {
+    label: `DAILY REVIEW ${range}`,
+    setLabel: `RECALL HISTORY · DAILY REVIEW · ${range}`,
+    dynamic: true,
+    dailyReviewChunkStart: start,
+  };
+  DYNAMIC_DECK_KEYS.add(key);
+});
 let restoringRoute = false;
 
 const $ = (selector) => document.querySelector(selector);
@@ -225,6 +242,13 @@ function itemsForDeck(key) {
         || aRate - bRate
         || aStats.lastReviewedAt.localeCompare(bStats.lastReviewedAt);
     });
+  const dailyReviewStart = dailyReviewChunkStart(key);
+  if (dailyReviewStart !== null) {
+    return itemsForDeck("daily-review").slice(
+      dailyReviewStart - 1,
+      dailyReviewStart - 1 + DAILY_REVIEW_CHUNK_SIZE,
+    );
+  }
   if (key === "needs-work") return KANJI.filter((item) => needsWork(progressFor(itemKey(item))))
     .sort((a, b) => {
       const aStats = progressFor(itemKey(a));
@@ -262,7 +286,7 @@ function selectedDeckMeta() {
         wordCount,
       };
     }
-    if (["done", "daily-review", "needs-work"].includes(keys[0])) {
+    if (["done", "daily-review", "needs-work"].includes(keys[0]) || deck.dailyReviewChunkStart) {
       const label = DECKS[keys[0]].label;
       return {
         summary: `${label} · ${wordCount}`,
@@ -309,6 +333,49 @@ function updateFavoriteControls() {
   updateFavoriteButton(elements.favorite, state.current);
 }
 
+function updateDailyReviewChunkControls(dailyReviewCount) {
+  const selectedChunkStarts = [...state.selectedDeckKeys]
+    .map(dailyReviewChunkStart)
+    .filter((start) => start !== null);
+  const ranges = dailyReviewChunkRanges(dailyReviewCount);
+  selectedChunkStarts.forEach((start) => {
+    if (ranges.some((range) => range.start === start)) return;
+    ranges.push({
+      start,
+      end: Math.min(start + DAILY_REVIEW_CHUNK_SIZE - 1, Math.max(start, dailyReviewCount)),
+      key: dailyReviewChunkKey(start),
+    });
+  });
+  ranges.sort((a, b) => a.start - b.start);
+
+  document.querySelectorAll("[data-daily-review-chunks]").forEach((panel) => {
+    const options = panel.querySelector("[data-daily-review-chunk-options]");
+    const buttons = ranges.map(({ start, end, key }) => {
+      const range = formatDailyReviewRange(start, end);
+      const count = itemsForDeck(key).length;
+      const active = state.selectedDeckKeys.has(key);
+      DECKS[key].label = `DAILY REVIEW ${range}`;
+      DECKS[key].setLabel = `RECALL HISTORY · DAILY REVIEW · ${range}`;
+
+      const button = document.createElement("button");
+      button.className = `deck-option daily-review-deck-option daily-review-chunk-option${active ? " active" : ""}`;
+      button.type = "button";
+      button.dataset.deckChoice = key;
+      button.setAttribute("aria-pressed", String(active));
+      button.setAttribute("aria-label", `Daily Review words ${start} through ${end}, ${count} words`);
+      button.textContent = range;
+      button.disabled = dynamicDeckIsDisabled(count, active);
+      button.title = count
+        ? `Practice Daily Review words ${start}—${end} of ${dailyReviewCount}`
+        : "This Daily Review chunk is now empty";
+      button.addEventListener("click", () => toggleDeckSelection(key));
+      return button;
+    });
+    options.replaceChildren(...buttons);
+    panel.hidden = ranges.length === 0;
+  });
+}
+
 function updateProgressControls() {
   const doneCount = itemsForDeck("done").length;
   const dailyReviewCount = itemsForDeck("daily-review").length;
@@ -316,6 +383,7 @@ function updateProgressControls() {
   document.querySelectorAll("[data-done-count]").forEach((node) => { node.textContent = String(doneCount); });
   document.querySelectorAll("[data-daily-review-count]").forEach((node) => { node.textContent = String(dailyReviewCount); });
   document.querySelectorAll("[data-needs-work-count]").forEach((node) => { node.textContent = String(needsWorkCount); });
+  updateDailyReviewChunkControls(dailyReviewCount);
   document.querySelectorAll('[data-deck-choice="done"]').forEach((button) => {
     const selected = state.selectedDeckKeys.has("done");
     button.disabled = dynamicDeckIsDisabled(doneCount, selected);
@@ -371,6 +439,9 @@ function setDeckSelection(keys, { updateRoute = true } = {}) {
   const validKeys = keys.filter((key) => DECKS[key]);
   state.selectedDeckKeys = new Set(validKeys.length ? validKeys : ["all"]);
   if (state.selectedDeckKeys.has("all") && state.selectedDeckKeys.size > 1) state.selectedDeckKeys = new Set(["all"]);
+  if (state.selectedDeckKeys.has("daily-review")) {
+    state.selectedDeckKeys = new Set([...state.selectedDeckKeys].filter((key) => dailyReviewChunkStart(key) === null));
+  }
   renderDeckSelection();
   if (updateRoute) writeSelectionRoute();
 }
@@ -378,7 +449,7 @@ function setDeckSelection(keys, { updateRoute = true } = {}) {
 function toggleDeckSelection(key) {
   if (!DECKS[key]) return;
   if (key === "favorites" && dynamicDeckIsDisabled(state.favoriteWords.size, state.selectedDeckKeys.has(key))) return;
-  if (["done", "daily-review", "needs-work"].includes(key)
+  if (key !== "favorites" && DECKS[key].dynamic
     && dynamicDeckIsDisabled(itemsForDeck(key).length, state.selectedDeckKeys.has(key))) return;
   if (key === "all") {
     setDeckSelection(["all"]);
@@ -387,8 +458,18 @@ function toggleDeckSelection(key) {
 
   const next = new Set(state.selectedDeckKeys);
   next.delete("all");
-  if (next.has(key)) next.delete(key);
-  else next.add(key);
+  if (next.has(key)) {
+    next.delete(key);
+  } else {
+    if (key === "daily-review") {
+      [...next].forEach((selectedKey) => {
+        if (dailyReviewChunkStart(selectedKey) !== null) next.delete(selectedKey);
+      });
+    } else if (dailyReviewChunkStart(key) !== null) {
+      next.delete("daily-review");
+    }
+    next.add(key);
+  }
   setDeckSelection([...next]);
 }
 

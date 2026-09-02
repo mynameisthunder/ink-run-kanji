@@ -30,7 +30,7 @@ import {
 import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
-import { openStudyGuidePrint } from "./src/study-guide.js";
+import { downloadStudyGuidePdf, openStudyGuidePrint } from "./src/study-guide.js?v=jspdf-1";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
@@ -98,6 +98,7 @@ const state = {
   sharedWordView: false,
   routeStudy: true,
   singlePassNeedsWork: false,
+  exportingGuide: false,
 };
 
 const { cancelPronunciation, playTone, pronounceItem } = createAudio({
@@ -367,8 +368,8 @@ function renderDeckSelection() {
   elements.deckDialogTitle.textContent = meta.setLabel;
   elements.deckButton.innerHTML = `DECK <span>${meta.wordCount}</span>`;
   [elements.exportGuide, elements.dialogExportGuide].forEach((button) => {
-    button.disabled = meta.wordCount === 0;
-    button.title = meta.wordCount ? `Export ${meta.wordCount} words as a printable PDF study guide` : "Select a deck with words to export";
+    button.disabled = meta.wordCount === 0 || state.exportingGuide;
+    button.title = meta.wordCount ? `Download ${meta.wordCount} words as a PDF study guide` : "Select a deck with words to export";
   });
   updateFavoriteControls();
   updateProgressControls();
@@ -427,18 +428,36 @@ function startStarredStudy() {
   startStudyDeck();
 }
 
-function exportSelectedStudyGuide() {
+async function exportSelectedStudyGuide() {
+  if (state.exportingGuide) return;
   const items = selectedDeck();
   if (!items.length) return;
   const meta = selectedDeckMeta();
   const deckLabels = orderedSelectedDeckKeys().map((key) => DECKS[key].label);
-  const opened = openStudyGuidePrint({
+  const options = {
     selectionLabel: meta.setLabel,
     deckLabels,
     items,
     sourceLabelFor: sourceDeckLabel,
+  };
+  const exportButtons = [elements.exportGuide, elements.dialogExportGuide];
+  const buttonLabels = exportButtons.map((button) => button.innerHTML);
+  state.exportingGuide = true;
+  exportButtons.forEach((button) => {
+    button.disabled = true;
+    button.textContent = "BUILDING PDF…";
   });
-  if (!opened) window.alert("Allow pop-ups for Ink Run, then try exporting the study guide again.");
+  try {
+    await downloadStudyGuidePdf(options);
+  } catch (error) {
+    console.error("Direct PDF export failed; opening the print fallback.", error);
+    const opened = openStudyGuidePrint(options);
+    if (!opened) window.alert("The PDF could not be generated. Allow pop-ups for Ink Run, then try again.");
+  } finally {
+    state.exportingGuide = false;
+    exportButtons.forEach((button, index) => { button.innerHTML = buttonLabels[index]; });
+    renderDeckSelection();
+  }
 }
 
 function showScreen(target) {

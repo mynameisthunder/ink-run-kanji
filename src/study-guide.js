@@ -1,4 +1,15 @@
 const CARDS_PER_PAGE = 10;
+const PDF_FONT_NAME = "InkRunJapanese";
+const PDF_FONT_FILE = "InkRunJapanese.ttf";
+const COLORS = {
+  ink: [23, 23, 20],
+  paper: [247, 242, 232],
+  blue: [36, 73, 255],
+  red: [242, 68, 55],
+  line: [201, 193, 178],
+  muted: [111, 106, 98],
+};
+let japaneseFontPromise;
 
 function escapeHtml(value = "") {
   return String(value)
@@ -11,6 +22,211 @@ function escapeHtml(value = "") {
 
 function printableTitle(selectionLabel) {
   return `Ink Run - ${selectionLabel.replaceAll("·", "-")} - Study Guide`;
+}
+
+function condensedDeckLabels(deckLabels) {
+  return deckLabels.length > 4
+    ? [...deckLabels.slice(0, 3), `+ ${deckLabels.length - 3} MORE`]
+    : deckLabels;
+}
+
+function truncateToWidth(doc, value, width) {
+  const text = String(value ?? "");
+  if (doc.getTextWidth(text) <= width) return text;
+  let shortened = text;
+  while (shortened && doc.getTextWidth(`${shortened}…`) > width) shortened = shortened.slice(0, -1);
+  return `${shortened}…`;
+}
+
+function limitedLines(doc, value, width, maximum) {
+  const lines = doc.splitTextToSize(String(value ?? ""), width);
+  if (lines.length <= maximum) return lines;
+  const visible = lines.slice(0, maximum);
+  visible[maximum - 1] = truncateToWidth(doc, `${visible[maximum - 1]}…`, width);
+  return visible;
+}
+
+function fitFontSize(doc, value, width, preferred, minimum) {
+  let size = preferred;
+  doc.setFontSize(size);
+  while (size > minimum && doc.getTextWidth(value) > width) {
+    size -= 0.5;
+    doc.setFontSize(size);
+  }
+  return size;
+}
+
+function drawPdfHeader(doc, { selectionLabel, wordCount, generatedLabel, pageNumber, totalPages }) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  doc.setTextColor(...COLORS.red);
+  doc.setFontSize(7.5);
+  doc.text("INK RUN / STUDY GUIDE", 12, 16);
+
+  doc.setTextColor(...COLORS.ink);
+  fitFontSize(doc, selectionLabel, 151, 17, 10);
+  doc.text(selectionLabel, 12, 27);
+
+  doc.setTextColor(...COLORS.blue);
+  doc.setFontSize(8.5);
+  doc.text(`${wordCount} ${wordCount === 1 ? "WORD" : "WORDS"}`, pageWidth - 12, 15, { align: "right" });
+  doc.setTextColor(...COLORS.muted);
+  doc.setFontSize(6.5);
+  doc.text(generatedLabel, pageWidth - 12, 22, { align: "right" });
+
+  doc.setDrawColor(...COLORS.ink);
+  doc.setLineWidth(1.2);
+  doc.line(12, 34, pageWidth - 12, 34);
+
+  doc.setTextColor(...COLORS.muted);
+  doc.setFontSize(6.2);
+  doc.text("墨  INK RUN", 12, 274);
+  doc.text(`${pageNumber} / ${totalPages}`, pageWidth - 12, 274, { align: "right" });
+}
+
+function drawPdfSelection(doc, deckLabels) {
+  const labels = condensedDeckLabels(deckLabels).join(" + ");
+  doc.setDrawColor(...COLORS.ink);
+  doc.setLineWidth(0.3);
+  doc.rect(12, 39, 191.9, 16);
+  doc.setTextColor(...COLORS.red);
+  doc.setFontSize(6.2);
+  doc.text("SELECTED DECKS", 16, 45);
+  doc.setTextColor(...COLORS.ink);
+  doc.setFontSize(7);
+  doc.text(truncateToWidth(doc, labels, 147), 54, 45);
+  doc.setTextColor(...COLORS.muted);
+  doc.setFontSize(6.2);
+  doc.text("Cover the blue reading, recall it aloud, then check the meaning and breakdown.", 16, 51);
+}
+
+function drawPdfCard(doc, item, index, sourceLabel, x, y, width, height) {
+  doc.setFillColor(250, 247, 240);
+  doc.setDrawColor(...COLORS.line);
+  doc.setLineWidth(0.25);
+  doc.rect(x, y, width, height, "FD");
+  doc.setDrawColor(...COLORS.ink);
+  doc.setLineWidth(0.9);
+  doc.line(x, y, x + width, y);
+
+  doc.setTextColor(...COLORS.red);
+  doc.setFontSize(5.8);
+  doc.text(String(index + 1).padStart(3, "0"), x + 3, y + 8);
+
+  doc.setTextColor(...COLORS.ink);
+  fitFontSize(doc, item.word, width - 17, 18, 10);
+  doc.text(item.word, x + 12, y + 9);
+
+  const reading = (item.kana ?? [item.reading]).join(" / ");
+  doc.setTextColor(...COLORS.blue);
+  doc.setFontSize(9.5);
+  doc.text(truncateToWidth(doc, reading, width - 17), x + 12, y + 16);
+
+  doc.setTextColor(...COLORS.ink);
+  doc.setFontSize(6.7);
+  const meaningLines = limitedLines(doc, item.meaning, width - 17, 3);
+  doc.text(meaningLines, x + 12, y + 22, { lineHeightFactor: 1.25 });
+
+  const breakdown = item.breakdown?.map(([character, partReading]) => `${character} ${partReading}`).join(" · ") ?? "";
+  if (breakdown) {
+    doc.setTextColor(...COLORS.muted);
+    doc.setFontSize(6.1);
+    const breakdownY = y + 23.5 + meaningLines.length * 2.6;
+    doc.text(limitedLines(doc, breakdown, width - 17, 2), x + 12, breakdownY, { lineHeightFactor: 1.2 });
+  }
+
+  if (sourceLabel) {
+    doc.setTextColor(...COLORS.muted);
+    doc.setFontSize(4.7);
+    doc.text(truncateToWidth(doc, sourceLabel, width - 6), x + 3, y + height - 2.5);
+  }
+}
+
+export function createStudyGuidePdfDocument({
+  jsPDFClass,
+  fontBase64,
+  selectionLabel,
+  deckLabels,
+  items,
+  sourceLabelFor = () => "",
+  generatedLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date()),
+}) {
+  if (!jsPDFClass) throw new Error("jsPDF is unavailable");
+  if (!fontBase64) throw new Error("The Japanese PDF font is unavailable");
+  const doc = new jsPDFClass({ orientation: "portrait", unit: "mm", format: "letter", compress: true, putOnlyUsedFonts: true });
+  doc.addFileToVFS(PDF_FONT_FILE, fontBase64);
+  doc.addFont(PDF_FONT_FILE, PDF_FONT_NAME, "normal");
+  doc.setFont(PDF_FONT_NAME, "normal");
+  doc.setProperties({
+    title: printableTitle(selectionLabel),
+    subject: `${items.length}-word Japanese study guide`,
+    author: "Ink Run",
+    creator: "Ink Run with jsPDF",
+  });
+
+  const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const gapX = 4;
+  const gapY = 3;
+  const cardWidth = (pageWidth - 24 - gapX) / 2;
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
+    if (pageIndex > 0) doc.addPage("letter", "portrait");
+    doc.setFillColor(...COLORS.paper);
+    doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), "F");
+    drawPdfHeader(doc, {
+      selectionLabel,
+      wordCount: items.length,
+      generatedLabel,
+      pageNumber: pageIndex + 1,
+      totalPages,
+    });
+    if (pageIndex === 0) drawPdfSelection(doc, deckLabels);
+
+    const startY = pageIndex === 0 ? 60 : 40;
+    const endY = 267;
+    const cardHeight = (endY - startY - gapY * 4) / 5;
+    const pageItems = items.slice(pageIndex * CARDS_PER_PAGE, (pageIndex + 1) * CARDS_PER_PAGE);
+    pageItems.forEach((item, itemIndex) => {
+      const column = itemIndex % 2;
+      const row = Math.floor(itemIndex / 2);
+      const x = 12 + column * (cardWidth + gapX);
+      const y = startY + row * (cardHeight + gapY);
+      drawPdfCard(doc, item, pageIndex * CARDS_PER_PAGE + itemIndex, sourceLabelFor(item), x, y, cardWidth, cardHeight);
+    });
+  }
+  return doc;
+}
+
+async function loadJapaneseFontBase64() {
+  if (globalThis.INK_RUN_PDF_FONT_BASE64) return globalThis.INK_RUN_PDF_FONT_BASE64;
+  japaneseFontPromise ??= fetch(new URL("../assets/fonts/InkRunJapanese.ttf?v=1", import.meta.url)).then(async (response) => {
+    if (!response.ok) throw new Error(`Japanese font failed to load (${response.status})`);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = "";
+    for (let index = 0; index < bytes.length; index += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+    }
+    return window.btoa(binary);
+  });
+  return japaneseFontPromise;
+}
+
+function filenameForStudyGuide(selectionLabel) {
+  const slug = selectionLabel.toLowerCase()
+    .replaceAll("·", "-")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 72);
+  return `ink-run-${slug || "study-guide"}.pdf`;
+}
+
+export async function downloadStudyGuidePdf(options) {
+  const fontBase64 = await loadJapaneseFontBase64();
+  const doc = createStudyGuidePdfDocument({
+    ...options,
+    jsPDFClass: window.jspdf?.jsPDF,
+    fontBase64,
+  });
+  doc.save(filenameForStudyGuide(options.selectionLabel));
 }
 
 function renderBreakdown(item) {
@@ -39,9 +255,7 @@ export function createStudyGuideHtml({
   generatedLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date()),
 }) {
   const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
-  const visibleDeckLabels = deckLabels.length > 4
-    ? [...deckLabels.slice(0, 3), `+ ${deckLabels.length - 3} MORE`]
-    : deckLabels;
+  const visibleDeckLabels = condensedDeckLabels(deckLabels);
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
     const pageItems = items.slice(pageIndex * CARDS_PER_PAGE, (pageIndex + 1) * CARDS_PER_PAGE);
     const cards = pageItems.map((item, itemIndex) => (

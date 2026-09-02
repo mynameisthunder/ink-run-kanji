@@ -3,16 +3,17 @@ import assert from "node:assert/strict";
 
 import { applyAttempt, emptyProgress, needsDailyReview, needsWork, progressIsMastered } from "../src/progress.js";
 
-test("a miss enters Needs Work and three correct recalls recover it", () => {
+test("a miss enters Needs Work and two correct recalls recover it", () => {
   let stats = applyAttempt(emptyProgress(), false, "2026-08-23T00:00:00Z");
   assert.equal(needsWork(stats), true);
 
-  stats = applyAttempt(stats, true);
   stats = applyAttempt(stats, true);
   assert.equal(needsWork(stats), true);
 
   stats = applyAttempt(stats, true);
   assert.equal(needsWork(stats), false);
+
+  stats = applyAttempt(stats, true);
   assert.equal(progressIsMastered(stats), true);
 });
 

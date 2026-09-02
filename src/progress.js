@@ -1,5 +1,5 @@
 export const RECALLS_PER_WORD = 2;
-export const RECOVERY_STREAK = 3;
+export const RECOVERY_STREAK = 2;
 export const NEEDS_WORK_ENTRY_ACCURACY = .6;
 export const NEEDS_WORK_EXIT_ACCURACY = .75;
 export const DAILY_REVIEW_MIN_MISSES = 2;

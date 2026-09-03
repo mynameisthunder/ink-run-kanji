@@ -26,10 +26,11 @@ test("study guide paginates cards and labels every printed page", () => {
 
   assert.equal((html.match(/class="guide-page"/g) ?? []).length, 2);
   assert.match(html, /001/);
-  assert.match(html, /009/);
+  assert.match(html, new RegExp(String(CARDS_PER_PAGE + 1).padStart(3, "0")));
   assert.match(html, /1 \/ 2/);
   assert.match(html, /2 \/ 2/);
   assert.match(html, /LEVEL 1 · 001—010/);
+  assert.match(html, /CHARACTER BREAKDOWN/);
   assert.match(html, /character meaning 1/);
 });
 

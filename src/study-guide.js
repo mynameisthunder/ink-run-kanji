@@ -1,4 +1,4 @@
-const CARDS_PER_PAGE = 10;
+const CARDS_PER_PAGE = 6;
 const PDF_FONT_NAME = "InkRunJapanese";
 const PDF_FONT_FILE = "InkRunJapanese.ttf";
 const COLORS = {
@@ -132,13 +132,21 @@ function drawPdfCard(doc, item, index, sourceLabel, x, y, width, height) {
 
   const breakdown = item.breakdown?.map(formatBreakdownPart).join("  /  ") ?? "";
   if (breakdown) {
-    doc.setTextColor(...COLORS.muted);
-    doc.setFontSize(5);
-    const breakdownY = y + 23.5 + meaningLines.length * 2.6;
-    const lineHeight = 2.1;
+    const breakdownLabelY = y + 24 + meaningLines.length * 2.6;
+    doc.setDrawColor(...COLORS.line);
+    doc.setLineWidth(0.25);
+    doc.line(x + 12, breakdownLabelY - 2, x + width - 4, breakdownLabelY - 2);
+    doc.setTextColor(...COLORS.red);
+    doc.setFontSize(4.8);
+    doc.text("CHARACTER BREAKDOWN", x + 12, breakdownLabelY);
+
+    doc.setTextColor(...COLORS.ink);
+    doc.setFontSize(8.2);
+    const breakdownY = breakdownLabelY + 3.5;
+    const lineHeight = 3.5;
     const breakdownBottom = y + height - 6;
     const maximumLines = Math.max(1, Math.floor((breakdownBottom - breakdownY) / lineHeight) + 1);
-    doc.text(limitedLines(doc, breakdown, width - 17, maximumLines), x + 12, breakdownY, { lineHeightFactor: 1.2 });
+    doc.text(limitedLines(doc, breakdown, width - 17, maximumLines), x + 12, breakdownY, { lineHeightFactor: 1.15 });
   }
 
   if (sourceLabel) {
@@ -174,6 +182,7 @@ export function createStudyGuidePdfDocument({
   const pageWidth = doc.internal.pageSize.getWidth();
   const gapX = 4;
   const gapY = 3;
+  const rowsPerPage = Math.ceil(CARDS_PER_PAGE / 2);
   const cardWidth = (pageWidth - 24 - gapX) / 2;
   for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
     if (pageIndex > 0) doc.addPage("letter", "portrait");
@@ -190,7 +199,7 @@ export function createStudyGuidePdfDocument({
 
     const startY = pageIndex === 0 ? 60 : 40;
     const endY = 267;
-    const cardHeight = (endY - startY - gapY * 4) / 5;
+    const cardHeight = (endY - startY - gapY * (rowsPerPage - 1)) / rowsPerPage;
     const pageItems = items.slice(pageIndex * CARDS_PER_PAGE, (pageIndex + 1) * CARDS_PER_PAGE);
     pageItems.forEach((item, itemIndex) => {
       const column = itemIndex % 2;
@@ -238,9 +247,12 @@ export async function downloadStudyGuidePdf(options) {
 
 function renderBreakdown(item) {
   if (!item.breakdown?.length) return "";
-  return `<div class="breakdown">${item.breakdown.map(([character, reading, meaning]) => (
-    `<span><b>${escapeHtml(character)}</b> <em>${escapeHtml(reading)}</em>${meaning ? ` — ${escapeHtml(meaning)}` : ""}</span>`
-  )).join("")}</div>`;
+  return `<div class="breakdown">
+    <strong class="breakdown-label">CHARACTER BREAKDOWN</strong>
+    <div class="breakdown-parts">${item.breakdown.map(([character, reading, meaning]) => (
+      `<span><b>${escapeHtml(character)}</b> <em>${escapeHtml(reading)}</em>${meaning ? ` — ${escapeHtml(meaning)}` : ""}</span>`
+    )).join("")}</div>
+  </div>`;
 }
 
 function renderCard(item, index, sourceLabel) {
@@ -305,7 +317,7 @@ export function createStudyGuideHtml({
     .selection span { color: var(--red); font-size: 6.5pt; font-weight: 800; letter-spacing: .08em; }
     .selection strong { font-size: 7.5pt; line-height: 1.3; }
     .selection p { grid-column: 1 / -1; margin: 0; color: #625e57; font: 7.2pt/1.35 ui-sans-serif, system-ui, -apple-system, "Noto Sans JP", sans-serif; }
-    .cards { height: 221mm; margin-top: 4mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 3mm 4mm; }
+    .cards { height: 221mm; margin-top: 4mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 3mm 4mm; }
     .guide-page:first-child .cards { height: 198mm; }
     .card { position: relative; min-width: 0; padding: 3mm 3.5mm 5mm; overflow: hidden; border: .35mm solid var(--line); border-top: 1mm solid var(--ink); background: rgba(255,255,255,.24); break-inside: avoid; }
     .card-top { display: flex; align-items: baseline; gap: 3mm; }
@@ -313,9 +325,11 @@ export function createStudyGuideHtml({
     .word { min-width: 0; font: 800 20pt/1.05 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; overflow-wrap: anywhere; }
     .reading { margin: 1.4mm 0 1.6mm 10mm; color: var(--blue); font: 700 10.5pt/1.2 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
     .meaning { margin: 0 0 1.5mm 10mm; font: 7.6pt/1.32 ui-sans-serif, system-ui, -apple-system, "Noto Sans JP", sans-serif; }
-    .breakdown { margin-left: 10mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1mm 2.5mm; color: #4e4a44; }
-    .breakdown span { min-width: 0; font: 6.2pt/1.25 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
-    .breakdown b { color: var(--ink); font-size: 8pt; }
+    .breakdown { margin: 2mm 0 0 10mm; padding-top: 1.2mm; border-top: .25mm solid var(--line); color: var(--ink); }
+    .breakdown-label { display: block; margin-bottom: 1mm; color: var(--red); font: 700 5.5pt/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .05em; }
+    .breakdown-parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1mm 2.5mm; }
+    .breakdown span { min-width: 0; font: 8.4pt/1.3 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
+    .breakdown b { color: var(--ink); font-size: 11pt; }
     .breakdown em { color: var(--blue); font-style: normal; }
     .source { position: absolute; right: 3.5mm; bottom: 2mm; left: 3.5mm; color: #847e74; font-size: 5.2pt; font-weight: 700; letter-spacing: .025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     footer { position: absolute; right: 11mm; bottom: 5mm; left: 11mm; min-height: 6mm; padding-top: 2.5mm; display: flex; justify-content: space-between; color: #6f6a62; font-size: 6.5pt; font-weight: 700; letter-spacing: .08em; }

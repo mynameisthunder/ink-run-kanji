@@ -355,13 +355,4 @@ export function openStudyGuidePrint(options) {
   return true;
 }
 
-export function openStudyGuidePreview(options) {
-  const previewWindow = window.open("", "_blank");
-  if (!previewWindow) return false;
-  previewWindow.document.open();
-  previewWindow.document.write(createStudyGuideHtml(options));
-  previewWindow.document.close();
-  return true;
-}
-
 export { CARDS_PER_PAGE };

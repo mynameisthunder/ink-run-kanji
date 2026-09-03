@@ -69,7 +69,7 @@ test("screen study guide shows every card without print controls", () => {
 });
 
 test("jsPDF study guide contains Japanese cards across numbered pages", () => {
-  const items = Array.from({ length: CARDS_PER_PAGE + 1 }, (_, index) => item(index + 1));
+  const items = Array.from({ length: 10 }, (_, index) => item(index + 1));
   const doc = createStudyGuidePdfDocument({
     jsPDFClass: jsPDF,
     fontBase64,
@@ -82,7 +82,7 @@ test("jsPDF study guide contains Japanese cards across numbered pages", () => {
   const bytes = new Uint8Array(doc.output("arraybuffer"));
   const pdfText = new TextDecoder("latin1").decode(bytes);
 
-  assert.equal(doc.getNumberOfPages(), 2);
+  assert.equal(doc.getNumberOfPages(), 3);
   assert.equal(new TextDecoder().decode(bytes.slice(0, 5)), "%PDF-");
   assert.match(pdfText, /InkRunJapanese/);
   assert.match(pdfText, /\/Subtype \/Type0/);

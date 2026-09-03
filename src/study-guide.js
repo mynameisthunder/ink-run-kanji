@@ -1,4 +1,5 @@
 const CARDS_PER_PAGE = 6;
+const PDF_CARDS_PER_PAGE = 4;
 const PDF_FONT_NAME = "InkRunJapanese";
 const PDF_FONT_FILE = "InkRunJapanese.ttf";
 const COLORS = {
@@ -70,8 +71,8 @@ function lookupUrls(word) {
 
 function drawPdfLookupIcons(doc, word, x, y, width) {
   const urls = lookupUrls(word);
-  const size = 6.5;
-  const gap = 1.5;
+  const size = 8;
+  const gap = 2;
   const firstX = x + width - size * 2 - gap - 3;
   [
     { label: "辞", url: urls.jisho, color: COLORS.blue },
@@ -80,11 +81,11 @@ function drawPdfLookupIcons(doc, word, x, y, width) {
     const iconX = firstX + index * (size + gap);
     doc.setFillColor(250, 247, 240);
     doc.setDrawColor(...color);
-    doc.setLineWidth(0.35);
-    doc.roundedRect(iconX, y + 3, size, size, 1, 1, "FD");
+    doc.setLineWidth(0.4);
+    doc.roundedRect(iconX, y + 3, size, size, 1.4, 1.4, "FD");
     doc.setTextColor(...color);
-    doc.setFontSize(6.2);
-    doc.text(label, iconX + size / 2, y + 7.7, { align: "center" });
+    doc.setFontSize(7.4);
+    doc.text(label, iconX + size / 2, y + 8.7, { align: "center" });
     doc.link(iconX, y + 3, size, size, { url });
   });
 }
@@ -142,47 +143,47 @@ function drawPdfCard(doc, item, index, sourceLabel, x, y, width, height) {
   doc.line(x, y, x + width, y);
 
   doc.setTextColor(...COLORS.red);
-  doc.setFontSize(5.8);
-  doc.text(String(index + 1).padStart(3, "0"), x + 3, y + 8);
+  doc.setFontSize(6.5);
+  doc.text(String(index + 1).padStart(3, "0"), x + 4, y + 9);
 
   doc.setTextColor(...COLORS.ink);
-  fitFontSize(doc, item.word, width - 35, 18, 10);
-  doc.text(item.word, x + 12, y + 9);
+  fitFontSize(doc, item.word, width - 40, 21, 11);
+  doc.text(item.word, x + 14, y + 11);
   drawPdfLookupIcons(doc, item.word, x, y, width);
 
   const reading = (item.kana ?? [item.reading]).join(" / ");
   doc.setTextColor(...COLORS.blue);
-  doc.setFontSize(9.5);
-  doc.text(truncateToWidth(doc, reading, width - 17), x + 12, y + 16);
+  doc.setFontSize(11);
+  doc.text(truncateToWidth(doc, reading, width - 19), x + 14, y + 20);
 
   doc.setTextColor(...COLORS.ink);
-  doc.setFontSize(6.7);
-  const meaningLines = limitedLines(doc, item.meaning, width - 17, 4);
-  doc.text(meaningLines, x + 12, y + 22, { lineHeightFactor: 1.25 });
+  doc.setFontSize(7.6);
+  const meaningLines = limitedLines(doc, item.meaning, width - 19, 4);
+  doc.text(meaningLines, x + 14, y + 28, { lineHeightFactor: 1.25 });
 
   const breakdown = item.breakdown?.map(formatBreakdownPart).join("  /  ") ?? "";
   if (breakdown) {
-    const breakdownLabelY = y + 24 + meaningLines.length * 2.6;
+    const breakdownLabelY = y + 31 + meaningLines.length * 3;
     doc.setDrawColor(...COLORS.line);
     doc.setLineWidth(0.25);
-    doc.line(x + 12, breakdownLabelY - 2, x + width - 4, breakdownLabelY - 2);
+    doc.line(x + 14, breakdownLabelY - 2, x + width - 4, breakdownLabelY - 2);
     doc.setTextColor(...COLORS.red);
-    doc.setFontSize(4.8);
-    doc.text("CHARACTER BREAKDOWN", x + 12, breakdownLabelY);
+    doc.setFontSize(5.5);
+    doc.text("CHARACTER BREAKDOWN", x + 14, breakdownLabelY);
 
     doc.setTextColor(...COLORS.ink);
-    doc.setFontSize(8.2);
-    const breakdownY = breakdownLabelY + 3.5;
-    const lineHeight = 3.5;
-    const breakdownBottom = y + height - 6;
+    doc.setFontSize(9.4);
+    const breakdownY = breakdownLabelY + 4.5;
+    const lineHeight = 4.2;
+    const breakdownBottom = y + height - 8;
     const maximumLines = Math.max(1, Math.floor((breakdownBottom - breakdownY) / lineHeight) + 1);
-    doc.text(limitedLines(doc, breakdown, width - 17, maximumLines), x + 12, breakdownY, { lineHeightFactor: 1.15 });
+    doc.text(limitedLines(doc, breakdown, width - 19, maximumLines), x + 14, breakdownY, { lineHeightFactor: 1.15 });
   }
 
   if (sourceLabel) {
     doc.setTextColor(...COLORS.muted);
-    doc.setFontSize(4.7);
-    doc.text(truncateToWidth(doc, sourceLabel, width - 6), x + 3, y + height - 2.5);
+    doc.setFontSize(5.2);
+    doc.text(truncateToWidth(doc, sourceLabel, width - 8), x + 4, y + height - 3.5);
   }
 }
 
@@ -208,11 +209,11 @@ export function createStudyGuidePdfDocument({
     creator: "Ink Run with jsPDF",
   });
 
-  const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(items.length / PDF_CARDS_PER_PAGE));
   const pageWidth = doc.internal.pageSize.getWidth();
   const gapX = 4;
   const gapY = 3;
-  const rowsPerPage = Math.ceil(CARDS_PER_PAGE / 2);
+  const rowsPerPage = Math.ceil(PDF_CARDS_PER_PAGE / 2);
   const cardWidth = (pageWidth - 24 - gapX) / 2;
   for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
     if (pageIndex > 0) doc.addPage("letter", "portrait");
@@ -230,13 +231,13 @@ export function createStudyGuidePdfDocument({
     const startY = pageIndex === 0 ? 60 : 40;
     const endY = 267;
     const cardHeight = (endY - startY - gapY * (rowsPerPage - 1)) / rowsPerPage;
-    const pageItems = items.slice(pageIndex * CARDS_PER_PAGE, (pageIndex + 1) * CARDS_PER_PAGE);
+    const pageItems = items.slice(pageIndex * PDF_CARDS_PER_PAGE, (pageIndex + 1) * PDF_CARDS_PER_PAGE);
     pageItems.forEach((item, itemIndex) => {
       const column = itemIndex % 2;
       const row = Math.floor(itemIndex / 2);
       const x = 12 + column * (cardWidth + gapX);
       const y = startY + row * (cardHeight + gapY);
-      drawPdfCard(doc, item, pageIndex * CARDS_PER_PAGE + itemIndex, sourceLabelFor(item), x, y, cardWidth, cardHeight);
+      drawPdfCard(doc, item, pageIndex * PDF_CARDS_PER_PAGE + itemIndex, sourceLabelFor(item), x, y, cardWidth, cardHeight);
     });
   }
   return doc;

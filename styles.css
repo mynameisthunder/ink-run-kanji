@@ -270,6 +270,24 @@ main { min-height: calc(100vh - 82px); }
 .export-guide-button:hover { background: var(--blue); color: #fff; }
 .export-guide-button:hover span { color: var(--yellow); }
 .export-guide-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
+.guide-export-group { display: inline-flex; align-items: stretch; }
+.guide-export-group .export-guide-button { border-right: 0; }
+.study-guide-view-button {
+  width: 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  font: 700 17px/1 var(--mono);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.study-guide-view-button span { transform: translate(-1px, 1px); }
+.study-guide-view-button:hover { background: var(--yellow); color: var(--ink); transform: translateY(-2px); }
+.study-guide-view-button:focus-visible { position: relative; z-index: 1; outline: 3px solid var(--red); outline-offset: 3px; }
+.study-guide-view-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .best-score {
   min-width: 150px;
   padding: 9px 18px;

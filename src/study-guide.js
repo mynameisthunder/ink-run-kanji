@@ -272,7 +272,9 @@ export function createStudyGuideHtml({
   items,
   sourceLabelFor = () => "",
   generatedLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date()),
+  viewMode = "print",
 }) {
+  const screenView = viewMode === "screen";
   const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
   const visibleDeckLabels = condensedDeckLabels(deckLabels);
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
@@ -333,6 +335,35 @@ export function createStudyGuideHtml({
     .breakdown em { color: var(--blue); font-style: normal; }
     .source { position: absolute; right: 3.5mm; bottom: 2mm; left: 3.5mm; color: #847e74; font-size: 5.2pt; font-weight: 700; letter-spacing: .025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     footer { position: absolute; right: 11mm; bottom: 5mm; left: 11mm; min-height: 6mm; padding-top: 2.5mm; display: flex; justify-content: space-between; color: #6f6a62; font-size: 6.5pt; font-weight: 700; letter-spacing: .08em; }
+    .study-view .print-toolbar { justify-content: space-between; padding: 10px max(16px, calc((100vw - 1180px) / 2)); color: white; }
+    .study-view .toolbar-title { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+    .study-view .toolbar-title b { color: #ffd931; }
+    .study-view .print-toolbar button:first-of-type { background: white; border-color: white; }
+    .study-view main { padding: 6px 0 24px; }
+    .study-view .guide-page { width: min(1180px, calc(100% - 32px)); height: auto; min-height: 0; padding: 42px; overflow: visible; page-break-after: auto; break-after: auto; }
+    .study-view .page-header { min-height: 0; padding-bottom: 20px; }
+    .study-view h1 { max-width: 820px; }
+    .study-view .selection { margin-top: 20px; padding: 14px 16px; grid-template-columns: 150px 1fr; gap: 8px 18px; }
+    .study-view .cards, .study-view .guide-page:first-child .cards { height: auto; margin-top: 20px; grid-template-rows: none; grid-auto-rows: minmax(245px, auto); gap: 16px; }
+    .study-view .card { min-height: 245px; padding: 18px 20px 36px; overflow: visible; }
+    .study-view .word { font-size: 30px; }
+    .study-view .reading { margin: 10px 0 12px 48px; font-size: 16px; }
+    .study-view .meaning { margin: 0 0 10px 48px; font-size: 12px; }
+    .study-view .breakdown { margin: 12px 0 0 48px; padding-top: 8px; }
+    .study-view .breakdown-label { margin-bottom: 8px; font-size: 9px; }
+    .study-view .breakdown span { font-size: 14px; }
+    .study-view .breakdown b { font-size: 18px; }
+    .study-view footer { position: static; margin-top: 20px; padding-top: 12px; }
+    @media (max-width: 760px) {
+      .study-view .guide-page { width: min(100% - 20px, 560px); margin: 10px auto; padding: 24px 18px; }
+      .study-view .page-header { gap: 16px; }
+      .study-view h1 { font-size: 22px; }
+      .study-view .selection { grid-template-columns: 1fr; }
+      .study-view .selection p { grid-column: 1; }
+      .study-view .cards { grid-template-columns: 1fr; }
+      .study-view .breakdown-parts { grid-template-columns: 1fr; }
+      .study-view .toolbar-title span { display: none; }
+    }
     @page { size: Letter portrait; margin: 0; }
     @media print {
       html, body { background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
@@ -341,11 +372,14 @@ export function createStudyGuideHtml({
     }
   </style>
 </head>
-<body>
-  <nav class="print-toolbar" aria-label="PDF controls">
+<body class="${screenView ? "study-view" : "print-view"}">
+  ${screenView ? `<nav class="print-toolbar" aria-label="Study view controls">
+    <div class="toolbar-title"><b>INK RUN</b><span>ALL-CARDS STUDY VIEW · ${items.length} ${items.length === 1 ? "WORD" : "WORDS"}</span></div>
+    <button type="button" onclick="window.close()">CLOSE</button>
+  </nav>` : `<nav class="print-toolbar" aria-label="PDF controls">
     <button type="button" onclick="window.print()">SAVE / PRINT PDF</button>
     <button type="button" onclick="window.close()">CLOSE</button>
-  </nav>
+  </nav>`}
   <main>${pages}</main>
 </body>
 </html>`;
@@ -366,6 +400,15 @@ export function openStudyGuidePrint(options) {
   } else {
     printWindow.setTimeout(openPrintDialog, 300);
   }
+  return true;
+}
+
+export function openStudyGuideView(options) {
+  const studyWindow = window.open("", "_blank");
+  if (!studyWindow) return false;
+  studyWindow.document.open();
+  studyWindow.document.write(createStudyGuideHtml({ ...options, viewMode: "screen" }));
+  studyWindow.document.close();
   return true;
 }
 

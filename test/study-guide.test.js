@@ -49,6 +49,21 @@ test("study guide escapes card and heading content", () => {
   assert.doesNotMatch(html, /<Selected>/);
 });
 
+test("screen study guide shows every card without print controls", () => {
+  const items = Array.from({ length: CARDS_PER_PAGE + 2 }, (_, index) => item(index + 1));
+  const html = createStudyGuideHtml({
+    selectionLabel: "LEVEL 1 · ALL",
+    deckLabels: ["ALL"],
+    items,
+    viewMode: "screen",
+  });
+
+  assert.match(html, /class="study-view"/);
+  assert.match(html, /ALL-CARDS STUDY VIEW/);
+  assert.equal((html.match(/<article class="card">/g) ?? []).length, items.length);
+  assert.doesNotMatch(html, /SAVE \/ PRINT PDF/);
+});
+
 test("jsPDF study guide contains Japanese cards across numbered pages", () => {
   const items = Array.from({ length: CARDS_PER_PAGE + 1 }, (_, index) => item(index + 1));
   const doc = createStudyGuidePdfDocument({

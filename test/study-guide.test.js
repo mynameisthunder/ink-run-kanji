@@ -61,6 +61,10 @@ test("screen study guide shows every card without print controls", () => {
   assert.match(html, /class="study-view"/);
   assert.match(html, /ALL-CARDS STUDY VIEW/);
   assert.equal((html.match(/<article class="card">/g) ?? []).length, items.length);
+  assert.equal((html.match(/class="card-lookup jisho-lookup"/g) ?? []).length, items.length);
+  assert.equal((html.match(/class="card-lookup kana-lookup"/g) ?? []).length, items.length);
+  assert.match(html, /https:\/\/jisho\.org\/search\//);
+  assert.match(html, /https:\/\/www\.romajidesu\.com\/kanji\//);
   assert.doesNotMatch(html, /SAVE \/ PRINT PDF/);
 });
 
@@ -83,4 +87,6 @@ test("jsPDF study guide contains Japanese cards across numbered pages", () => {
   assert.match(pdfText, /InkRunJapanese/);
   assert.match(pdfText, /\/Subtype \/Type0/);
   assert.match(pdfText, /\/ToUnicode/);
+  assert.match(pdfText, /https:\/\/jisho\.org\/search\//);
+  assert.match(pdfText, /https:\/\/www\.romajidesu\.com\/kanji\//);
 });

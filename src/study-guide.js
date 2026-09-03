@@ -60,6 +60,35 @@ function formatBreakdownPart([character, reading, meaning]) {
   return `${character} (${reading})${meaning ? `: ${meaning}` : ""}`;
 }
 
+function lookupUrls(word) {
+  const encodedWord = encodeURIComponent(word);
+  return {
+    jisho: `https://jisho.org/search/${encodedWord}`,
+    kana: `https://www.romajidesu.com/kanji/${encodedWord}`,
+  };
+}
+
+function drawPdfLookupIcons(doc, word, x, y, width) {
+  const urls = lookupUrls(word);
+  const size = 6.5;
+  const gap = 1.5;
+  const firstX = x + width - size * 2 - gap - 3;
+  [
+    { label: "辞", url: urls.jisho, color: COLORS.blue },
+    { label: "あ", url: urls.kana, color: COLORS.red },
+  ].forEach(({ label, url, color }, index) => {
+    const iconX = firstX + index * (size + gap);
+    doc.setFillColor(250, 247, 240);
+    doc.setDrawColor(...color);
+    doc.setLineWidth(0.35);
+    doc.roundedRect(iconX, y + 3, size, size, 1, 1, "FD");
+    doc.setTextColor(...color);
+    doc.setFontSize(6.2);
+    doc.text(label, iconX + size / 2, y + 7.7, { align: "center" });
+    doc.link(iconX, y + 3, size, size, { url });
+  });
+}
+
 function drawPdfHeader(doc, { selectionLabel, wordCount, generatedLabel, pageNumber, totalPages }) {
   const pageWidth = doc.internal.pageSize.getWidth();
   doc.setTextColor(...COLORS.red);
@@ -117,8 +146,9 @@ function drawPdfCard(doc, item, index, sourceLabel, x, y, width, height) {
   doc.text(String(index + 1).padStart(3, "0"), x + 3, y + 8);
 
   doc.setTextColor(...COLORS.ink);
-  fitFontSize(doc, item.word, width - 17, 18, 10);
+  fitFontSize(doc, item.word, width - 35, 18, 10);
   doc.text(item.word, x + 12, y + 9);
+  drawPdfLookupIcons(doc, item.word, x, y, width);
 
   const reading = (item.kana ?? [item.reading]).join(" / ");
   doc.setTextColor(...COLORS.blue);
@@ -257,7 +287,12 @@ function renderBreakdown(item) {
 
 function renderCard(item, index, sourceLabel) {
   const readings = item.kana ?? [item.reading];
+  const urls = lookupUrls(item.word);
   return `<article class="card">
+    <nav class="card-links" aria-label="Look up ${escapeHtml(item.word)}">
+      <a class="card-lookup jisho-lookup" href="${urls.jisho}" target="_blank" rel="noopener noreferrer" aria-label="Look up ${escapeHtml(item.word)} on Jisho" title="Jisho dictionary"><span aria-hidden="true">辞</span></a>
+      <a class="card-lookup kana-lookup" href="${urls.kana}" target="_blank" rel="noopener noreferrer" aria-label="Look up ${escapeHtml(item.word)} reading on RomajiDesu" title="Kana and reading lookup"><span aria-hidden="true">あ</span></a>
+    </nav>
     <div class="card-top"><span class="number">${String(index + 1).padStart(3, "0")}</span><strong class="word">${escapeHtml(item.word)}</strong></div>
     <div class="reading">${readings.map(escapeHtml).join(" / ")}</div>
     <p class="meaning">${escapeHtml(item.meaning)}</p>
@@ -322,6 +357,13 @@ export function createStudyGuideHtml({
     .cards { height: 221mm; margin-top: 4mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 3mm 4mm; }
     .guide-page:first-child .cards { height: 198mm; }
     .card { position: relative; min-width: 0; padding: 3mm 3.5mm 5mm; overflow: hidden; border: .35mm solid var(--line); border-top: 1mm solid var(--ink); background: rgba(255,255,255,.24); break-inside: avoid; }
+    .card-links { position: absolute; z-index: 2; top: 3mm; right: 3mm; display: flex; gap: 1.2mm; }
+    .card-lookup { width: 7mm; height: 7mm; display: grid; place-items: center; border: .35mm solid currentColor; border-radius: 1.5mm; background: #faf7f0; text-decoration: none; font: 800 9pt/1 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
+    .jisho-lookup { color: var(--blue); }
+    .kana-lookup { color: var(--red); }
+    .card-lookup:hover, .card-lookup:focus-visible { background: currentColor; outline: none; }
+    .jisho-lookup:hover span, .jisho-lookup:focus-visible span { color: white; }
+    .kana-lookup:hover span, .kana-lookup:focus-visible span { color: white; }
     .card-top { display: flex; align-items: baseline; gap: 3mm; }
     .number { color: var(--red); font-size: 6.5pt; font-weight: 800; }
     .word { min-width: 0; font: 800 20pt/1.05 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; overflow-wrap: anywhere; }
@@ -346,6 +388,8 @@ export function createStudyGuideHtml({
     .study-view .selection { margin-top: 20px; padding: 14px 16px; grid-template-columns: 150px 1fr; gap: 8px 18px; }
     .study-view .cards, .study-view .guide-page:first-child .cards { height: auto; margin-top: 20px; grid-template-rows: none; grid-auto-rows: minmax(245px, auto); gap: 16px; }
     .study-view .card { min-height: 245px; padding: 18px 20px 36px; overflow: visible; }
+    .study-view .card-links { top: 16px; right: 16px; gap: 7px; }
+    .study-view .card-lookup { width: 34px; height: 34px; border-width: 1.5px; border-radius: 7px; font-size: 16px; }
     .study-view .word { font-size: 30px; }
     .study-view .reading { margin: 10px 0 12px 48px; font-size: 16px; }
     .study-view .meaning { margin: 0 0 10px 48px; font-size: 12px; }

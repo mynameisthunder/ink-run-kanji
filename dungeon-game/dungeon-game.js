@@ -7,7 +7,7 @@ import {
   fleeDungeon,
   restartDungeon,
   useDungeonHint,
-} from "../src/dungeon-engine.js?v=counter-meanings-1";
+} from "../src/dungeon-engine.js?v=meaning-flex-1";
 import { romajiToHiragana } from "../src/kana.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";

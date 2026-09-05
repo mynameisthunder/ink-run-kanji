@@ -3,8 +3,18 @@ import { answerIsCorrect, romajiToHiragana } from "./kana.js";
 export const MAX_PLAYER_HP = 5;
 export const MAX_ENEMY_HP = 2;
 
-const ARTICLES = /^(?:a|an|the)\s+/;
+const ARTICLES = /^(?:(?:a|an|the|one's)\s+)+/;
 const LEADING_INFINITIVE = /^to\s+/;
+const PARENTHETICAL = /\(([^()]*)\)/g;
+const PARENTHETICAL_ALIAS = /^(?:(?:i\.e|esp|especially|lit|literally)\.?\s+)(.+)$/i;
+const IRREGULAR_NOUNS = new Map([
+  ["children", "child"], ["feet", "foot"], ["geese", "goose"], ["men", "man"],
+  ["mice", "mouse"], ["people", "person"], ["teeth", "tooth"], ["women", "woman"],
+]);
+const UNCOUNTABLE_OR_SINGULAR_S = new Set([
+  "analysis", "basis", "business", "clothes", "economics", "glass", "headquarters",
+  "means", "news", "series", "species", "status",
+]);
 
 function wordKey(item) {
   return item.studyKey ?? item.word;
@@ -32,22 +42,65 @@ export function normalizeMeaningAnswer(value) {
 }
 
 export function acceptedMeanings(item) {
-  return [item.meaning, ...(item.meanings ?? [])]
+  const aliases = Array.isArray(item.meanings) ? item.meanings : [item.meanings];
+  return [item.meaning, ...aliases]
     .flatMap((meaning) => String(meaning ?? "").split(";"))
     .map((meaning) => meaning.trim())
     .filter((meaning, index, meanings) => meaning && meanings.indexOf(meaning) === index);
 }
 
+function singularizeWord(word) {
+  if (IRREGULAR_NOUNS.has(word)) return IRREGULAR_NOUNS.get(word);
+  if (UNCOUNTABLE_OR_SINGULAR_S.has(word) || word.length < 4) return word;
+  if (/(?:ches|shes|sses|xes|zes)$/.test(word)) return word.slice(0, -2);
+  if (/[^aeiou]ies$/.test(word)) return `${word.slice(0, -3)}y`;
+  if (/s$/.test(word) && !/(?:ss|us|is|ics|ness|ous|as)$/.test(word)) return word.slice(0, -1);
+  return word;
+}
+
+function canonicalMeaning(value) {
+  return normalizeMeaningAnswer(value)
+    .split(" ")
+    .map(singularizeWord)
+    .join(" ");
+}
+
+function addAlternativeSegments(variants, value) {
+  const normalized = normalizeMeaningAnswer(value);
+  if (!normalized) return;
+  variants.add(normalized);
+
+  const alternatives = normalized.split(/\s+or\s+/);
+  if (alternatives.length > 1 && alternatives.every((part) => part.split(" ").length <= 5)) {
+    alternatives.forEach((part) => variants.add(part));
+  }
+}
+
 function meaningVariants(meaning) {
-  return new Set([
-    normalizeMeaningAnswer(meaning),
-    normalizeMeaningAnswer(meaning.replace(/\([^)]*\)/g, "")),
-  ].filter(Boolean));
+  const variants = new Set();
+  addAlternativeSegments(variants, meaning);
+  addAlternativeSegments(variants, meaning.replace(PARENTHETICAL, ""));
+
+  for (const match of meaning.matchAll(PARENTHETICAL)) {
+    const alias = match[1].match(PARENTHETICAL_ALIAS)?.[1];
+    if (!alias) continue;
+    alias
+      .split(/,|\s+or\s+/)
+      .forEach((part) => addAlternativeSegments(variants, part));
+  }
+
+  [...variants].forEach((variant) => variants.add(canonicalMeaning(variant)));
+  return variants;
 }
 
 export function meaningAnswerIsCorrect(value, item) {
   const answer = normalizeMeaningAnswer(value);
-  return acceptedMeanings(item).some((meaning) => meaningVariants(meaning).has(answer));
+  if (!answer) return false;
+  const answerForms = new Set([answer, canonicalMeaning(answer)]);
+  return acceptedMeanings(item).some((meaning) => {
+    const variants = meaningVariants(meaning);
+    return [...answerForms].some((form) => variants.has(form));
+  });
 }
 
 function uniqueWords(items) {

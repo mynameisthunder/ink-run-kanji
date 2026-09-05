@@ -35,6 +35,17 @@ test("meaning matching accepts listed synonyms but not related guesses", () => {
   assert.equal(meaningAnswerIsCorrect("money", words[0]), false);
 });
 
+test("meaning matching accepts ordinary English inflections and alternatives", () => {
+  assert.equal(meaningAnswerIsCorrect("rights", { meaning: "right; privilege" }), true);
+  assert.equal(meaningAnswerIsCorrect("privileges", { meaning: "right; privilege" }), true);
+  assert.equal(meaningAnswerIsCorrect("people", { meaning: "person" }), true);
+  assert.equal(meaningAnswerIsCorrect("sex", { meaning: "nature; characteristic; gender or sex" }), true);
+  assert.equal(meaningAnswerIsCorrect("university student", { meaning: "student (esp. a university student)" }), true);
+  assert.equal(meaningAnswerIsCorrect("right answer", { meaning: "right; privilege" }), false);
+  assert.equal(meaningAnswerIsCorrect("company", { meaning: "business" }), false);
+  assert.equal(meaningAnswerIsCorrect("animal", { meaning: "activity (of a person, organization, animal, volcano, etc.)" }), false);
+});
+
 test("meaning matching accepts expanded counter and calendar aliases", () => {
   const counter = { word: "三本", meaning: "3 long or cylindrical objects", meanings: ["three bottles", "3 long objects"] };
   const day = { word: "二日", meaning: "second day of the month; two days", meanings: ["second", "2nd", "second day"] };

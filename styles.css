@@ -265,6 +265,10 @@ main { min-height: calc(100vh - 82px); }
 }
 .study-button span { margin-left: 10px; color: var(--red); }
 .study-button:hover { background: var(--yellow); transform: translateY(-2px); }
+.dungeon-button { border-color: var(--red); background: var(--red); color: #fff; }
+.dungeon-button span { color: var(--yellow); }
+.dungeon-button:hover { background: var(--ink); color: #fff; }
+.dungeon-button:disabled { opacity: .32; cursor: not-allowed; transform: none; }
 .export-guide-button { border-color: var(--blue); color: var(--blue); }
 .export-guide-button span { color: var(--blue); }
 .export-guide-button:hover { background: var(--blue); color: #fff; }

@@ -14,6 +14,7 @@ A focused kanji reading game with frequency decks, 60 Extra 1 words, and the com
 - Review every seen word in the Done deck, with per-word attempts and recall accuracy.
 - Practice misses in a Needs Work deck until recall reaches 75% or two correct answers in a row.
 - Keep repeatedly missed words in Daily Review until recall reaches 85% or three correct answers in a row.
+- Fight any selected deck in Kanji Dungeon: land a reading attack, finish with the meaning, and survive the words you miss.
 - Sign in by email to sync stars, recall history, recovery streaks, and manual Needs Work removals across devices.
 
 ## Persistence
@@ -34,6 +35,8 @@ The app uses native browser modules with no framework or build step:
 - `src/kana.js` — romaji conversion and answer normalization
 - `src/audio.js` — bundled pronunciation, speech fallback, and feedback tones
 - `src/effects.js` — visual effects
+- `src/dungeon-engine.js` — pure two-phase battle state and answer rules
+- `dungeon-game/` — separate responsive Kanji Dungeon page
 
 Generated vocabulary files export data directly into the module graph. `cloud.js` remains the small Supabase SDK adapter loaded before the application module.
 

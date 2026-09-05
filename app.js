@@ -27,7 +27,7 @@ import {
   needsWork,
   progressIsMastered,
 } from "./src/progress.js?v=review-rules-3";
-import { parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
+import { dungeonUrl, parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
 import { downloadStudyGuidePdf, openStudyGuidePrint, openStudyGuideView } from "./src/study-guide.js?v=all-cards-view-1";
@@ -41,7 +41,7 @@ const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), dungeon: $("#dungeonButton"), dialogDungeon: $("#dialogDungeonButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
@@ -375,6 +375,10 @@ function renderDeckSelection() {
     button.disabled = meta.wordCount === 0;
     button.title = meta.wordCount ? `Open all ${meta.wordCount} words in a new study tab` : "Select a deck with words to study";
   });
+  [elements.dungeon, elements.dialogDungeon].forEach((button) => {
+    button.disabled = meta.wordCount === 0;
+    button.title = meta.wordCount ? `Fight all ${meta.wordCount} selected words in Kanji Dungeon` : "Select a deck with words to enter the dungeon";
+  });
   updateFavoriteControls();
   updateProgressControls();
   populateDeck();
@@ -450,6 +454,11 @@ function openSelectedStudyGuideView() {
   if (!options) return;
   const opened = openStudyGuideView(options);
   if (!opened) window.alert("Allow pop-ups for Ink Run, then try opening the all-cards study view again.");
+}
+
+function enterSelectedDungeon() {
+  if (!selectedDeck().length) return;
+  window.location.href = dungeonUrl(window.location.href, orderedSelectedDeckKeys()).href;
 }
 
 async function exportSelectedStudyGuide() {
@@ -947,6 +956,8 @@ document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEv
 elements.home.addEventListener("click", returnHome);
 elements.start.addEventListener("click", startGame);
 elements.study.addEventListener("click", startStudyDeck);
+elements.dungeon.addEventListener("click", enterSelectedDungeon);
+elements.dialogDungeon.addEventListener("click", enterSelectedDungeon);
 elements.exportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.dialogExportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.studyGuideView.addEventListener("click", openSelectedStudyGuideView);

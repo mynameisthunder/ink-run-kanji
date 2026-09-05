@@ -14,12 +14,22 @@ const types = {
 };
 
 createServer((request, response) => {
-  const pathname = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname);
+  const requestUrl = new URL(request.url ?? "/", "http://localhost");
+  const pathname = decodeURIComponent(requestUrl.pathname);
   const requested = pathname === "/" ? "index.html" : pathname.slice(1);
-  const filepath = join(root, requested);
+  let filepath = join(root, requested);
 
   try {
-    if (!filepath.startsWith(root) || !statSync(filepath).isFile()) throw new Error("Not found");
+    if (!filepath.startsWith(root)) throw new Error("Not found");
+    if (statSync(filepath).isDirectory()) {
+      if (!pathname.endsWith("/")) {
+        response.writeHead(302, { Location: `${pathname}/${requestUrl.search}` });
+        response.end();
+        return;
+      }
+      filepath = join(filepath, "index.html");
+    }
+    if (!statSync(filepath).isFile()) throw new Error("Not found");
     response.writeHead(200, { "Content-Type": types[extname(filepath)] ?? "application/octet-stream" });
     createReadStream(filepath).pipe(response);
   } catch {

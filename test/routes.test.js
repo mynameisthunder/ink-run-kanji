@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { parseRoute, selectionUrl, studyUrl, wordUrl } from "../src/routes.js";
+import { dungeonUrl, parseRoute, selectionUrl, studyUrl, wordUrl } from "../src/routes.js";
 
 const deckKeys = ["all", "41-50", "n5-1-10", "favorites"];
 
@@ -27,6 +27,14 @@ test("word routes are standalone and support namespaced word keys", () => {
   assert.equal(url.searchParams.has("decks"), false);
   assert.equal(url.searchParams.has("view"), false);
   assert.equal(url.searchParams.has("card"), false);
+});
+
+test("dungeon routes use a separate page and preserve the selected decks", () => {
+  const directoryUrl = dungeonUrl("https://example.com/ink-run/?view=study", ["41-50", "n5-1-10"]);
+  assert.equal(directoryUrl.href, "https://example.com/ink-run/dungeon-game/?decks=41-50%2Cn5-1-10");
+
+  const fileUrl = dungeonUrl("file:///Users/test/ink-run/index.html?decks=all", ["all"]);
+  assert.equal(fileUrl.href, "file:///Users/test/ink-run/dungeon-game/");
 });
 
 test("invalid route values fall back safely", () => {

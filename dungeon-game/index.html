@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171714" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Fight through your Ink Run kanji decks with reading and meaning recall." />
+    <title>Kanji Dungeon - Ink Run</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="dungeon.css?v=1" />
+  </head>
+  <body>
+    <div class="dungeon-noise" aria-hidden="true"></div>
+    <header class="dungeon-topbar">
+      <a class="dungeon-wordmark" id="exitLink" href="../" aria-label="Return to Ink Run">
+        <span>墨</span> INK RUN
+      </a>
+      <div class="dungeon-title">
+        <span>KANJI DUNGEON</span>
+        <strong id="deckLabel">LOADING DECK</strong>
+      </div>
+      <div class="topbar-actions">
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">音 ON</button>
+        <a class="exit-button" id="topExitLink" href="../">EXIT</a>
+      </div>
+    </header>
+
+    <main class="dungeon-shell">
+      <section class="battle" id="battle" aria-labelledby="enemyWord">
+        <div class="battle-hud">
+          <div class="floor-counter"><span>FLOOR</span><strong id="floor">1</strong></div>
+          <div class="combo-counter"><span>COMBO</span><strong>×<b id="combo">0</b></strong></div>
+        </div>
+
+        <div class="health-stack">
+          <div class="health-row player-health">
+            <div class="health-label"><span>YOU</span><strong id="playerHpLabel">5 / 5 HP</strong></div>
+            <div class="health-track" role="meter" aria-label="Player health" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5"><span id="playerHealthBar"></span></div>
+          </div>
+          <div class="health-row enemy-health">
+            <div class="health-label"><span>ENEMY</span><strong id="enemyHpLabel">2 / 2 HP</strong></div>
+            <div class="health-track" role="meter" aria-label="Enemy health" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2"><span id="enemyHealthBar"></span></div>
+          </div>
+        </div>
+
+        <div class="enemy-stage" id="enemyStage">
+          <span class="enemy-rank" id="enemyRank">未確認</span>
+          <div class="enemy-sigil" aria-hidden="true"></div>
+          <h1 id="enemyWord">—</h1>
+          <span class="enemy-number" id="enemyNumber">ENEMY 001</span>
+        </div>
+
+        <div class="combat-panel">
+          <p class="phase-label" id="phaseLabel">READING ATTACK</p>
+          <p class="combat-feedback" id="combatFeedback" aria-live="assertive">Type the reading to strike.</p>
+          <form class="attack-form" id="attackForm">
+            <label class="sr-only" for="attackInput">Your answer</label>
+            <input id="attackInput" name="answer" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="type reading" />
+            <button id="attackButton" type="submit"><span>ATTACK</span><b aria-hidden="true">↗</b></button>
+          </form>
+          <div class="combat-actions">
+            <button class="cost-button" id="hintButton" type="button"><span>HINT</span><b>-1 HP</b></button>
+            <button class="cost-button flee-button" id="fleeButton" type="button"><span>FLEE</span><b>-1 HP</b></button>
+          </div>
+          <div class="hint-panel" id="hintPanel" hidden>
+            <span>ENEMY ANATOMY</span>
+            <div id="hintBreakdown"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="run-ledger" aria-label="Current dungeon record">
+        <div class="ledger-block defeated-block">
+          <div class="ledger-heading"><span>DEFEATED</span><strong id="defeatedCount">0</strong></div>
+          <div class="word-list" id="defeatedList"><em>None yet.</em></div>
+        </div>
+        <div class="ledger-block danger-block">
+          <div class="ledger-heading"><span>DANGER LIST</span><strong id="missCount">0 MISSES</strong></div>
+          <div class="word-list danger-list" id="dangerList"><em>Nothing has hit you yet.</em></div>
+        </div>
+      </section>
+
+      <section class="end-state" id="endState" hidden aria-live="assertive">
+        <span class="end-kanji" id="endKanji">勝</span>
+        <div>
+          <p id="endEyebrow">DUNGEON CLEARED</p>
+          <h2 id="endTitle">YOU SURVIVED.</h2>
+          <p id="endSummary"></p>
+          <div class="end-stats">
+            <span><b id="finalHp">5</b> HP LEFT</span>
+            <span>BEST COMBO ×<b id="finalCombo">0</b></span>
+            <span><b id="finalMisses">0</b> MISSES</span>
+          </div>
+          <div class="end-actions">
+            <button id="restartButton" type="button">RUN IT AGAIN <span>↻</span></button>
+            <a id="endExitLink" href="../">CHANGE DECK</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+    <script src="../cloud-config.js?v=cloud-1" defer></script>
+    <script src="../cloud.js?v=needs-work-sync-1" defer></script>
+    <script type="module" src="dungeon-game.js?v=1"></script>
+  </body>
+</html>

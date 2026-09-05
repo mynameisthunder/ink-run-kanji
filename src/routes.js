@@ -46,6 +46,15 @@ export function studyUrl(href, deckKeys, card = 0) {
   return url;
 }
 
+export function dungeonUrl(href, deckKeys) {
+  const current = appUrl(href);
+  const url = new URL("dungeon-game/", current);
+  url.search = "";
+  url.hash = "";
+  setDeckParams(url, deckKeys);
+  return url;
+}
+
 export function wordUrl(href, wordKey) {
   const url = appUrl(href);
   ROUTE_PARAMS.forEach((param) => url.searchParams.delete(param));

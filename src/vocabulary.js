@@ -893,8 +893,10 @@ NUMBER_IMPORTS.forEach((item) => {
     NUMBER_DECK_KEYS.set(item.word, item.word);
   } else if (existing.reading === item.reading) {
     existing.audioSrc ??= item.audioSrc;
+    existing.meanings = [...new Set([...(existing.meanings ?? []), ...(item.meanings ?? [])])];
     NUMBER_DECK_KEYS.set(item.word, item.word);
   } else {
+    existing.meanings = [...new Set([...(existing.meanings ?? []), ...(item.meanings ?? [])])];
     item.studyKey = `numbers:${item.word}`;
     KANJI.push(item);
     NUMBER_DECK_KEYS.set(item.word, item.studyKey);

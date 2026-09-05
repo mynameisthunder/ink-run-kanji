@@ -24,7 +24,7 @@ export function normalizeMeaningAnswer(value) {
     .normalize("NFKC")
     .toLowerCase()
     .replace(/[’']/g, "'")
-    .replace(/[^\p{Letter}\p{Number}'\s-]/gu, " ")
+    .replace(/[^\p{Letter}\p{Number}'\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim()
     .replace(ARTICLES, "")
@@ -32,10 +32,10 @@ export function normalizeMeaningAnswer(value) {
 }
 
 export function acceptedMeanings(item) {
-  return String(item.meaning ?? "")
-    .split(";")
+  return [item.meaning, ...(item.meanings ?? [])]
+    .flatMap((meaning) => String(meaning ?? "").split(";"))
     .map((meaning) => meaning.trim())
-    .filter(Boolean);
+    .filter((meaning, index, meanings) => meaning && meanings.indexOf(meaning) === index);
 }
 
 function meaningVariants(meaning) {

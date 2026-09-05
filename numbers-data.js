@@ -6,14 +6,26 @@ export let NUMBER_IMPORTS;
 (() => {
   const numerals = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
   const values = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  const numberWords = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 14: "fourteen", 20: "twenty", 24: "twenty-four", 30: "thirty", 40: "forty", 50: "fifty" };
+  const numberWord = (number) => numberWords[number] ?? String(number);
 
-  const counterGroup = (key, label, counter, counterMeaning, readings, prefixReadings, meaning) => ({
+  const quantityAliases = (number, nouns, includeBare = false) => {
+    const aliases = nouns.flatMap(([singular, plural]) => {
+      const noun = number === 1 ? singular : plural;
+      return [`${numberWord(number)} ${noun}`, `${number} ${noun}`];
+    });
+    if (includeBare) aliases.push(numberWord(number), String(number));
+    return aliases;
+  };
+
+  const counterGroup = (key, label, counter, counterMeaning, readings, prefixReadings, meaning, meanings = () => []) => ({
     key,
     label,
     words: readings.map((reading, index) => ({
       word: `${numerals[index]}${counter}`,
       reading,
       meaning: meaning(index + 1),
+      meanings: meanings(index + 1),
       breakdown: [
         [numerals[index], prefixReadings[index], values[index]],
         [counter, reading.slice(prefixReadings[index].length), counterMeaning],
@@ -30,6 +42,7 @@ export let NUMBER_IMPORTS;
       ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ"],
       ["ひと", "ふた", "みっ", "よっ", "いつ", "むっ", "なな", "やっ", "ここの"],
       (number) => `${number} ${number === 1 ? "thing" : "things"}; general counter`,
+      (number) => quantityAliases(number, [["thing", "things"], ["item", "items"], ["object", "objects"]], true),
     ),
     counterGroup(
       "small-objects",
@@ -39,6 +52,7 @@ export let NUMBER_IMPORTS;
       ["いっこ", "にこ", "さんこ", "よんこ", "ごこ", "ろっこ", "ななこ", "はっこ", "きゅうこ", "じゅっこ"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} small ${number === 1 ? "object" : "objects"}; ${number} ${number === 1 ? "item" : "items"}`,
+      (number) => quantityAliases(number, [["small object", "small objects"], ["small item", "small items"], ["item", "items"], ["object", "objects"]]),
     ),
     counterGroup(
       "long-objects",
@@ -48,6 +62,7 @@ export let NUMBER_IMPORTS;
       ["いっぽん", "にほん", "さんぼん", "よんほん", "ごほん", "ろっぽん", "ななほん", "はっぽん", "きゅうほん", "じゅっぽん"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} long or cylindrical ${number === 1 ? "object" : "objects"}`,
+      (number) => quantityAliases(number, [["long object", "long objects"], ["cylindrical object", "cylindrical objects"], ["bottle", "bottles"]]),
     ),
     counterGroup(
       "flat-objects",
@@ -57,6 +72,7 @@ export let NUMBER_IMPORTS;
       ["いちまい", "にまい", "さんまい", "よんまい", "ごまい", "ろくまい", "ななまい", "はちまい", "きゅうまい", "じゅうまい"],
       ["いち", "に", "さん", "よん", "ご", "ろく", "なな", "はち", "きゅう", "じゅう"],
       (number) => `${number} flat ${number === 1 ? "object" : "objects"}; ${number} ${number === 1 ? "sheet" : "sheets"}`,
+      (number) => quantityAliases(number, [["flat object", "flat objects"], ["sheet", "sheets"], ["piece", "pieces"]]),
     ),
     counterGroup(
       "people",
@@ -66,6 +82,7 @@ export let NUMBER_IMPORTS;
       ["ひとり", "ふたり", "さんにん", "よにん", "ごにん", "ろくにん", "ななにん", "はちにん", "きゅうにん", "じゅうにん"],
       ["ひと", "ふた", "さん", "よ", "ご", "ろく", "なな", "はち", "きゅう", "じゅう"],
       (number) => `${number} ${number === 1 ? "person" : "people"}`,
+      (number) => quantityAliases(number, [["person", "people"]]),
     ),
     counterGroup(
       "small-animals",
@@ -75,6 +92,7 @@ export let NUMBER_IMPORTS;
       ["いっぴき", "にひき", "さんびき", "よんひき", "ごひき", "ろっぴき", "ななひき", "はっぴき", "きゅうひき", "じゅっぴき"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} small ${number === 1 ? "animal" : "animals"}`,
+      (number) => quantityAliases(number, [["small animal", "small animals"], ["animal", "animals"]]),
     ),
     counterGroup(
       "machines",
@@ -84,6 +102,7 @@ export let NUMBER_IMPORTS;
       ["いちだい", "にだい", "さんだい", "よんだい", "ごだい", "ろくだい", "ななだい", "はちだい", "きゅうだい", "じゅうだい"],
       ["いち", "に", "さん", "よん", "ご", "ろく", "なな", "はち", "きゅう", "じゅう"],
       (number) => `${number} ${number === 1 ? "machine or vehicle" : "machines or vehicles"}`,
+      (number) => quantityAliases(number, [["machine", "machines"], ["vehicle", "vehicles"], ["car", "cars"]]),
     ),
     counterGroup(
       "age",
@@ -93,6 +112,7 @@ export let NUMBER_IMPORTS;
       ["いっさい", "にさい", "さんさい", "よんさい", "ごさい", "ろくさい", "ななさい", "はっさい", "きゅうさい", "じゅっさい"],
       ["いっ", "に", "さん", "よん", "ご", "ろく", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} ${number === 1 ? "year" : "years"} old`,
+      (number) => [`${values[number - 1]} ${number === 1 ? "year" : "years"} old`, `age ${number}`, `${number} ${number === 1 ? "year" : "years"} of age`],
     ),
     counterGroup(
       "floors",
@@ -102,6 +122,10 @@ export let NUMBER_IMPORTS;
       ["いっかい", "にかい", "さんがい", "よんかい", "ごかい", "ろっかい", "ななかい", "はっかい", "きゅうかい", "じゅっかい"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number}${number === 1 ? "st" : number === 2 ? "nd" : number === 3 ? "rd" : "th"} floor; floor ${number}`,
+      (number) => {
+        const ordinal = `${number}${number === 1 ? "st" : number === 2 ? "nd" : number === 3 ? "rd" : "th"}`;
+        return [`${values[number - 1]} floor`, `${ordinal} floor`, `floor ${values[number - 1]}`];
+      },
     ),
     counterGroup(
       "books",
@@ -111,6 +135,7 @@ export let NUMBER_IMPORTS;
       ["いっさつ", "にさつ", "さんさつ", "よんさつ", "ごさつ", "ろくさつ", "ななさつ", "はっさつ", "きゅうさつ", "じゅっさつ"],
       ["いっ", "に", "さん", "よん", "ご", "ろく", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} ${number === 1 ? "book" : "books"}; ${number} bound ${number === 1 ? "volume" : "volumes"}`,
+      (number) => quantityAliases(number, [["book", "books"], ["bound volume", "bound volumes"], ["volume", "volumes"]]),
     ),
     counterGroup(
       "cups",
@@ -120,6 +145,7 @@ export let NUMBER_IMPORTS;
       ["いっぱい", "にはい", "さんばい", "よんはい", "ごはい", "ろっぱい", "ななはい", "はっぱい", "きゅうはい", "じゅっぱい"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} ${number === 1 ? "cup or glass" : "cups or glasses"}`,
+      (number) => quantityAliases(number, [["cup", "cups"], ["glass", "glasses"], ["cupful", "cupfuls"]]),
     ),
     counterGroup(
       "occurrences",
@@ -129,6 +155,7 @@ export let NUMBER_IMPORTS;
       ["いっかい", "にかい", "さんかい", "よんかい", "ごかい", "ろっかい", "ななかい", "はっかい", "きゅうかい", "じゅっかい"],
       ["いっ", "に", "さん", "よん", "ご", "ろっ", "なな", "はっ", "きゅう", "じゅっ"],
       (number) => `${number} ${number === 1 ? "time" : "times"}; ${number} ${number === 1 ? "occurrence" : "occurrences"}`,
+      (number) => [...quantityAliases(number, [["time", "times"], ["occurrence", "occurrences"]]), ...(number === 1 ? ["once"] : number === 2 ? ["twice"] : [])],
     ),
   ];
 
@@ -156,7 +183,10 @@ export let NUMBER_IMPORTS;
       ["三十分", "さんじゅっぷん", [["三", "さん"], ["十", "じゅっ"]], "ぷん", "30 minutes"],
       ["四十分", "よんじゅっぷん", [["四", "よん"], ["十", "じゅっ"]], "ぷん", "40 minutes"],
       ["五十分", "ごじゅっぷん", [["五", "ご"], ["十", "じゅっ"]], "ぷん", "50 minutes"],
-    ].map(([word, reading, parts, suffix, meaning]) => ({ word, reading, meaning, breakdown: compoundParts(parts, "分", suffix, "minute counter") })),
+    ].map(([word, reading, parts, suffix, meaning]) => {
+      const number = Number.parseInt(meaning, 10);
+      return { word, reading, meaning, meanings: quantityAliases(number, [["minute", "minutes"]]), breakdown: compoundParts(parts, "分", suffix, "minute counter") };
+    }),
   });
 
   groups.push({
@@ -170,7 +200,10 @@ export let NUMBER_IMPORTS;
       ["九時", "くじ", [["九", "く"]], "9 o'clock"], ["十時", "じゅうじ", [["十", "じゅう"]], "10 o'clock"],
       ["十一時", "じゅういちじ", [["十", "じゅう"], ["一", "いち"]], "11 o'clock"],
       ["十二時", "じゅうにじ", [["十", "じゅう"], ["二", "に"]], "12 o'clock"],
-    ].map(([word, reading, parts, meaning]) => ({ word, reading, meaning, breakdown: compoundParts(parts, "時", "じ", "hour; o'clock") })),
+    ].map(([word, reading, parts, meaning]) => {
+      const number = Number.parseInt(meaning, 10);
+      return { word, reading, meaning, meanings: [`${numberWord(number)} o'clock`, `${number}:00`, numberWord(number)], breakdown: compoundParts(parts, "時", "じ", "hour; o'clock") };
+    }),
   });
 
   groups.push({
@@ -192,10 +225,19 @@ export let NUMBER_IMPORTS;
       ["二十四日", "にじゅうよっか", [["二", "に"], ["十", "じゅう"], ["四", "よっ"], ["日", "か", "day"]], "twenty-fourth day of the month; twenty-four days"],
       ["十一日", "じゅういちにち", [["十", "じゅう"], ["一", "いち"], ["日", "にち", "day"]], "eleventh day of the month; eleven days"],
       ["十二日", "じゅうににち", [["十", "じゅう"], ["二", "に"], ["日", "にち", "day"]], "twelfth day of the month; twelve days"],
-    ].map(([word, reading, parts, meaning]) => ({
-      word, reading, meaning,
-      breakdown: parts.map(([character, partReading, definition]) => [character, partReading, definition ?? numberDefinitions[character]]),
-    })),
+    ].map(([word, reading, parts, meaning]) => {
+      const dayNumbers = { 一日: 1, 二日: 2, 三日: 3, 四日: 4, 五日: 5, 六日: 6, 七日: 7, 八日: 8, 九日: 9, 十日: 10, 十一日: 11, 十二日: 12, 十四日: 14, 二十日: 20, 二十四日: 24 };
+      const ordinalWords = { 1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth", 11: "eleventh", 12: "twelfth", 14: "fourteenth", 20: "twentieth", 24: "twenty-fourth" };
+      const number = dayNumbers[word];
+      const suffix = number % 100 >= 11 && number % 100 <= 13 ? "th" : number % 10 === 1 ? "st" : number % 10 === 2 ? "nd" : number % 10 === 3 ? "rd" : "th";
+      const ordinal = ordinalWords[number];
+      const meanings = [ordinal, `${number}${suffix}`, `${ordinal} day`, `${number}${suffix} day`, `${ordinal} day of the month`, `${number}${suffix} day of the month`];
+      if (number > 1) meanings.push(`${numberWord(number)} days`, `${number} days`);
+      return {
+        word, reading, meaning, meanings,
+        breakdown: parts.map(([character, partReading, definition]) => [character, partReading, definition ?? numberDefinitions[character]]),
+      };
+    }),
   });
 
   const months = [
@@ -222,12 +264,14 @@ export let NUMBER_IMPORTS;
     word: "十",
     reading: "とお",
     meaning: "ten things; general count",
+    meanings: quantityAliases(10, [["thing", "things"], ["item", "items"], ["object", "objects"]], true),
     breakdown: [["十", "とお", "ten"]],
   });
   groups.find((group) => group.key === "age").words.push({
     word: "二十歳",
     reading: "はたち",
     meaning: "20 years old",
+    meanings: ["twenty years old", "age 20", "20 years of age", "twenty years of age"],
     breakdown: [["二", "は", "two"], ["十", "た", "ten"], ["歳", "ち", "years of age; special reading"]],
   });
 
@@ -258,21 +302,22 @@ export let NUMBER_IMPORTS;
   }));
 
   const counterTypeCards = [
-    ["つ", "つ", "general-object counter; used for ordinary things"],
-    ["本", "ほん", "counter for long or cylindrical objects; bottles and cans"],
-    ["杯", "はい", "counter for cups, glasses, and cupfuls"],
-    ["人", "にん", "counter for people; one and two people use special readings"],
-    ["匹", "ひき", "counter for small animals"],
-    ["台", "だい", "counter for machines and vehicles"],
-    ["枚", "まい", "counter for flat objects and sheets"],
-    ["冊", "さつ", "counter for books and bound volumes"],
-    ["歳", "さい", "counter for years of age"],
-    ["階", "かい", "counter for floors and building stories"],
-  ].map(([word, reading, meaning], index) => ({
+    ["つ", "つ", "general-object counter; used for ordinary things", ["general counter", "things", "objects"]],
+    ["本", "ほん", "counter for long or cylindrical objects; bottles and cans", ["long objects", "cylindrical objects", "bottles", "bottle counter"]],
+    ["杯", "はい", "counter for cups, glasses, and cupfuls", ["cups", "glasses", "cupfuls", "cup counter"]],
+    ["人", "にん", "counter for people; one and two people use special readings", ["people", "person counter"]],
+    ["匹", "ひき", "counter for small animals", ["small animals", "animal counter"]],
+    ["台", "だい", "counter for machines and vehicles", ["machines", "vehicles", "cars", "vehicle counter"]],
+    ["枚", "まい", "counter for flat objects and sheets", ["flat objects", "sheets", "sheet counter"]],
+    ["冊", "さつ", "counter for books and bound volumes", ["books", "bound volumes", "book counter"]],
+    ["歳", "さい", "counter for years of age", ["age", "years old", "age counter"]],
+    ["階", "かい", "counter for floors and building stories", ["floors", "building stories", "floor counter"]],
+  ].map(([word, reading, meaning, meanings], index) => ({
     studyKey: `counter-types:${word}`,
     word,
     reading,
     meaning,
+    meanings,
     breakdown: [[word, reading, meaning]],
     audioSrc: `audio/numbers/counter-types-${String(index + 1).padStart(2, "0")}.wav`,
     romaji: [romanize(reading)],

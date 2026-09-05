@@ -35,6 +35,17 @@ test("meaning matching accepts listed synonyms but not related guesses", () => {
   assert.equal(meaningAnswerIsCorrect("money", words[0]), false);
 });
 
+test("meaning matching accepts expanded counter and calendar aliases", () => {
+  const counter = { word: "三本", meaning: "3 long or cylindrical objects", meanings: ["three bottles", "3 long objects"] };
+  const day = { word: "二日", meaning: "second day of the month; two days", meanings: ["second", "2nd", "second day"] };
+  assert.equal(meaningAnswerIsCorrect("three bottles", counter), true);
+  assert.equal(meaningAnswerIsCorrect("3 long objects", counter), true);
+  assert.equal(meaningAnswerIsCorrect("the second", day), true);
+  assert.equal(meaningAnswerIsCorrect("2nd", day), true);
+  assert.equal(meaningAnswerIsCorrect("twenty fourth", { meaning: "twenty-fourth" }), true);
+  assert.equal(meaningAnswerIsCorrect("Tuesday", day), false);
+});
+
 test("reading damages the enemy and meaning defeats it", () => {
   let state = createDungeonState([words[0]], noShuffle);
   ({ state } = attackDungeon(state, "keizai"));

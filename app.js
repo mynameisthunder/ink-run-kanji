@@ -11,7 +11,7 @@ import {
   REAL_KANA_N5_WORDS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=frequency-1-start";
+} from "./src/vocabulary.js?v=counter-meanings-1";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";

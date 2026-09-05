@@ -14,6 +14,13 @@ test("counter overview teaches bare suffixes", () => {
   assert.deepEqual(words, ["つ", "本", "杯", "人", "匹", "台", "枚", "冊", "歳", "階"]);
 });
 
+test("number cards include natural dungeon meaning answers", () => {
+  assert.ok(KANJI_BY_WORD.get("三本").meanings.includes("three bottles"));
+  assert.ok(KANJI_BY_WORD.get("二日").meanings.includes("second"));
+  assert.ok(KANJI_BY_WORD.get("一日").meanings.includes("first"));
+  assert.ok(KANJI_BY_WORD.get("counter-types:冊").meanings.includes("books"));
+});
+
 test("core generated decks remain complete", () => {
   assert.equal(FREQUENCY_1_WORDS.length, 150);
   assert.equal(DECKS.all.words.length, 150);

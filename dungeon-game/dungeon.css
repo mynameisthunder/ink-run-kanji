@@ -79,8 +79,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .cost-button:hover { border-color: var(--red); background: rgba(242,68,55,.07); }
 .cost-button:disabled { opacity: .35; cursor: not-allowed; }
 .hint-panel { margin-top: 20px; padding-top: 17px; border-top: 1px solid rgba(23,23,20,.22); }
-.hint-panel > span { color: var(--red); font: 800 8px var(--mono); letter-spacing: .13em; }
-.hint-panel div { margin-top: 10px; display: grid; gap: 8px; font-size: 13px; line-height: 1.35; }
+.hint-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.hint-heading > span { color: var(--red); font: 800 8px var(--mono); letter-spacing: .13em; }
+.hint-lookups { display: flex; gap: 7px; }
+.hint-lookup { width: 29px; height: 29px; display: grid; place-items: center; border: 1.5px solid currentColor; border-radius: 6px; background: transparent; font: 800 13px/1 var(--sans); text-decoration: none; transition: color 120ms ease, background 120ms ease, transform 120ms ease; }
+.hint-lookup.jisho-lookup { color: var(--blue); }
+.hint-lookup.kana-lookup { color: var(--red); }
+.hint-lookup:hover, .hint-lookup:focus-visible { background: currentColor; outline: none; transform: translateY(-2px); }
+.hint-lookup:hover span, .hint-lookup:focus-visible span { color: var(--paper); }
+#hintBreakdown { margin-top: 10px; display: grid; gap: 8px; font-size: 13px; line-height: 1.35; }
 .hint-part b { margin-right: 7px; font-size: 18px; }
 .hint-part em { color: var(--blue); font-style: normal; }
 

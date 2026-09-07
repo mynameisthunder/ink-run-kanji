@@ -52,6 +52,8 @@ const elements = {
   flee: $("#fleeButton"),
   hintPanel: $("#hintPanel"),
   hintBreakdown: $("#hintBreakdown"),
+  hintJisho: $("#hintJishoLink"),
+  hintKana: $("#hintKanaLink"),
   defeatedCount: $("#defeatedCount"),
   defeatedList: $("#defeatedList"),
   missCount: $("#missCount"),
@@ -174,6 +176,11 @@ function setFeedback(message, tone = "") {
 
 function renderBreakdown(item) {
   elements.hintBreakdown.replaceChildren();
+  const encodedWord = encodeURIComponent(item?.word ?? "");
+  elements.hintJisho.href = `https://jisho.org/search/${encodedWord}`;
+  elements.hintKana.href = `https://www.romajidesu.com/kanji/${encodedWord}`;
+  elements.hintJisho.setAttribute("aria-label", `Look up ${item.word} on Jisho`);
+  elements.hintKana.setAttribute("aria-label", `Look up ${item.word} kana and reading on RomajiDesu`);
   (item?.breakdown ?? []).forEach(([character, reading, meaning]) => {
     const line = document.createElement("div");
     line.className = "hint-part";

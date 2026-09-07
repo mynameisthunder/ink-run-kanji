@@ -64,7 +64,13 @@
             <button class="cost-button flee-button" id="fleeButton" type="button"><span>FLEE</span><b>-1 HP</b></button>
           </div>
           <div class="hint-panel" id="hintPanel" hidden>
-            <span>ENEMY ANATOMY</span>
+            <div class="hint-heading">
+              <span>ENEMY ANATOMY</span>
+              <nav class="hint-lookups" aria-label="Enemy lookup links">
+                <a class="hint-lookup jisho-lookup" id="hintJishoLink" href="https://jisho.org/search/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word on Jisho" title="Jisho dictionary"><span aria-hidden="true">辞</span></a>
+                <a class="hint-lookup kana-lookup" id="hintKanaLink" href="https://www.romajidesu.com/kanji/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word's kana and reading on RomajiDesu" title="Kana and reading lookup"><span aria-hidden="true">あ</span></a>
+              </nav>
+            </div>
             <div id="hintBreakdown"></div>
           </div>
         </div>
@@ -103,6 +109,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="../cloud-config.js?v=cloud-1" defer></script>
     <script src="../cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="dungeon-game.js?v=meaning-flex-1"></script>
+    <script type="module" src="dungeon-game.js?v=hint-lookups-1"></script>
   </body>
 </html>

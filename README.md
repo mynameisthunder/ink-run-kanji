@@ -1,6 +1,6 @@
 # INK RUN
 
-A focused kanji reading game with frequency decks, 60 Extra 1 words, and the complete 150-word RealKana JLPT N5 set.
+A focused kanji reading game with frequency decks, 60 Extra 1 words, the complete RealKana JLPT N5 set, and the first 100 RealKana Frequency Level 2 words.
 
 ## Study loop
 

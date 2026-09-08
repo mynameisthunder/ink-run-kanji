@@ -11,7 +11,7 @@ import {
   REAL_KANA_N5_WORDS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=counter-meanings-1";
+} from "./src/vocabulary.js?v=level-2-100";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
@@ -909,7 +909,10 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `frequency-4-${start}-${Math.min(start + 9, FREQUENCY_4_WORDS.length)}`;
     })];
-    const level2Keys = ["level-2-all", "level-2-1-10"];
+    const level2Keys = ["level-2-all", ...Array.from({ length: Math.ceil(DECKS["level-2-all"].words.length / 10) }, (_, index) => {
+      const start = index * 10 + 1;
+      return `level-2-${start}-${Math.min(start + 9, DECKS["level-2-all"].words.length)}`;
+    })];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       { label: "", keys: frequency2Keys, className: "frequency-2-deck-option" },

@@ -28,6 +28,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .dungeon-title span { color: var(--red); font: 800 9px var(--mono); letter-spacing: .2em; }
 .dungeon-title strong { max-width: 50vw; overflow: hidden; color: var(--paper-dim); font: 600 10px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
 .topbar-actions { justify-self: end; display: flex; align-items: center; gap: 18px; }
+.recap-toggle { position: relative; display: flex; align-items: center; gap: 7px; color: var(--paper-dim); font: 700 9px var(--mono); letter-spacing: .06em; cursor: pointer; }
+.recap-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.recap-toggle-check { width: 17px; height: 17px; display: grid; place-items: center; border: 1px solid var(--paper-dim); color: transparent; font-size: 11px; transition: background 120ms ease, border-color 120ms ease, color 120ms ease; }
+.recap-toggle input:checked + .recap-toggle-check { border-color: var(--green); background: var(--green); color: var(--ink); }
+.recap-toggle input:focus-visible + .recap-toggle-check { outline: 2px solid var(--yellow); outline-offset: 3px; }
 .sound-toggle { padding: 8px 0; border: 0; background: transparent; color: var(--paper-dim); font: 700 10px var(--mono); cursor: pointer; }
 .exit-button { padding-bottom: 3px; border-bottom: 1px solid var(--paper); }
 
@@ -174,6 +179,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 520px) {
   .dungeon-topbar { min-height: 62px; padding: 0 16px; }
   .topbar-actions { gap: 12px; }
+  .recap-toggle { gap: 5px; font-size: 8px; }
   .dungeon-shell { width: calc(100% - 24px); padding-top: 20px; }
   .battle { box-shadow: 7px 7px 0 rgba(36,73,255,.28); }
   .battle::before { inset: 7px -8px -8px 7px; }

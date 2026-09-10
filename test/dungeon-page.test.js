@@ -25,3 +25,10 @@ test("a defeated enemy reveals its complete study card until Next is clicked", (
   assert.match(script, /victoryRecapContinue\.addEventListener\("click", finishVictoryRecap\)/);
   assert.doesNotMatch(script, /setTimeout\(finishVictoryRecap/);
 });
+
+test("the dungeon recap can be enabled or skipped from the top bar", () => {
+  assert.match(html, /id="showRecapToggle"[^>]+type="checkbox"[^>]+checked/);
+  assert.match(script, /if \(showVictoryCards\) \{\s+showVictoryRecap\(enemy, result\.state\)/);
+  assert.match(script, /showRecap\.addEventListener\("change"/);
+  assert.match(script, /SHOW_RECAP_STORAGE_KEY/);
+});

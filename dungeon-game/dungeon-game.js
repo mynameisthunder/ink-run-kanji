@@ -35,6 +35,7 @@ const RECAP = {
 };
 
 const STARTER_WORDS = ["経済", "権利", "情報", "存在", "文章", "結果", "原因"];
+const SHOW_RECAP_STORAGE_KEY = "ink-run-dungeon-show-recap-v1";
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   shell: $(".dungeon-shell"),
@@ -85,6 +86,7 @@ const elements = {
   finalMisses: $("#finalMisses"),
   restart: $("#restartButton"),
   sound: $("#soundToggle"),
+  showRecap: $("#showRecapToggle"),
   exitLinks: [$("#exitLink"), $("#topExitLink"), $("#endExitLink")],
 };
 
@@ -97,10 +99,27 @@ let dungeonItems = [];
 let selectedDeckKeys = [];
 let locked = false;
 let soundEnabled = true;
+let showVictoryCards = loadShowRecapPreference();
 let recapStage = 0;
 let recapNextState = null;
 
 const { playTone } = createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled: () => soundEnabled });
+
+function loadShowRecapPreference() {
+  try {
+    return window.localStorage.getItem(SHOW_RECAP_STORAGE_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+
+function saveShowRecapPreference(value) {
+  try {
+    window.localStorage.setItem(SHOW_RECAP_STORAGE_KEY, String(value));
+  } catch {
+    // The setting still works for the current dungeon when storage is unavailable.
+  }
+}
 
 function progressFor(key) {
   return progress.get(key) ?? emptyProgress();
@@ -426,7 +445,11 @@ function submitAttack(event) {
   if (["enemy-defeated", "victory"].includes(result.event.kind)) {
     recordProgress(enemy, true);
     playTone("complete");
-    showVictoryRecap(enemy, result.state);
+    if (showVictoryCards) {
+      showVictoryRecap(enemy, result.state);
+    } else {
+      transitionTo(result.state, `Enemy defeated. ${enemy.word} = ${acceptedMeanings(enemy)[0]}.`, "hit", "is-defeated");
+    }
   }
 }
 
@@ -483,6 +506,7 @@ async function boot() {
   elements.deckLabel.textContent = deckLabel(selectedDeckKeys, dungeonItems);
   updateExitLinks();
   dungeon = createDungeonState(dungeonItems);
+  elements.showRecap.checked = showVictoryCards;
   render();
   if (dungeon.status === "playing") animate("is-entering");
 }
@@ -493,6 +517,11 @@ elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
 elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);
 elements.restart.addEventListener("click", restart);
+elements.showRecap.addEventListener("change", () => {
+  showVictoryCards = elements.showRecap.checked;
+  saveShowRecapPreference(showVictoryCards);
+  if (!showVictoryCards && recapStage > 0) finishVictoryRecap();
+});
 elements.sound.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   elements.sound.textContent = soundEnabled ? "音 ON" : "音 OFF";

@@ -108,7 +108,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .victory-recap-breakdown > span { color: var(--red); font: 800 8px var(--mono); letter-spacing: .13em; }
 #victoryRecapBreakdown { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; }
 .victory-recap-part { min-width: 0; font-size: 13px; line-height: 1.35; }
-.victory-recap-part b { margin-right: 7px; font-size: 19px; }
+.victory-recap-part b { margin-right: 7px; font-size: 45px; }
 .victory-recap-part em { margin-right: 4px; color: var(--blue); font-style: normal; }
 .victory-recap-memory { margin: 13px 0 0; padding: 9px 11px; border-left: 3px solid var(--yellow); background: rgba(242,201,76,.14); font-size: 12px; line-height: 1.35; }
 .victory-recap-continue { width: 100%; margin-top: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); font: 800 11px var(--mono); letter-spacing: .08em; cursor: pointer; transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease; }

@@ -8,7 +8,7 @@
     <meta name="description" content="Fight through your Ink Run kanji decks with reading and meaning recall." />
     <title>Kanji Dungeon - Ink Run</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="dungeon.css?v=victory-recap-1" />
+    <link rel="stylesheet" href="dungeon.css?v=recap-next-button" />
   </head>
   <body>
     <div class="dungeon-noise" aria-hidden="true"></div>
@@ -92,7 +92,7 @@
               <div id="victoryRecapBreakdown"></div>
             </div>
             <p class="victory-recap-memory" id="victoryRecapMemory"></p>
-            <div class="victory-recap-timer" aria-hidden="true"><span></span></div>
+            <button class="victory-recap-continue" id="victoryRecapContinue" type="button">NEXT <span>→</span></button>
           </article>
         </section>
       </section>
@@ -130,6 +130,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="../cloud-config.js?v=cloud-1" defer></script>
     <script src="../cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="dungeon-game.js?v=recap-5-seconds"></script>
+    <script type="module" src="dungeon-game.js?v=recap-next-button"></script>
   </body>
 </html>

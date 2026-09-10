@@ -19,12 +19,11 @@ import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../sr
  *    0ms  hit / hurt / defeat feedback begins
  *    0ms  defeated word recap fades and scales into view
  *  220ms  a fled enemy is replaced
- * 5000ms  recap closes and the next enemy (or victory) appears
- * 5030ms  the answer input regains focus
+ *  NEXT  recap closes and the next enemy (or victory) appears
+ *  +30ms  the answer input regains focus
  * ───────────────────────────────────────────────────────── */
 const TIMING = {
   quickTransition: 220,  // replaces a fled enemy
-  victoryRecap:   5000,  // leaves enough time to read the defeated word card
   refocusDelay:     30,  // focuses after the next enemy renders
 };
 
@@ -71,6 +70,7 @@ const elements = {
   victoryRecapMeaning: $("#victoryRecapMeaning"),
   victoryRecapBreakdown: $("#victoryRecapBreakdown"),
   victoryRecapMemory: $("#victoryRecapMemory"),
+  victoryRecapContinue: $("#victoryRecapContinue"),
   defeatedCount: $("#defeatedCount"),
   defeatedList: $("#defeatedList"),
   missCount: $("#missCount"),
@@ -98,7 +98,6 @@ let selectedDeckKeys = [];
 let locked = false;
 let soundEnabled = true;
 let recapStage = 0;
-let recapTimer = 0;
 let recapNextState = null;
 
 const { playTone } = createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled: () => soundEnabled });
@@ -233,7 +232,6 @@ function renderVictoryRecap(item) {
   elements.victoryRecap.style.setProperty("--recap-initial-scale", String(RECAP.initialScale));
   elements.victoryRecap.style.setProperty("--recap-final-scale", String(RECAP.finalScale));
   elements.victoryRecap.style.setProperty("--recap-initial-y", `${RECAP.initialOffsetY}px`);
-  elements.victoryRecap.style.setProperty("--recap-duration", `${TIMING.victoryRecap}ms`);
 }
 
 function renderWordList(container, items, emptyText, withCounts = false) {
@@ -368,7 +366,6 @@ function transitionTo(nextState, message, tone, animationClass, target = element
 
 function finishVictoryRecap() {
   if (recapStage === 0 || !recapNextState) return;
-  window.clearTimeout(recapTimer);
   const nextState = recapNextState;
   recapNextState = null;
   setRecapStage(0);
@@ -389,7 +386,7 @@ function showVictoryRecap(item, nextState) {
   animate("is-defeated");
   renderVictoryRecap(item);
   setRecapStage(1);
-  recapTimer = window.setTimeout(finishVictoryRecap, TIMING.victoryRecap);
+  elements.victoryRecapContinue.focus();
 }
 
 function submitAttack(event) {
@@ -460,7 +457,6 @@ function flee() {
 }
 
 function restart() {
-  window.clearTimeout(recapTimer);
   recapNextState = null;
   setRecapStage(0);
   dungeon = restartDungeon(dungeon);
@@ -495,6 +491,7 @@ elements.form.addEventListener("submit", submitAttack);
 elements.input.addEventListener("input", convertReadingInput);
 elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
+elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);
 elements.restart.addEventListener("click", restart);
 elements.sound.addEventListener("click", () => {
   soundEnabled = !soundEnabled;

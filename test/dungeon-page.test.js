@@ -14,13 +14,14 @@ test("dungeon hints expose dictionary and kana lookup icons", () => {
   assert.match(script, /romajidesu\.com\/kanji\/\$\{encodedWord\}/);
 });
 
-test("a defeated enemy briefly reveals its complete study card", () => {
+test("a defeated enemy reveals its complete study card until Next is clicked", () => {
   assert.match(html, /id="victoryRecap"[^>]+aria-live="polite"[^>]+hidden/);
   assert.match(html, /id="victoryRecapReading"/);
   assert.match(html, /id="victoryRecapMeaning"/);
   assert.match(html, /id="victoryRecapBreakdown"/);
   assert.match(html, /id="victoryRecapMemory"/);
+  assert.match(html, /id="victoryRecapContinue"[^>]*>NEXT/);
   assert.match(script, /showVictoryRecap\(enemy, result\.state\)/);
-  assert.match(script, /victoryRecap:\s+5000/);
-  assert.doesNotMatch(html, /victoryRecapContinue/);
+  assert.match(script, /victoryRecapContinue\.addEventListener\("click", finishVictoryRecap\)/);
+  assert.doesNotMatch(script, /setTimeout\(finishVictoryRecap/);
 });

@@ -69,6 +69,8 @@ const elements = {
   victoryRecapTitle: $("#victoryRecapTitle"),
   victoryRecapReading: $("#victoryRecapReading"),
   victoryRecapMeaning: $("#victoryRecapMeaning"),
+  victoryRecapJisho: $("#victoryRecapJishoLink"),
+  victoryRecapKana: $("#victoryRecapKanaLink"),
   victoryRecapBreakdown: $("#victoryRecapBreakdown"),
   victoryRecapMemory: $("#victoryRecapMemory"),
   victoryRecapContinue: $("#victoryRecapContinue"),
@@ -242,9 +244,14 @@ function setRecapStage(stage) {
 }
 
 function renderVictoryRecap(item) {
+  const encodedWord = encodeURIComponent(item.word);
   elements.victoryRecapTitle.textContent = item.word;
   elements.victoryRecapReading.textContent = readingAnswer(item);
   elements.victoryRecapMeaning.textContent = item.meaning;
+  elements.victoryRecapJisho.href = `https://jisho.org/search/${encodedWord}`;
+  elements.victoryRecapKana.href = `https://www.romajidesu.com/kanji/${encodedWord}`;
+  elements.victoryRecapJisho.setAttribute("aria-label", `Look up ${item.word} definition on Jisho`);
+  elements.victoryRecapKana.setAttribute("aria-label", `Look up ${item.word} kanji and reading on RomajiDesu`);
   elements.victoryRecapMemory.textContent = item.memory ?? "";
   elements.victoryRecapMemory.hidden = !item.memory;
   renderBreakdownParts(item, elements.victoryRecapBreakdown, "victory-recap-part");

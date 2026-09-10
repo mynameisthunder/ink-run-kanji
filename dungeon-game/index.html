@@ -8,7 +8,7 @@
     <meta name="description" content="Fight through your Ink Run kanji decks with reading and meaning recall." />
     <title>Kanji Dungeon - Ink Run</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="dungeon.css?v=large-recap-kanji" />
+    <link rel="stylesheet" href="dungeon.css?v=recap-lookups" />
   </head>
   <body>
     <div class="dungeon-noise" aria-hidden="true"></div>
@@ -84,6 +84,10 @@
           <article class="victory-recap-card">
             <div class="victory-recap-header">
               <span>ENEMY DEFEATED · CARD REVEALED</span>
+              <nav class="hint-lookups" aria-label="Defeated word lookup links">
+                <a class="hint-lookup jisho-lookup" id="victoryRecapJishoLink" href="https://jisho.org/search/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word on Jisho" title="Jisho definition"><span aria-hidden="true">辞</span></a>
+                <a class="hint-lookup kana-lookup" id="victoryRecapKanaLink" href="https://www.romajidesu.com/kanji/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word's kanji and reading on RomajiDesu" title="Kanji and reading lookup"><span aria-hidden="true">あ</span></a>
+              </nav>
             </div>
             <div class="victory-recap-main">
               <div>
@@ -135,6 +139,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="../cloud-config.js?v=cloud-1" defer></script>
     <script src="../cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="dungeon-game.js?v=optional-recap"></script>
+    <script type="module" src="dungeon-game.js?v=recap-lookups"></script>
   </body>
 </html>

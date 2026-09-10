@@ -167,6 +167,7 @@ main { min-height: calc(100vh - 82px); }
 .deck-picker { position: relative; z-index: 1; width: 100%; margin: 29px 0 18px; }
 .picker-label { display: block; margin-bottom: 2px; font: 600 10px var(--mono); letter-spacing: .09em; }
 .deck-options, .dialog-deck-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.deck-options { align-items: center; gap: 3px 14px; }
 .deck-group-label {
   flex: 1 0 100%;
   margin-top: 16px;
@@ -211,6 +212,19 @@ main { min-height: calc(100vh - 82px); }
 .deck-option.active small { color: var(--yellow); }
 .deck-options .deck-all-option { border-width: 1.5px; background: rgba(255,255,255,.34); }
 .deck-options .deck-all-option.active { background: var(--blue); }
+.deck-options .deck-option:not(.deck-all-option) {
+  min-height: 34px;
+  padding: 7px 2px;
+  border: 0;
+  border-bottom: 1px solid rgba(23,23,20,.24);
+  background: transparent;
+  box-shadow: none;
+}
+.deck-options .deck-option:not(.deck-all-option):hover { border-bottom-color: var(--ink); transform: translateY(-1px); }
+.deck-options .deck-option:not(.deck-all-option).mastered { padding-right: 17px; border-bottom-color: rgba(0,175,4,.45); color: #087d0b; }
+.deck-options .deck-option:not(.deck-all-option).mastered::after { top: 50%; right: 1px; transform: translateY(-50%); }
+.deck-options .deck-option:not(.deck-all-option).active { padding-inline: 9px; border-bottom-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 2px 2px 0 var(--ink); }
+.deck-options .deck-option:not(.deck-all-option).active.mastered { color: #fff; }
 .needs-work-deck-option { border-color: var(--red); }
 .daily-review-deck-option { border-color: var(--yellow); }
 .start-actions { display: flex; align-items: stretch; flex-wrap: wrap; gap: 9px; }
@@ -819,10 +833,11 @@ kbd { font: inherit; color: var(--red); }
   .home-command { grid-template-columns: 1fr; }
   .current-run { padding: 20px 0 22px; }
   .home-review { padding: 18px 0 20px; border-top: 1px solid var(--line); border-left: 0; }
-  .deck-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .deck-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 10px; }
   .deck-group-label { grid-column: 1 / -1; }
   .deck-option { min-width: 0; min-height: 44px; }
   .deck-option { padding: 8px; }
+  .deck-options .deck-option:not(.deck-all-option) { min-height: 42px; padding-block: 8px; }
   .start-actions { align-items: stretch; }
   .primary-button { width: 100%; }
   .home-command .study-button { min-width: 0; flex: 1 1 calc(50% - 5px); }

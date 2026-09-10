@@ -46,6 +46,16 @@ test("meaning matching accepts ordinary English inflections and alternatives", (
   assert.equal(meaningAnswerIsCorrect("animal", { meaning: "activity (of a person, organization, animal, volcano, etc.)" }), false);
 });
 
+test("meaning matching accepts common synonyms and specific parts of qualified definitions", () => {
+  assert.equal(meaningAnswerIsCorrect("start", { meaning: "to begin" }), true);
+  assert.equal(meaningAnswerIsCorrect("labour", { meaning: "work; labor" }), true);
+  assert.equal(meaningAnswerIsCorrect("colour", { meaning: "color" }), true);
+  assert.equal(meaningAnswerIsCorrect("emperor", { meaning: "emperor of Japan" }), true);
+  assert.equal(meaningAnswerIsCorrect("construction", { meaning: "construction work" }), true);
+  assert.equal(meaningAnswerIsCorrect("care", { meaning: "medical care" }), false);
+  assert.equal(meaningAnswerIsCorrect("person", { meaning: "person in charge" }), false);
+});
+
 test("meaning matching accepts expanded counter and calendar aliases", () => {
   const counter = { word: "三本", meaning: "3 long or cylindrical objects", meanings: ["three bottles", "3 long objects"] };
   const day = { word: "二日", meaning: "second day of the month; two days", meanings: ["second", "2nd", "second day"] };

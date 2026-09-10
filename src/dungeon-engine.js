@@ -15,6 +15,43 @@ const UNCOUNTABLE_OR_SINGULAR_S = new Set([
   "analysis", "basis", "business", "clothes", "economics", "glass", "headquarters",
   "means", "news", "series", "species", "status",
 ]);
+const TOO_BROAD_FOR_PARTIAL_MATCH = new Set([
+  "act", "action", "bad", "come", "do", "get", "go", "good", "kind", "make",
+  "counter", "part", "person", "place", "state", "thing", "type", "use", "way", "work",
+]);
+const MEANING_EQUIVALENTS = [
+  ["aid", "assist", "help"],
+  ["automobile", "car"],
+  ["begin", "start"],
+  ["big", "large"],
+  ["buy", "purchase"],
+  ["child", "kid"],
+  ["choose", "select"],
+  ["correct", "right"],
+  ["create", "make", "produce"],
+  ["difficult", "hard"],
+  ["easy", "simple"],
+  ["end", "finish"],
+  ["fast", "quick", "rapid"],
+  ["fix", "repair"],
+  ["ill", "sick"],
+  ["job", "occupation", "employment"],
+  ["labor", "labour", "work"],
+  ["physician", "doctor"],
+  ["pretty", "beautiful"],
+  ["reside", "live"],
+  ["shop", "store"],
+  ["show", "display"],
+  ["tell", "inform"],
+  ["use", "utilize", "utilise"],
+  ["wrong", "incorrect"],
+];
+const CANONICAL_EQUIVALENT = new Map(MEANING_EQUIVALENTS.flatMap((group) => group.map((word) => [word, group[0]])));
+const SPELLING_EQUIVALENTS = new Map([
+  ["behaviour", "behavior"], ["centre", "center"], ["colour", "color"],
+  ["favourite", "favorite"], ["honour", "honor"], ["organisation", "organization"],
+  ["recognise", "recognize"], ["theatre", "theater"],
+]);
 
 function wordKey(item) {
   return item.studyKey ?? item.word;
@@ -61,7 +98,9 @@ function singularizeWord(word) {
 function canonicalMeaning(value) {
   return normalizeMeaningAnswer(value)
     .split(" ")
+    .map((word) => SPELLING_EQUIVALENTS.get(word) ?? word)
     .map(singularizeWord)
+    .map((word) => CANONICAL_EQUIVALENT.get(word) ?? word)
     .join(" ");
 }
 
@@ -93,13 +132,26 @@ function meaningVariants(meaning) {
   return variants;
 }
 
+function isQualifiedDefinitionMatch(answer, variant) {
+  const answerWords = answer.split(" ");
+  if (answerWords.length === 1) {
+    const [word] = answerWords;
+    if (word.length < 5 || TOO_BROAD_FOR_PARTIAL_MATCH.has(word)) return false;
+  }
+  if (!variant.startsWith(`${answer} `)) return false;
+  const qualifier = variant.slice(answer.length + 1);
+  return /^(?:of|for|in|at|from|work|labor)\b/.test(qualifier);
+}
+
 export function meaningAnswerIsCorrect(value, item) {
   const answer = normalizeMeaningAnswer(value);
   if (!answer) return false;
   const answerForms = new Set([answer, canonicalMeaning(answer)]);
   return acceptedMeanings(item).some((meaning) => {
     const variants = meaningVariants(meaning);
-    return [...answerForms].some((form) => variants.has(form));
+    const partialVariants = meaningVariants(meaning.replace(PARENTHETICAL, ""));
+    return [...answerForms].some((form) => variants.has(form)
+      || [...partialVariants].some((variant) => isQualifiedDefinitionMatch(canonicalMeaning(form), canonicalMeaning(variant))));
   });
 }
 

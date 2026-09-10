@@ -19,12 +19,12 @@ import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../sr
  *    0ms  hit / hurt / defeat feedback begins
  *    0ms  defeated word recap fades and scales into view
  *  220ms  a fled enemy is replaced
- * 1000ms  recap closes and the next enemy (or victory) appears
- * 1030ms  the answer input regains focus
+ * 5000ms  recap closes and the next enemy (or victory) appears
+ * 5030ms  the answer input regains focus
  * ───────────────────────────────────────────────────────── */
 const TIMING = {
   quickTransition: 220,  // replaces a fled enemy
-  victoryRecap:   1000,  // flashes the defeated card without slowing the run
+  victoryRecap:   5000,  // leaves enough time to read the defeated word card
   refocusDelay:     30,  // focuses after the next enemy renders
 };
 

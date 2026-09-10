@@ -141,7 +141,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
  *    0ms  wrong answer: battle shakes and player bar drops
  *    0ms  finisher: enemy flashes red and contracts
  *  220ms  a fled enemy enters; input is focused
- * 1000ms  defeated-word recap completes; next enemy enters
+ * 5000ms  defeated-word recap completes; next enemy enters
  */
 .enemy-stage.is-hit h1 { animation: enemy-hit 180ms ease-out; }
 .battle.is-hurt { animation: player-hurt 220ms ease-out; }

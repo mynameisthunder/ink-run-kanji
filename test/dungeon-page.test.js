@@ -21,5 +21,6 @@ test("a defeated enemy briefly reveals its complete study card", () => {
   assert.match(html, /id="victoryRecapBreakdown"/);
   assert.match(html, /id="victoryRecapMemory"/);
   assert.match(script, /showVictoryRecap\(enemy, result\.state\)/);
-  assert.match(script, /victoryRecap:\s+2400/);
+  assert.match(script, /victoryRecap:\s+1000/);
+  assert.doesNotMatch(html, /victoryRecapContinue/);
 });

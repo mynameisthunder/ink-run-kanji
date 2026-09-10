@@ -19,12 +19,12 @@ import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../sr
  *    0ms  hit / hurt / defeat feedback begins
  *    0ms  defeated word recap fades and scales into view
  *  220ms  a fled enemy is replaced
- * 2400ms  recap closes and the next enemy (or victory) appears
- * 2430ms  the answer input regains focus
+ * 1000ms  recap closes and the next enemy (or victory) appears
+ * 1030ms  the answer input regains focus
  * ───────────────────────────────────────────────────────── */
 const TIMING = {
   quickTransition: 220,  // replaces a fled enemy
-  victoryRecap:   2400,  // keeps the defeated card readable
+  victoryRecap:   1000,  // flashes the defeated card without slowing the run
   refocusDelay:     30,  // focuses after the next enemy renders
 };
 
@@ -71,7 +71,6 @@ const elements = {
   victoryRecapMeaning: $("#victoryRecapMeaning"),
   victoryRecapBreakdown: $("#victoryRecapBreakdown"),
   victoryRecapMemory: $("#victoryRecapMemory"),
-  victoryRecapContinue: $("#victoryRecapContinue"),
   defeatedCount: $("#defeatedCount"),
   defeatedList: $("#defeatedList"),
   missCount: $("#missCount"),
@@ -390,7 +389,6 @@ function showVictoryRecap(item, nextState) {
   animate("is-defeated");
   renderVictoryRecap(item);
   setRecapStage(1);
-  elements.victoryRecapContinue.focus();
   recapTimer = window.setTimeout(finishVictoryRecap, TIMING.victoryRecap);
 }
 
@@ -498,7 +496,6 @@ elements.input.addEventListener("input", convertReadingInput);
 elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
 elements.restart.addEventListener("click", restart);
-elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);
 elements.sound.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   elements.sound.textContent = soundEnabled ? "音 ON" : "音 OFF";

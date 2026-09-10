@@ -91,25 +91,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hint-part b { margin-right: 7px; font-size: 18px; }
 .hint-part em { color: var(--blue); font-style: normal; }
 
-.victory-recap { position: absolute; z-index: 10; inset: 0; padding: clamp(18px, 4vw, 48px); display: grid; place-items: center; background: rgba(23, 23, 20, .84); backdrop-filter: blur(8px); }
+.victory-recap { position: absolute; z-index: 10; inset: 0; padding: clamp(18px, 5vw, 62px); display: grid; place-items: center; background: rgba(23, 23, 20, .56); pointer-events: none; }
 .victory-recap[hidden] { display: none; }
-.victory-recap-card { position: relative; width: min(720px, 100%); max-height: 100%; padding: clamp(22px, 4vw, 42px); overflow: auto; border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 10px 10px 0 var(--blue); animation: recap-enter 240ms cubic-bezier(.2,.8,.2,1) both; }
+.victory-recap-card { position: relative; width: min(650px, 100%); max-height: 100%; padding: clamp(20px, 3vw, 32px); overflow: hidden; border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 7px 7px 0 var(--blue); animation: recap-enter 160ms cubic-bezier(.2,.8,.2,1) both; }
 .victory-recap-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--red); font: 800 9px var(--mono); letter-spacing: .13em; }
-.victory-recap-header button { padding: 7px 0; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: var(--ink); font: 800 9px var(--mono); letter-spacing: .08em; cursor: pointer; }
-.victory-recap-header button:hover, .victory-recap-header button:focus-visible { color: var(--blue); outline: none; }
-.victory-recap-header button b { margin-left: 8px; font-size: 14px; }
-.victory-recap-main { margin-top: 22px; display: grid; grid-template-columns: minmax(150px, .65fr) minmax(0, 1.35fr); align-items: end; gap: clamp(22px, 5vw, 54px); }
-.victory-recap-main h2 { margin: 0; font: 850 clamp(54px, 8vw, 92px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }
-.victory-recap-reading { margin: 12px 0 0; color: var(--blue); font: 800 clamp(18px, 2.8vw, 27px)/1.1 var(--sans); }
-.victory-recap-meaning { margin: 0; font-size: clamp(17px, 2vw, 23px); font-weight: 700; line-height: 1.3; }
-.victory-recap-breakdown { margin-top: 25px; padding-top: 17px; border-top: 1px solid rgba(23,23,20,.18); }
+.victory-recap-main { margin-top: 15px; display: grid; grid-template-columns: minmax(130px, .6fr) minmax(0, 1.4fr); align-items: end; gap: clamp(18px, 4vw, 42px); }
+.victory-recap-main h2 { margin: 0; font: 850 clamp(48px, 7vw, 76px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }
+.victory-recap-reading { margin: 8px 0 0; color: var(--blue); font: 800 clamp(17px, 2.4vw, 23px)/1.1 var(--sans); }
+.victory-recap-meaning { margin: 0; font-size: clamp(15px, 1.7vw, 19px); font-weight: 700; line-height: 1.25; }
+.victory-recap-breakdown { margin-top: 17px; padding-top: 12px; border-top: 1px solid rgba(23,23,20,.18); }
 .victory-recap-breakdown > span { color: var(--red); font: 800 8px var(--mono); letter-spacing: .13em; }
-#victoryRecapBreakdown { margin-top: 11px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+#victoryRecapBreakdown { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; }
 .victory-recap-part { min-width: 0; font-size: 13px; line-height: 1.35; }
 .victory-recap-part b { margin-right: 7px; font-size: 19px; }
 .victory-recap-part em { margin-right: 4px; color: var(--blue); font-style: normal; }
-.victory-recap-memory { margin: 19px 0 0; padding: 12px 14px; border-left: 3px solid var(--yellow); background: rgba(242,201,76,.14); font-size: 13px; line-height: 1.45; }
-.victory-recap-timer { height: 3px; margin-top: 22px; overflow: hidden; background: rgba(23,23,20,.1); }
+.victory-recap-memory { margin: 13px 0 0; padding: 9px 11px; border-left: 3px solid var(--yellow); background: rgba(242,201,76,.14); font-size: 12px; line-height: 1.35; }
+.victory-recap-timer { height: 2px; margin-top: 14px; overflow: hidden; background: rgba(23,23,20,.1); }
 .victory-recap-timer span { display: block; width: 100%; height: 100%; background: var(--red); transform-origin: left; animation: recap-timer var(--recap-duration) linear both; }
 
 .run-ledger { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -144,7 +141,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
  *    0ms  wrong answer: battle shakes and player bar drops
  *    0ms  finisher: enemy flashes red and contracts
  *  220ms  a fled enemy enters; input is focused
- * 2400ms  defeated-word recap completes; next enemy enters
+ * 1000ms  defeated-word recap completes; next enemy enters
  */
 .enemy-stage.is-hit h1 { animation: enemy-hit 180ms ease-out; }
 .battle.is-hurt { animation: player-hurt 220ms ease-out; }

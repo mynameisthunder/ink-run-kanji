@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { DAY_OF_WEEK_WORDS, DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, itemKey } from "../src/vocabulary.js";
+import { DAY_OF_WEEK_WORDS, DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
   assert.equal(KANJI.length, 1492);
@@ -29,16 +29,21 @@ test("days of the week are available as one ordered deck", () => {
   assert.equal(KANJI_BY_WORD.get("木曜日").reading, "もくようび");
 });
 
-test("look-alike practice keeps confusable words together without duplicate cards", () => {
+test("look-alike practice is split into small thematic decks without duplicate cards", () => {
   assert.equal(LOOK_ALIKE_WORDS.length, 103);
   assert.equal(new Set(LOOK_ALIKE_WORDS).size, LOOK_ALIKE_WORDS.length);
+  assert.equal(LOOK_ALIKE_DECKS.length, 10);
+  assert.ok(LOOK_ALIKE_DECKS.every(({ words }) => words.length >= 8 && words.length <= 12));
+  assert.equal(LOOK_ALIKE_DECKS.reduce((total, { words }) => total + words.length, 0), LOOK_ALIKE_WORDS.length);
   assert.ok(LOOK_ALIKE_GROUPS.every((group) => group.length >= 2));
   assert.ok(LOOK_ALIKE_WORDS.every((word) => KANJI_BY_WORD.has(word)));
   assert.deepEqual(LOOK_ALIKE_GROUPS[0], ["意味", "意見", "意識"]);
   assert.ok(LOOK_ALIKE_GROUPS.some((group) => group.join("・") === "現在・存在"));
   assert.ok(LOOK_ALIKE_GROUPS.some((group) => group.join("・") === "切る・着る・着く"));
-  assert.deepEqual(DECKS["look-alikes"].words, LOOK_ALIKE_WORDS);
-  assert.equal(DECKS["look-alikes"].label, "LOOK-ALIKES 103");
+  LOOK_ALIKE_DECKS.forEach(({ key, label, words }) => {
+    assert.deepEqual(DECKS[key].words, words);
+    assert.equal(DECKS[key].label, label);
+  });
 });
 
 test("core generated decks remain complete", () => {

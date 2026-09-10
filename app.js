@@ -7,6 +7,7 @@ import {
   KANJI,
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
+  LOOK_ALIKE_DECKS,
   NUMBER_GROUPS,
   REAL_KANA_N5_WORDS,
   itemKey,
@@ -921,7 +922,7 @@ function appendGeneratedDeckButtons() {
       },
       {
         label: "ESSENTIALS · FOCUSED PRACTICE",
-        keys: ["days-of-week", "look-alikes"],
+        keys: ["days-of-week", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
         className: "essentials-deck-option",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {

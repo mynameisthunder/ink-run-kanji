@@ -960,7 +960,30 @@ const LOOK_ALIKE_GROUPS = [
   ["開く", "開ける"],
   ["切る", "着る", "着く"],
 ];
-const LOOK_ALIKE_WORDS = [...new Set(LOOK_ALIKE_GROUPS.flat())];
+const lookAlikeDeckSpecs = [
+  { key: "look-alikes-abstract", label: "LOOK 01 · ABSTRACT", groupIndexes: [0, 1, 2, 3] },
+  { key: "look-alikes-systems", label: "LOOK 02 · SYSTEMS", groupIndexes: [4, 5, 6, 7, 8] },
+  { key: "look-alikes-structure", label: "LOOK 03 · STRUCTURE", groupIndexes: [9, 10, 11, 12, 13, 14] },
+  { key: "look-alikes-language", label: "LOOK 04 · LANGUAGE", groupIndexes: [15, 16, 17, 18] },
+  { key: "look-alikes-contrasts", label: "LOOK 05 · CONTRASTS", groupIndexes: [19, 20, 21, 22] },
+  { key: "look-alikes-shapes-a", label: "LOOK 06 · SHAPES A", groupIndexes: [23, 24, 25, 26, 27] },
+  { key: "look-alikes-shapes-b", label: "LOOK 07 · SHAPES B", groupIndexes: [28, 29, 30, 31, 32] },
+  { key: "look-alikes-visual-pairs", label: "LOOK 08 · VISUAL PAIRS", groupIndexes: [33, 34, 35, 36, 37] },
+  { key: "look-alikes-verbs-a", label: "LOOK 09 · VERBS A", groupIndexes: [38, 39, 40, 41] },
+  { key: "look-alikes-verbs-b", label: "LOOK 10 · VERBS B", groupIndexes: [42, 43, 44] },
+];
+const assignedLookAlikeWords = new Set();
+const LOOK_ALIKE_DECKS = lookAlikeDeckSpecs.map(({ key, label, groupIndexes }) => {
+  const words = groupIndexes
+    .flatMap((index) => LOOK_ALIKE_GROUPS[index])
+    .filter((word) => {
+      if (assignedLookAlikeWords.has(word)) return false;
+      assignedLookAlikeWords.add(word);
+      return true;
+    });
+  return { key, label: `${label} ${words.length}`, words };
+});
+const LOOK_ALIKE_WORDS = LOOK_ALIKE_DECKS.flatMap(({ words }) => words);
 const FREQUENCY_1_WORDS = [
   ...FREQUENCY_1_START_WORDS,
   ...KANJI.slice(0, 110).map((item) => item.word),
@@ -1135,11 +1158,13 @@ DECKS["days-of-week"] = {
   words: DAY_OF_WEEK_WORDS,
 };
 
-DECKS["look-alikes"] = {
-  label: `LOOK-ALIKES ${LOOK_ALIKE_WORDS.length}`,
-  setLabel: "ESSENTIALS · LOOK-ALIKE WORDS",
-  words: LOOK_ALIKE_WORDS,
-};
+LOOK_ALIKE_DECKS.forEach(({ key, label, words }) => {
+  DECKS[key] = {
+    label,
+    setLabel: `ESSENTIALS · ${label}`,
+    words,
+  };
+});
 
 
 export {
@@ -1154,6 +1179,7 @@ export {
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
   LEVEL_2_WORDS,
+  LOOK_ALIKE_DECKS,
   LOOK_ALIKE_GROUPS,
   LOOK_ALIKE_WORDS,
   NUMBER_GROUPS,

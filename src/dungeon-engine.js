@@ -52,6 +52,20 @@ const SPELLING_EQUIVALENTS = new Map([
   ["favourite", "favorite"], ["honour", "honor"], ["organisation", "organization"],
   ["recognise", "recognize"], ["theatre", "theater"],
 ]);
+const JAPANESE_DIGIT_VALUES = new Map([
+  ["〇", 0], ["零", 0], ["一", 1], ["二", 2], ["三", 3], ["四", 4],
+  ["五", 5], ["六", 6], ["七", 7], ["八", 8], ["九", 9],
+]);
+const JAPANESE_SMALL_UNITS = new Map([["十", 10], ["百", 100], ["千", 1000]]);
+const JAPANESE_LARGE_UNITS = new Map([["万", 10_000], ["億", 100_000_000], ["兆", 1_000_000_000_000]]);
+const ENGLISH_NUMBER_VALUES = new Map([
+  ["zero", 0], ["one", 1], ["two", 2], ["three", 3], ["four", 4], ["five", 5],
+  ["six", 6], ["seven", 7], ["eight", 8], ["nine", 9], ["ten", 10],
+  ["eleven", 11], ["twelve", 12], ["thirteen", 13], ["fourteen", 14],
+  ["fifteen", 15], ["sixteen", 16], ["seventeen", 17], ["eighteen", 18], ["nineteen", 19],
+  ["twenty", 20], ["thirty", 30], ["forty", 40], ["fifty", 50],
+  ["sixty", 60], ["seventy", 70], ["eighty", 80], ["ninety", 90],
+]);
 
 function wordKey(item) {
   return item.studyKey ?? item.word;
@@ -104,6 +118,53 @@ function canonicalMeaning(value) {
     .join(" ");
 }
 
+function japaneseNumeralValue(word) {
+  if (!word || !/^[〇零一二三四五六七八九十百千万億兆]+$/.test(word)) return null;
+  let total = 0;
+  let section = 0;
+  let digit = 0;
+
+  for (const character of word) {
+    if (JAPANESE_DIGIT_VALUES.has(character)) {
+      digit = JAPANESE_DIGIT_VALUES.get(character);
+    } else if (JAPANESE_SMALL_UNITS.has(character)) {
+      section += (digit || 1) * JAPANESE_SMALL_UNITS.get(character);
+      digit = 0;
+    } else {
+      const sectionValue = section + digit || 1;
+      total += sectionValue * JAPANESE_LARGE_UNITS.get(character);
+      section = 0;
+      digit = 0;
+    }
+  }
+
+  return total + section + digit;
+}
+
+function englishNumberValue(value) {
+  const normalized = normalizeMeaningAnswer(value).replace(/^number\s+/, "");
+  if (/^\d+$/.test(normalized)) return Number(normalized);
+  const words = normalized.split(" ").filter((word) => word !== "and");
+  if (!words.length) return null;
+
+  let total = 0;
+  let section = 0;
+  for (const word of words) {
+    if (ENGLISH_NUMBER_VALUES.has(word)) {
+      section += ENGLISH_NUMBER_VALUES.get(word);
+    } else if (word === "hundred") {
+      section = (section || 1) * 100;
+    } else if (word === "thousand" || word === "million" || word === "billion" || word === "trillion") {
+      const unit = { thousand: 1_000, million: 1_000_000, billion: 1_000_000_000, trillion: 1_000_000_000_000 }[word];
+      total += (section || 1) * unit;
+      section = 0;
+    } else {
+      return null;
+    }
+  }
+  return total + section;
+}
+
 function addAlternativeSegments(variants, value) {
   const normalized = normalizeMeaningAnswer(value);
   if (!normalized) return;
@@ -146,6 +207,8 @@ function isQualifiedDefinitionMatch(answer, variant) {
 export function meaningAnswerIsCorrect(value, item) {
   const answer = normalizeMeaningAnswer(value);
   if (!answer) return false;
+  const numeralValue = japaneseNumeralValue(item?.word);
+  if (numeralValue !== null && englishNumberValue(answer) === numeralValue) return true;
   const answerForms = new Set([answer, canonicalMeaning(answer)]);
   return acceptedMeanings(item).some((meaning) => {
     const variants = meaningVariants(meaning);

@@ -61,10 +61,22 @@ test("meaning matching accepts expanded counter and calendar aliases", () => {
   const day = { word: "二日", meaning: "second day of the month; two days", meanings: ["second", "2nd", "second day"] };
   assert.equal(meaningAnswerIsCorrect("three bottles", counter), true);
   assert.equal(meaningAnswerIsCorrect("3 long objects", counter), true);
+  assert.equal(meaningAnswerIsCorrect("3", counter), false);
   assert.equal(meaningAnswerIsCorrect("the second", day), true);
   assert.equal(meaningAnswerIsCorrect("2nd", day), true);
   assert.equal(meaningAnswerIsCorrect("twenty fourth", { meaning: "twenty-fourth" }), true);
   assert.equal(meaningAnswerIsCorrect("Tuesday", day), false);
+});
+
+test("plain numeral cards accept digits and equivalent English numbers", () => {
+  const three = { word: "三", meaning: "the number three" };
+  assert.equal(meaningAnswerIsCorrect("3", three), true);
+  assert.equal(meaningAnswerIsCorrect("three", three), true);
+  assert.equal(meaningAnswerIsCorrect("number three", three), true);
+  assert.equal(meaningAnswerIsCorrect("10", { word: "十", meaning: "ten" }), true);
+  assert.equal(meaningAnswerIsCorrect("twenty", { word: "二十", meaning: "twenty" }), true);
+  assert.equal(meaningAnswerIsCorrect("20", { word: "二十", meaning: "twenty" }), true);
+  assert.equal(meaningAnswerIsCorrect("2", { word: "秒", meaning: "second" }), false);
 });
 
 test("reading damages the enemy and meaning defeats it", () => {

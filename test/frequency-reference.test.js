@@ -15,7 +15,16 @@ test("complete frequency reference data includes every Real Kana group", () => {
   );
   assert.equal(FREQUENCY_REFERENCE_GROUPS.reduce((total, group) => total + group.sourceEntryCount, 0), 5000);
   assert.ok(FREQUENCY_REFERENCE_GROUPS.every((group) => group.pages.flatMap((page) => page.cards)
-    .every((card) => card.word && card.readings.length && Array.isArray(card.annotations))));
+    .every((card) => card.word
+      && card.readings.length
+      && card.romaji.length === card.readings.length
+      && card.meaning
+      && card.breakdown.length
+      && card.breakdown.every((part) => part.length === 3 && part.every(Boolean))
+      && card.memory
+      && Array.isArray(card.annotations))));
+  assert.ok(FREQUENCY_REFERENCE_GROUPS.flatMap((group) => group.pages.flatMap((page) => page.cards))
+    .every((card) => !card.meaning.startsWith("Japanese word read")));
 });
 
 test("frequency reference data remains dormant instead of becoming app decks", () => {

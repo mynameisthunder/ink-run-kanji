@@ -2,6 +2,8 @@ import { writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { enrichReferenceGroups, REFERENCE_DICTIONARY_ATTRIBUTION } from "./reference-enrichment.mjs";
+
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const REAL_KANA_URL = "https://realkana.com/kanji/frequency/words";
 const GROUP_CONFIGS = [
@@ -52,9 +54,11 @@ const groups = GROUP_CONFIGS.map(({ group, firstTable, pageCount }) => {
   };
 });
 
+const enrichedGroups = await enrichReferenceGroups(groups);
 const output = `// Complete Real Kana frequency reference data. This module is intentionally not loaded by the app or registered as decks.\n`
   + `// Source: ${REAL_KANA_URL}\n`
-  + `export const FREQUENCY_REFERENCE_GROUPS = ${JSON.stringify(groups, null, 2)};\n`;
+  + `// ${REFERENCE_DICTIONARY_ATTRIBUTION}\n`
+  + `export const FREQUENCY_REFERENCE_GROUPS = ${JSON.stringify(enrichedGroups, null, 2)};\n`;
 
 writeFileSync(join(projectRoot, "frequency-reference-data.js"), output);
 groups.forEach(({ group, sourceEntryCount, uniqueWordCount }) => {

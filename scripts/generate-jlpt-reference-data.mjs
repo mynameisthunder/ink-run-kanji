@@ -2,6 +2,8 @@ import { writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { enrichReferenceGroups, REFERENCE_DICTIONARY_ATTRIBUTION } from "./reference-enrichment.mjs";
+
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const REAL_KANA_URL = "https://realkana.com/kanji/jlpt/words";
 const LEVEL_CONFIGS = [
@@ -55,9 +57,11 @@ const levels = LEVEL_CONFIGS.map(({ level, firstTable, pageCount }) => {
   };
 });
 
+const enrichedLevels = await enrichReferenceGroups(levels);
 const output = `// Complete Real Kana JLPT reference data. This module is intentionally not loaded by the app or registered as decks.\n`
   + `// Source: ${REAL_KANA_URL}\n`
-  + `export const JLPT_REFERENCE_LEVELS = ${JSON.stringify(levels, null, 2)};\n`;
+  + `// ${REFERENCE_DICTIONARY_ATTRIBUTION}\n`
+  + `export const JLPT_REFERENCE_LEVELS = ${JSON.stringify(enrichedLevels, null, 2)};\n`;
 
 writeFileSync(join(projectRoot, "jlpt-reference-data.js"), output);
 levels.forEach(({ level, sourceEntryCount, uniqueWordCount }) => {

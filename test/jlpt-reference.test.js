@@ -17,7 +17,16 @@ test("complete JLPT reference data includes every Real Kana level", () => {
   );
   assert.equal(JLPT_REFERENCE_LEVELS.reduce((total, level) => total + level.sourceEntryCount, 0), 5415);
   assert.ok(JLPT_REFERENCE_LEVELS.every((level) => level.pages.flatMap((page) => page.cards)
-    .every((card) => card.word && card.readings.length && Array.isArray(card.annotations))));
+    .every((card) => card.word
+      && card.readings.length
+      && card.romaji.length === card.readings.length
+      && card.meaning
+      && card.breakdown.length
+      && card.breakdown.every((part) => part.length === 3 && part.every(Boolean))
+      && card.memory
+      && Array.isArray(card.annotations))));
+  assert.ok(JLPT_REFERENCE_LEVELS.flatMap((level) => level.pages.flatMap((page) => page.cards))
+    .every((card) => !card.meaning.startsWith("Japanese word read")));
 });
 
 test("JLPT reference data remains dormant instead of becoming app decks", () => {

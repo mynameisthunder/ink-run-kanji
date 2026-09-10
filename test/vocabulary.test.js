@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 1135);
+  assert.equal(KANJI.length, 1492);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
 });
 
@@ -42,12 +42,12 @@ test("core generated decks remain complete", () => {
   assert.equal(DECKS["frequency-4-41-50"].words.length, 10);
   assert.deepEqual([DECKS["frequency-4-all"].words[0], DECKS["frequency-4-all"].words.at(-1)], ["報道", "支配"]);
   assert.equal(KANJI_BY_WORD.get("支配").frequency4SourceLabel, "LEVEL 1:4 · 041—050");
-  assert.equal(DECKS["level-2-all"].words.length, 100);
-  assert.equal(DECKS["level-2-91-100"].words.length, 10);
-  assert.deepEqual([DECKS["level-2-all"].words[0], DECKS["level-2-all"].words.at(-1)], ["頭", "労働者"]);
+  assert.equal(DECKS["level-2-all"].words.length, 500);
+  assert.equal(DECKS["level-2-491-500"].words.length, 10);
+  assert.deepEqual([DECKS["level-2-all"].words[0], DECKS["level-2-all"].words.at(-1)], ["頭", "病"]);
   assert.ok(DECKS["level-2-all"].words.every((word) => KANJI_BY_WORD.has(word)));
   assert.ok(DECKS["level-2-all"].words.every((word) => !KANJI_BY_WORD.get(word).meaning.startsWith("Japanese word read")));
-  assert.equal(KANJI_BY_WORD.get("労働者").level2SourceLabel, "LEVEL 2 · 091—100");
+  assert.equal(KANJI_BY_WORD.get("病").level2SourceLabel, "LEVEL 2 · 491—500");
   assert.deepEqual(JLPT_SAMPLE_GROUPS.map((group) => [group.level, group.words.length]), [
     ["N1", 10],
     ["N2", 10],

@@ -71,7 +71,12 @@ async function loadLevel2Cards() {
   const end = html.indexOf(";</script>", start);
   if (start < 0 || end < 0) throw new Error("Could not locate Real Kana's embedded data seed");
   const data = JSON.parse(html.slice(start + marker.length, end)).data;
-  return data.cardColumnTables[4].flat().slice(0, 100).map((card) => ({
+  const level2Tables = data.cardColumnTables.slice(4, 8);
+  const tableSizes = level2Tables.map((table) => table.flat().length);
+  if (tableSizes.join(",") !== "150,150,150,50") {
+    throw new Error(`Unexpected Real Kana Level 2 table sizes: ${tableSizes.join(", ")}`);
+  }
+  return level2Tables.flatMap((table) => table.flat()).map((card) => ({
     word: card.question,
     readings: card.answers,
     annotations: card.segments?.[0]?.annotations?.[0] ?? [],
@@ -125,7 +130,7 @@ function memoryFor(card, breakdown) {
 }
 
 const cards = await loadLevel2Cards();
-if (cards.length !== 100 || cards[0].word !== "頭" || cards[9].word !== "命") {
+if (cards.length !== 500 || cards[0].word !== "頭" || cards[9].word !== "命") {
   throw new Error("Real Kana's Level 2 source order has changed; refusing to generate the wrong deck");
 }
 
@@ -174,7 +179,7 @@ for (let index = 0; index < cardsToGenerate.length; index += 1) {
 }
 
 const orderedImports = cards.map((card) => imports.find((item) => item.word === card.word)).filter(Boolean);
-const output = `// Generated from Real Kana Frequency Level 2, positions 1–100.\n`
+const output = `// Generated from the complete Real Kana Frequency Level 2 set.\n`
   + `// Readings: Real Kana. Meanings: Jisho/JMdict. Character meanings: KanjiAPI/KANJIDIC.\n`
   + `export const LEVEL_2_WORDS = ${JSON.stringify(cards.map((card) => card.word), null, 2)};\n\n`
   + `export const LEVEL_2_IMPORTS = ${JSON.stringify(orderedImports, null, 2)};\n`;

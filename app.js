@@ -11,7 +11,7 @@ import {
   REAL_KANA_N5_WORDS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=level-2-100";
+} from "./src/vocabulary.js?v=level-2-complete";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";

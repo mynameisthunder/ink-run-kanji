@@ -11,7 +11,7 @@ import {
 import { romajiToHiragana } from "../src/kana.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";
-import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level-2-100";
+import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level-2-complete";
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD

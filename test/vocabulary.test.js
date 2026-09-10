@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js";
+import { DAY_OF_WEEK_WORDS, DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
   assert.equal(KANJI.length, 1492);
@@ -19,6 +19,14 @@ test("number cards include natural dungeon meaning answers", () => {
   assert.ok(KANJI_BY_WORD.get("二日").meanings.includes("second"));
   assert.ok(KANJI_BY_WORD.get("一日").meanings.includes("first"));
   assert.ok(KANJI_BY_WORD.get("counter-types:冊").meanings.includes("books"));
+});
+
+test("days of the week are available as one ordered deck", () => {
+  assert.deepEqual(DAY_OF_WEEK_WORDS, ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"]);
+  assert.deepEqual(DECKS["days-of-week"].words, DAY_OF_WEEK_WORDS);
+  assert.equal(DECKS["days-of-week"].setLabel, "ESSENTIALS · DAYS OF THE WEEK");
+  assert.ok(DAY_OF_WEEK_WORDS.every((word) => KANJI_BY_WORD.has(word)));
+  assert.equal(KANJI_BY_WORD.get("木曜日").reading, "もくようび");
 });
 
 test("core generated decks remain complete", () => {

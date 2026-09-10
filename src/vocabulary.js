@@ -904,6 +904,15 @@ NUMBER_IMPORTS.forEach((item) => {
 });
 
 const itemKey = (item) => item.studyKey ?? item.word;
+const DAY_OF_WEEK_WORDS = [
+  "月曜日",
+  "火曜日",
+  "水曜日",
+  "木曜日",
+  "金曜日",
+  "土曜日",
+  "日曜日",
+];
 const FREQUENCY_1_WORDS = [
   ...FREQUENCY_1_START_WORDS,
   ...KANJI.slice(0, 110).map((item) => item.word),
@@ -944,6 +953,10 @@ LEVEL_2_WORDS.forEach((word, index) => {
   const start = Math.floor(index / 10) * 10 + 1;
   item.level2SourceLabel = `LEVEL 2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
 });
+DAY_OF_WEEK_WORDS.forEach((word) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (item) item.weekdaySourceLabel = "ESSENTIALS · DAYS OF THE WEEK";
+});
 JLPT_SAMPLE_GROUPS.forEach((group) => {
   group.words.forEach((word, index) => {
     const item = KANJI_BY_WORD.get(word);
@@ -972,7 +985,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1064,9 +1077,16 @@ NUMBER_GROUPS.forEach((group) => {
   };
 });
 
+DECKS["days-of-week"] = {
+  label: "DAYS OF WEEK 7",
+  setLabel: "ESSENTIALS · DAYS OF THE WEEK",
+  words: DAY_OF_WEEK_WORDS,
+};
+
 
 export {
   BUNDLED_AUDIO_ITEMS,
+  DAY_OF_WEEK_WORDS,
   DECKS,
   FREQUENCY_1_WORDS,
   FREQUENCY_2_WORDS,

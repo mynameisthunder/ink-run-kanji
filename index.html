@@ -38,7 +38,7 @@
     <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=intro-heading-removed-1" />
+    <link rel="stylesheet" href="styles.css?v=home-command-center-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,17 +72,42 @@
     <main>
       <section class="screen intro active" id="introScreen" aria-label="Ink Run study setup">
         <div class="edition-tag"><span></span> FREQUENCY + JLPT N5</div>
-        <p class="intro-copy">Pick one or more decks to study, or run the full set. Then type every reading from memory.</p>
+        <section class="home-command" aria-label="Current study selection">
+          <div class="current-run">
+            <div class="current-selection">
+              <span>SELECTED DECKS</span>
+              <strong id="selectedDeckSummary">L1 ALL 150</strong>
+              <small id="introSetLabel">FREQUENCY · LEVEL 1 · ALL 150</small>
+            </div>
+            <div class="start-actions">
+              <button class="primary-button" id="startButton" type="button">
+                <span>START THE RUN</span>
+                <span class="arrow">↗</span>
+              </button>
+              <button class="study-button" id="studyButton" type="button">STUDY <span>→</span></button>
+              <button class="study-button dungeon-button" id="dungeonButton" type="button">DUNGEON <span>⚔</span></button>
+              <div class="guide-export-group">
+                <button class="study-button export-guide-button" id="exportGuideButton" type="button">PDF <span>↓</span></button>
+                <button class="study-guide-view-button" id="studyGuideViewButton" type="button" aria-label="Open selected decks in the all-cards study view" title="Open all-cards study view in a new tab"><span aria-hidden="true">↗</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="home-review">
+            <span class="home-review-label">REVIEW QUEUES</span>
+            <div class="review-options">
+              <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
+              <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
+              <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
+              <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
+            </div>
+          </div>
+        </section>
+
         <div class="deck-picker" aria-labelledby="deckPickerLabel">
-          <span class="picker-label" id="deckPickerLabel">CHOOSE YOUR DECKS · TAP TO TOGGLE</span>
+          <span class="picker-label" id="deckPickerLabel">DECK LIBRARY · TAP TO ADD OR REMOVE</span>
           <div class="deck-options">
-            <span class="deck-group-label">YOUR REVIEW</span>
-            <button class="deck-option favorite-deck-option" type="button" data-deck-choice="favorites" aria-pressed="false" disabled title="Star words to build this deck">★ FAVORITES <small data-favorite-count>0</small></button>
-            <button class="deck-option progress-deck-option" type="button" data-deck-choice="done" aria-pressed="false" disabled title="Complete recalls to build this deck">DONE <small data-done-count>0</small></button>
-            <button class="deck-option progress-deck-option daily-review-deck-option" type="button" data-deck-choice="daily-review" aria-pressed="false" disabled title="Words missed at least twice will appear here">DAILY REVIEW <small data-daily-review-count>0</small></button>
-            <button class="deck-option progress-deck-option needs-work-deck-option" type="button" data-deck-choice="needs-work" aria-pressed="false" disabled title="Missed words will appear here">NEEDS WORK <small data-needs-work-count>0</small></button>
             <span class="deck-group-label">REAL KANA · FREQUENCY · LEVEL 1 SERIES</span>
-            <button class="deck-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>150</small></button>
+            <button class="deck-option deck-all-option active" type="button" data-deck-choice="all" aria-pressed="true">L1 ALL <small>150</small></button>
             <button class="deck-option" type="button" data-deck-choice="1-10" aria-pressed="false">1—10</button>
             <button class="deck-option" type="button" data-deck-choice="11-20" aria-pressed="false">11—20</button>
             <button class="deck-option" type="button" data-deck-choice="21-30" aria-pressed="false">21—30</button>
@@ -107,39 +132,6 @@
           </div>
         </div>
 
-        <section class="starred-study" aria-labelledby="starredStudyTitle">
-          <div class="starred-study-copy">
-            <span id="starredStudyTitle">★ YOUR STARRED WORDS</span>
-            <strong id="starredStudyCount">0 WORDS SAVED</strong>
-          </div>
-          <button class="starred-study-button" id="studyStarredButton" type="button" disabled title="Star words during a run to study them here">
-            STUDY STARRED <span>→</span>
-          </button>
-        </section>
-
-        <div class="start-row">
-          <div class="start-actions">
-            <button class="primary-button" id="startButton" type="button">
-              <span>START THE RUN</span>
-              <span class="arrow">↗</span>
-            </button>
-            <button class="study-button" id="studyButton" type="button">STUDY SELECTION <span>→</span></button>
-            <button class="study-button dungeon-button" id="dungeonButton" type="button">ENTER DUNGEON <span>⚔</span></button>
-            <div class="guide-export-group">
-              <button class="study-button export-guide-button" id="exportGuideButton" type="button">EXPORT PDF <span>↓</span></button>
-              <button class="study-guide-view-button" id="studyGuideViewButton" type="button" aria-label="Open selected decks in the all-cards study view" title="Open all-cards study view in a new tab"><span aria-hidden="true">↗</span></button>
-            </div>
-          </div>
-          <div class="best-score">
-            <span>SELECTED</span>
-            <strong id="selectedDeckSummary">L1 ALL 150</strong>
-          </div>
-        </div>
-
-        <div class="intro-footer">
-          <span id="introSetLabel">FREQUENCY · LEVEL 1 · ALL 150</span>
-          <span>TYPE HIRAGANA OR ROMAJI</span>
-        </div>
       </section>
 
       <section class="screen game" id="gameScreen" aria-label="Kanji quiz">
@@ -345,6 +337,6 @@
     <script src="vendor/ink-run-japanese-font.js?v=1" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=level-2-complete"></script>
+    <script type="module" src="app.js?v=home-command-center-1"></script>
   </body>
 </html>

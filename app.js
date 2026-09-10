@@ -41,7 +41,7 @@ const screens = [...document.querySelectorAll(".screen")];
 const elements = {
   intro: $("#introScreen"), game: $("#gameScreen"), result: $("#resultScreen"),
   home: $("#homeLink"),
-  start: $("#startButton"), study: $("#studyButton"), dungeon: $("#dungeonButton"), dialogDungeon: $("#dialogDungeonButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), studyStarred: $("#studyStarredButton"), replay: $("#replayButton"), review: $("#reviewButton"),
+  start: $("#startButton"), study: $("#studyButton"), dungeon: $("#dungeonButton"), dialogDungeon: $("#dialogDungeonButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
@@ -49,7 +49,7 @@ const elements = {
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
   favorite: $("#favoriteButton"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
-  selectedDeckSummary: $("#selectedDeckSummary"), starredStudyCount: $("#starredStudyCount"),
+  selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
@@ -307,10 +307,6 @@ function updateFavoriteControls() {
       ? selected ? "Remove empty Favorites deck from selection" : "Star words to build this deck"
       : `Study ${count} favorite ${count === 1 ? "word" : "words"}`;
   });
-  elements.studyStarred.disabled = count === 0;
-  elements.studyStarred.title = count === 0 ? "Star words during a run to study them here" : `Study ${count} starred ${count === 1 ? "word" : "words"}`;
-  elements.studyStarred.setAttribute("aria-label", elements.studyStarred.title);
-  elements.starredStudyCount.textContent = `${count} ${count === 1 ? "WORD" : "WORDS"} SAVED`;
   updateFavoriteButton(elements.favorite, state.current);
 }
 
@@ -428,12 +424,6 @@ function toggleFavorite(item) {
   renderDeckSelection();
   if (selectionChanged) writeSelectionRoute();
   updateFavoriteButton(elements.favorite, state.current);
-}
-
-function startStarredStudy() {
-  if (state.favoriteWords.size === 0) return;
-  setDeckSelection(["favorites"]);
-  startStudyDeck();
 }
 
 function selectedStudyGuideOptions() {
@@ -946,6 +936,7 @@ function appendGeneratedDeckButtons() {
         button.dataset.deckChoice = key;
         button.setAttribute("aria-pressed", "false");
         button.textContent = DECKS[key].label;
+        if (key === "all" || key.endsWith("-all")) button.classList.add("deck-all-option");
         parent.append(button);
       };
       keys.forEach((key) => appendDeckButton(container, key));
@@ -965,7 +956,6 @@ elements.exportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.dialogExportGuide.addEventListener("click", exportSelectedStudyGuide);
 elements.studyGuideView.addEventListener("click", openSelectedStudyGuideView);
 elements.dialogStudyGuideView.addEventListener("click", openSelectedStudyGuideView);
-elements.studyStarred.addEventListener("click", startStarredStudy);
 elements.replay.addEventListener("click", () => {
   const replayDeck = [...state.deck];
   const replayLabel = state.studyLabel;

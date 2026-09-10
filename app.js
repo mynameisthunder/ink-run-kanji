@@ -883,6 +883,8 @@ function openDeckDialog(focusSearch = false) {
 
 function appendGeneratedDeckButtons() {
   document.querySelectorAll(".deck-options, .dialog-deck-options").forEach((container) => {
+    const isHomeLibrary = container.classList.contains("deck-options");
+    let currentGroup = isHomeLibrary ? container.querySelector(".deck-library-group") : container;
     const n5Keys = ["n5-all", ...Array.from({ length: Math.ceil(REAL_KANA_N5_WORDS.length / 10) }, (_, index) => {
       const start = index * 10 + 1;
       return `n5-${start}-${Math.min(start + 9, REAL_KANA_N5_WORDS.length)}`;
@@ -918,6 +920,12 @@ function appendGeneratedDeckButtons() {
         guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {
+      if (isHomeLibrary && label) {
+        currentGroup = document.createElement("section");
+        currentGroup.className = "deck-library-group";
+        container.append(currentGroup);
+      }
+
       if (label) {
         const groupLabel = document.createElement("span");
         groupLabel.className = "deck-group-label";
@@ -926,7 +934,7 @@ function appendGeneratedDeckButtons() {
         } else {
           groupLabel.textContent = label;
         }
-        container.append(groupLabel);
+        currentGroup.append(groupLabel);
       }
 
       const appendDeckButton = (parent, key) => {
@@ -939,7 +947,7 @@ function appendGeneratedDeckButtons() {
         if (key === "all" || key.endsWith("-all")) button.classList.add("deck-all-option");
         parent.append(button);
       };
-      keys.forEach((key) => appendDeckButton(container, key));
+      keys.forEach((key) => appendDeckButton(currentGroup, key));
     });
   });
 }

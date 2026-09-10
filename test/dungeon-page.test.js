@@ -13,3 +13,13 @@ test("dungeon hints expose dictionary and kana lookup icons", () => {
   assert.match(script, /jisho\.org\/search\/\$\{encodedWord\}/);
   assert.match(script, /romajidesu\.com\/kanji\/\$\{encodedWord\}/);
 });
+
+test("a defeated enemy briefly reveals its complete study card", () => {
+  assert.match(html, /id="victoryRecap"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.match(html, /id="victoryRecapReading"/);
+  assert.match(html, /id="victoryRecapMeaning"/);
+  assert.match(html, /id="victoryRecapBreakdown"/);
+  assert.match(html, /id="victoryRecapMemory"/);
+  assert.match(script, /showVictoryRecap\(enemy, result\.state\)/);
+  assert.match(script, /victoryRecap:\s+2400/);
+});

@@ -91,6 +91,27 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hint-part b { margin-right: 7px; font-size: 18px; }
 .hint-part em { color: var(--blue); font-style: normal; }
 
+.victory-recap { position: absolute; z-index: 10; inset: 0; padding: clamp(18px, 4vw, 48px); display: grid; place-items: center; background: rgba(23, 23, 20, .84); backdrop-filter: blur(8px); }
+.victory-recap[hidden] { display: none; }
+.victory-recap-card { position: relative; width: min(720px, 100%); max-height: 100%; padding: clamp(22px, 4vw, 42px); overflow: auto; border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 10px 10px 0 var(--blue); animation: recap-enter 240ms cubic-bezier(.2,.8,.2,1) both; }
+.victory-recap-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--red); font: 800 9px var(--mono); letter-spacing: .13em; }
+.victory-recap-header button { padding: 7px 0; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: var(--ink); font: 800 9px var(--mono); letter-spacing: .08em; cursor: pointer; }
+.victory-recap-header button:hover, .victory-recap-header button:focus-visible { color: var(--blue); outline: none; }
+.victory-recap-header button b { margin-left: 8px; font-size: 14px; }
+.victory-recap-main { margin-top: 22px; display: grid; grid-template-columns: minmax(150px, .65fr) minmax(0, 1.35fr); align-items: end; gap: clamp(22px, 5vw, 54px); }
+.victory-recap-main h2 { margin: 0; font: 850 clamp(54px, 8vw, 92px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }
+.victory-recap-reading { margin: 12px 0 0; color: var(--blue); font: 800 clamp(18px, 2.8vw, 27px)/1.1 var(--sans); }
+.victory-recap-meaning { margin: 0; font-size: clamp(17px, 2vw, 23px); font-weight: 700; line-height: 1.3; }
+.victory-recap-breakdown { margin-top: 25px; padding-top: 17px; border-top: 1px solid rgba(23,23,20,.18); }
+.victory-recap-breakdown > span { color: var(--red); font: 800 8px var(--mono); letter-spacing: .13em; }
+#victoryRecapBreakdown { margin-top: 11px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+.victory-recap-part { min-width: 0; font-size: 13px; line-height: 1.35; }
+.victory-recap-part b { margin-right: 7px; font-size: 19px; }
+.victory-recap-part em { margin-right: 4px; color: var(--blue); font-style: normal; }
+.victory-recap-memory { margin: 19px 0 0; padding: 12px 14px; border-left: 3px solid var(--yellow); background: rgba(242,201,76,.14); font-size: 13px; line-height: 1.45; }
+.victory-recap-timer { height: 3px; margin-top: 22px; overflow: hidden; background: rgba(23,23,20,.1); }
+.victory-recap-timer span { display: block; width: 100%; height: 100%; background: var(--red); transform-origin: left; animation: recap-timer var(--recap-duration) linear both; }
+
 .run-ledger { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .ledger-block { min-height: 132px; padding: 22px 24px 26px; }
 .ledger-block + .ledger-block { border-left: 1px solid var(--line); }
@@ -122,7 +143,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
  *    0ms  correct reading: enemy pulses toward player
  *    0ms  wrong answer: battle shakes and player bar drops
  *    0ms  finisher: enemy flashes red and contracts
- *  220ms  next enemy enters; input is focused
+ *  220ms  a fled enemy enters; input is focused
+ * 2400ms  defeated-word recap completes; next enemy enters
  */
 .enemy-stage.is-hit h1 { animation: enemy-hit 180ms ease-out; }
 .battle.is-hurt { animation: player-hurt 220ms ease-out; }
@@ -132,6 +154,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @keyframes player-hurt { 25% { transform: translateX(-7px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
 @keyframes enemy-defeated { to { transform: scale(.68); opacity: 0; color: var(--red); filter: blur(2px); } }
 @keyframes enemy-enter { from { transform: scale(.72); opacity: 0; } }
+@keyframes recap-enter { from { opacity: 0; transform: translateY(var(--recap-initial-y)) scale(var(--recap-initial-scale)); } to { opacity: 1; transform: translateY(0) scale(var(--recap-final-scale)); } }
+@keyframes recap-timer { to { transform: scaleX(0); } }
 
 @media (max-width: 820px) {
   .dungeon-topbar { grid-template-columns: 1fr auto; }
@@ -146,6 +170,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .end-kanji { font-size: 180px; }
   .end-stats { justify-content: center; }
   .end-actions { margin: 0 auto; }
+  .victory-recap { padding: 18px; }
 }
 
 @media (max-width: 520px) {
@@ -162,6 +187,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .enemy-stage h1 { font-size: clamp(68px, 25vw, 112px); }
   .enemy-stage h1.long { font-size: clamp(52px, 18vw, 78px); }
   .combat-actions { grid-template-columns: 1fr; }
+  .victory-recap { position: fixed; padding: 12px; }
+  .victory-recap-card { padding: 22px 18px; box-shadow: 6px 6px 0 var(--blue); }
+  .victory-recap-main { grid-template-columns: 1fr; align-items: start; gap: 16px; }
+  .victory-recap-main h2 { font-size: clamp(48px, 17vw, 74px); }
+  #victoryRecapBreakdown { grid-template-columns: 1fr; }
   .end-state { padding: 34px 22px; box-shadow: 7px 7px 0 var(--blue); }
   .end-actions { grid-template-columns: 1fr; }
 }

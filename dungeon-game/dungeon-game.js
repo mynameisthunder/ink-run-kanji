@@ -13,15 +13,26 @@ import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyRevie
 import { createStorage } from "../src/storage.js";
 import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level-2-100";
 
-/* ANIMATION STORYBOARD
+/* ─────────────────────────────────────────────────────────
+ * ANIMATION STORYBOARD
  *
  *    0ms  hit / hurt / defeat feedback begins
- *  220ms  a defeated or fled enemy is replaced
- *  250ms  the answer input regains focus
- */
+ *    0ms  defeated word recap fades and scales into view
+ *  220ms  a fled enemy is replaced
+ * 2400ms  recap closes and the next enemy (or victory) appears
+ * 2430ms  the answer input regains focus
+ * ───────────────────────────────────────────────────────── */
 const TIMING = {
-  nextEnemy: 220,
-  refocus: 250,
+  quickTransition: 220,  // replaces a fled enemy
+  victoryRecap:   2400,  // keeps the defeated card readable
+  refocusDelay:     30,  // focuses after the next enemy renders
+};
+
+/* Recap card motion values */
+const RECAP = {
+  initialScale: 0.94,
+  finalScale: 1,
+  initialOffsetY: 14,
 };
 
 const STARTER_WORDS = ["経済", "権利", "情報", "存在", "文章", "結果", "原因"];
@@ -54,6 +65,13 @@ const elements = {
   hintBreakdown: $("#hintBreakdown"),
   hintJisho: $("#hintJishoLink"),
   hintKana: $("#hintKanaLink"),
+  victoryRecap: $("#victoryRecap"),
+  victoryRecapTitle: $("#victoryRecapTitle"),
+  victoryRecapReading: $("#victoryRecapReading"),
+  victoryRecapMeaning: $("#victoryRecapMeaning"),
+  victoryRecapBreakdown: $("#victoryRecapBreakdown"),
+  victoryRecapMemory: $("#victoryRecapMemory"),
+  victoryRecapContinue: $("#victoryRecapContinue"),
   defeatedCount: $("#defeatedCount"),
   defeatedList: $("#defeatedList"),
   missCount: $("#missCount"),
@@ -80,6 +98,9 @@ let dungeonItems = [];
 let selectedDeckKeys = [];
 let locked = false;
 let soundEnabled = true;
+let recapStage = 0;
+let recapTimer = 0;
+let recapNextState = null;
 
 const { playTone } = createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled: () => soundEnabled });
 
@@ -174,23 +195,46 @@ function setFeedback(message, tone = "") {
   elements.feedback.dataset.tone = tone;
 }
 
-function renderBreakdown(item) {
-  elements.hintBreakdown.replaceChildren();
-  const encodedWord = encodeURIComponent(item?.word ?? "");
-  elements.hintJisho.href = `https://jisho.org/search/${encodedWord}`;
-  elements.hintKana.href = `https://www.romajidesu.com/kanji/${encodedWord}`;
-  elements.hintJisho.setAttribute("aria-label", `Look up ${item.word} on Jisho`);
-  elements.hintKana.setAttribute("aria-label", `Look up ${item.word} kana and reading on RomajiDesu`);
+function renderBreakdownParts(item, target, className = "hint-part") {
+  target.replaceChildren();
   (item?.breakdown ?? []).forEach(([character, reading, meaning]) => {
     const line = document.createElement("div");
-    line.className = "hint-part";
+    line.className = className;
     const kanji = document.createElement("b");
     kanji.textContent = character;
     const kana = document.createElement("em");
     kana.textContent = `(${reading})`;
     line.append(kanji, kana, document.createTextNode(meaning ? ` - ${meaning}` : ""));
-    elements.hintBreakdown.append(line);
+    target.append(line);
   });
+}
+
+function renderBreakdown(item) {
+  const encodedWord = encodeURIComponent(item?.word ?? "");
+  elements.hintJisho.href = `https://jisho.org/search/${encodedWord}`;
+  elements.hintKana.href = `https://www.romajidesu.com/kanji/${encodedWord}`;
+  elements.hintJisho.setAttribute("aria-label", `Look up ${item.word} on Jisho`);
+  elements.hintKana.setAttribute("aria-label", `Look up ${item.word} kana and reading on RomajiDesu`);
+  renderBreakdownParts(item, elements.hintBreakdown);
+}
+
+function setRecapStage(stage) {
+  recapStage = stage;
+  elements.victoryRecap.hidden = stage === 0;
+  elements.victoryRecap.dataset.stage = String(stage);
+}
+
+function renderVictoryRecap(item) {
+  elements.victoryRecapTitle.textContent = item.word;
+  elements.victoryRecapReading.textContent = readingAnswer(item);
+  elements.victoryRecapMeaning.textContent = item.meaning;
+  elements.victoryRecapMemory.textContent = item.memory ?? "";
+  elements.victoryRecapMemory.hidden = !item.memory;
+  renderBreakdownParts(item, elements.victoryRecapBreakdown, "victory-recap-part");
+  elements.victoryRecap.style.setProperty("--recap-initial-scale", String(RECAP.initialScale));
+  elements.victoryRecap.style.setProperty("--recap-final-scale", String(RECAP.finalScale));
+  elements.victoryRecap.style.setProperty("--recap-initial-y", `${RECAP.initialOffsetY}px`);
+  elements.victoryRecap.style.setProperty("--recap-duration", `${TIMING.victoryRecap}ms`);
 }
 
 function renderWordList(container, items, emptyText, withCounts = false) {
@@ -259,7 +303,7 @@ function renderEnemy({ preserveFeedback = false } = {}) {
   renderHealth();
   renderLedger();
   if (!preserveFeedback) setFeedback(dungeon.phase === "reading" ? "Type the reading to strike." : "Finish it with one accepted meaning.");
-  window.setTimeout(() => elements.input.focus(), TIMING.refocus - TIMING.nextEnemy);
+  window.setTimeout(() => elements.input.focus(), TIMING.refocusDelay);
 }
 
 function renderEnd() {
@@ -302,7 +346,7 @@ function animate(className, target = elements.enemyStage) {
   target.classList.remove(className);
   void target.offsetWidth;
   target.classList.add(className);
-  window.setTimeout(() => target.classList.remove(className), TIMING.nextEnemy);
+  window.setTimeout(() => target.classList.remove(className), TIMING.quickTransition);
 }
 
 function readingAnswer(item) {
@@ -320,7 +364,34 @@ function transitionTo(nextState, message, tone, animationClass, target = element
     locked = false;
     render();
     if (dungeon.status === "playing") animate("is-entering");
-  }, TIMING.nextEnemy);
+  }, TIMING.quickTransition);
+}
+
+function finishVictoryRecap() {
+  if (recapStage === 0 || !recapNextState) return;
+  window.clearTimeout(recapTimer);
+  const nextState = recapNextState;
+  recapNextState = null;
+  setRecapStage(0);
+  dungeon = nextState;
+  locked = false;
+  render();
+  if (dungeon.status === "playing") animate("is-entering");
+}
+
+function showVictoryRecap(item, nextState) {
+  locked = true;
+  recapNextState = nextState;
+  elements.input.disabled = true;
+  elements.attack.disabled = true;
+  elements.hint.disabled = true;
+  elements.flee.disabled = true;
+  setFeedback(`Enemy defeated. ${item.word} = ${acceptedMeanings(item)[0]}.`, "hit");
+  animate("is-defeated");
+  renderVictoryRecap(item);
+  setRecapStage(1);
+  elements.victoryRecapContinue.focus();
+  recapTimer = window.setTimeout(finishVictoryRecap, TIMING.victoryRecap);
 }
 
 function submitAttack(event) {
@@ -360,7 +431,7 @@ function submitAttack(event) {
   if (["enemy-defeated", "victory"].includes(result.event.kind)) {
     recordProgress(enemy, true);
     playTone("complete");
-    transitionTo(result.state, `Enemy defeated. ${enemy.word} = ${acceptedMeanings(enemy)[0]}.`, "hit", "is-defeated");
+    showVictoryRecap(enemy, result.state);
   }
 }
 
@@ -391,6 +462,9 @@ function flee() {
 }
 
 function restart() {
+  window.clearTimeout(recapTimer);
+  recapNextState = null;
+  setRecapStage(0);
   dungeon = restartDungeon(dungeon);
   locked = false;
   elements.shell.classList.remove("is-ended");
@@ -424,6 +498,7 @@ elements.input.addEventListener("input", convertReadingInput);
 elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
 elements.restart.addEventListener("click", restart);
+elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);
 elements.sound.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
   elements.sound.textContent = soundEnabled ? "音 ON" : "音 OFF";

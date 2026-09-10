@@ -920,9 +920,9 @@ function appendGeneratedDeckButtons() {
         guideUrl: "https://strommeninc.com/the-ultimate-guide-to-japanese-counters-from-hitotsu-to-ippon-bottles-people-and-everything-in-between-japanese-lesson-3/",
       },
       {
-        label: "ESSENTIALS · DAYS OF THE WEEK",
-        keys: ["days-of-week"],
-        className: "weekday-deck-option",
+        label: "ESSENTIALS · FOCUSED PRACTICE",
+        keys: ["days-of-week", "look-alikes"],
+        className: "essentials-deck-option",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {
       if (isHomeLibrary && label) {

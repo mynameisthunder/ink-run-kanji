@@ -913,6 +913,54 @@ const DAY_OF_WEEK_WORDS = [
   "土曜日",
   "日曜日",
 ];
+const LOOK_ALIKE_GROUPS = [
+  ["意味", "意見", "意識"],
+  ["問題", "課題", "宿題", "話題"],
+  ["経済", "経営", "経験"],
+  ["原因", "理由"],
+  ["結果", "効果"],
+  ["可能", "機能"],
+  ["政府", "政治"],
+  ["現在", "存在"],
+  ["活動", "活用", "利用", "使用"],
+  ["規定", "規模"],
+  ["情報", "状況"],
+  ["制度", "態度"],
+  ["生産", "生活"],
+  ["必要", "重要"],
+  ["実際", "国際"],
+  ["文字", "文章", "漢字", "数字"],
+  ["時代", "時期", "時間"],
+  ["関係", "関心"],
+  ["説明", "証明"],
+  ["最初", "最近", "最後"],
+  ["世界", "限界"],
+  ["保険", "危険"],
+  ["戦争", "競争"],
+  ["日", "目"],
+  ["人", "入る", "入れる"],
+  ["土", "同士"],
+  ["木", "本"],
+  ["大", "太い"],
+  ["牛肉", "午前"],
+  ["白", "三百"],
+  ["右", "石"],
+  ["持つ", "待つ", "特に"],
+  ["間", "聞く", "問題"],
+  ["買う", "売る"],
+  ["旅行", "家族"],
+  ["練習", "線"],
+  ["検査", "経験"],
+  ["見る", "見える"],
+  ["上げる", "上がる"],
+  ["始まる", "始める"],
+  ["閉まる", "閉める"],
+  ["付く", "付ける"],
+  ["返る", "帰る", "変える"],
+  ["開く", "開ける"],
+  ["切る", "着る", "着く"],
+];
+const LOOK_ALIKE_WORDS = [...new Set(LOOK_ALIKE_GROUPS.flat())];
 const FREQUENCY_1_WORDS = [
   ...FREQUENCY_1_START_WORDS,
   ...KANJI.slice(0, 110).map((item) => item.word),
@@ -957,6 +1005,10 @@ DAY_OF_WEEK_WORDS.forEach((word) => {
   const item = KANJI_BY_WORD.get(word);
   if (item) item.weekdaySourceLabel = "ESSENTIALS · DAYS OF THE WEEK";
 });
+LOOK_ALIKE_WORDS.forEach((word) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (item) item.lookAlikeSourceLabel = "ESSENTIALS · LOOK-ALIKE WORDS";
+});
 JLPT_SAMPLE_GROUPS.forEach((group) => {
   group.words.forEach((word, index) => {
     const item = KANJI_BY_WORD.get(word);
@@ -985,7 +1037,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1083,6 +1135,12 @@ DECKS["days-of-week"] = {
   words: DAY_OF_WEEK_WORDS,
 };
 
+DECKS["look-alikes"] = {
+  label: `LOOK-ALIKES ${LOOK_ALIKE_WORDS.length}`,
+  setLabel: "ESSENTIALS · LOOK-ALIKE WORDS",
+  words: LOOK_ALIKE_WORDS,
+};
+
 
 export {
   BUNDLED_AUDIO_ITEMS,
@@ -1096,6 +1154,8 @@ export {
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
   LEVEL_2_WORDS,
+  LOOK_ALIKE_GROUPS,
+  LOOK_ALIKE_WORDS,
   NUMBER_GROUPS,
   REAL_KANA_N5_WORDS,
   itemKey,

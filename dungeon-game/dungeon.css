@@ -101,7 +101,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .victory-recap-card { position: relative; width: min(650px, 100%); max-height: 100%; padding: clamp(20px, 3vw, 32px); overflow-y: auto; border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 7px 7px 0 var(--blue); animation: recap-enter 160ms cubic-bezier(.2,.8,.2,1) both; }
 .victory-recap-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--red); font: 800 9px var(--mono); letter-spacing: .13em; }
 .victory-recap-main { margin-top: 15px; display: flex; align-items: end; flex-flow: row wrap; gap: clamp(18px, 4vw, 42px); }
-.victory-recap-main h2 { margin: 0; font: 850 clamp(48px, 7vw, 76px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }
+.victory-recap-main h2 { margin: 0; font: 600 clamp(48px, 7vw, 76px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }
 .victory-recap-reading { margin: 8px 0 0; color: var(--blue); font: 800 clamp(17px, 2.4vw, 23px)/1.1 var(--sans); }
 .victory-recap-meaning { margin: 0; font-size: clamp(15px, 1.7vw, 19px); font-weight: 700; line-height: 1.25; }
 .victory-recap-breakdown { margin-top: 17px; padding-top: 12px; border-top: 1px solid rgba(23,23,20,.18); }

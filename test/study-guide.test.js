@@ -65,6 +65,8 @@ test("screen study guide shows every card without print controls", () => {
   assert.equal((html.match(/class="card-lookup kana-lookup"/g) ?? []).length, items.length);
   assert.match(html, /https:\/\/jisho\.org\/search\//);
   assert.match(html, /https:\/\/www\.romajidesu\.com\/kanji\//);
+  assert.match(html, /window\.location\.reload\(\)/);
+  assert.doesNotMatch(html, /window\.close\(\)/);
   assert.doesNotMatch(html, /SAVE \/ PRINT PDF/);
 });
 

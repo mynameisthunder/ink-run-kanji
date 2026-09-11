@@ -444,8 +444,7 @@ function selectedStudyGuideOptions() {
 function openSelectedStudyGuideView() {
   const options = selectedStudyGuideOptions();
   if (!options) return;
-  const opened = openStudyGuideView(options);
-  if (!opened) window.alert("Allow pop-ups for Ink Run, then try opening the all-cards study view again.");
+  openStudyGuideView(options);
 }
 
 function enterSelectedDungeon() {

@@ -420,7 +420,7 @@ export function createStudyGuideHtml({
 <body class="${screenView ? "study-view" : "print-view"}">
   ${screenView ? `<nav class="print-toolbar" aria-label="Study view controls">
     <div class="toolbar-title"><b>INK RUN</b><span>ALL-CARDS STUDY VIEW · ${items.length} ${items.length === 1 ? "WORD" : "WORDS"}</span></div>
-    <button type="button" onclick="window.close()">CLOSE</button>
+    <button type="button" onclick="window.location.reload()">CLOSE</button>
   </nav>` : `<nav class="print-toolbar" aria-label="PDF controls">
     <button type="button" onclick="window.print()">SAVE / PRINT PDF</button>
     <button type="button" onclick="window.close()">CLOSE</button>
@@ -449,11 +449,9 @@ export function openStudyGuidePrint(options) {
 }
 
 export function openStudyGuideView(options) {
-  const studyWindow = window.open("", "_blank");
-  if (!studyWindow) return false;
-  studyWindow.document.open();
-  studyWindow.document.write(createStudyGuideHtml({ ...options, viewMode: "screen" }));
-  studyWindow.document.close();
+  window.document.open();
+  window.document.write(createStudyGuideHtml({ ...options, viewMode: "screen" }));
+  window.document.close();
   return true;
 }
 

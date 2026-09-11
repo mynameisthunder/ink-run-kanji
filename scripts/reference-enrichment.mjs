@@ -218,7 +218,7 @@ export async function enrichReferenceGroups(groups) {
       ...page,
       cards: page.cards.map((card) => {
         const dictionaryMeanings = definitionsFor(card, dictionaryIndex);
-        const fallback = existingCards.get(card.word)?.meaning;
+        const fallback = card.meaning ?? existingCards.get(card.word)?.meaning;
         const meaning = dictionaryMeanings.join("; ") || fallback || "";
         if (!meaning) missingDefinitions.add(`${card.word} (${card.readings.join(" / ")})`);
         const breakdown = buildBreakdown(card, meaning, kanjiMeanings);

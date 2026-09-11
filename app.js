@@ -10,6 +10,7 @@ import {
   LOOK_ALIKE_DECKS,
   NUMBER_GROUPS,
   REAL_KANA_N5_WORDS,
+  SONG_LYRIC_GROUPS,
   itemKey,
   sourceDeckLabel,
 } from "./src/vocabulary.js?v=level-2-complete";
@@ -922,8 +923,13 @@ function appendGeneratedDeckButtons() {
       },
       {
         label: "ESSENTIALS · FOCUSED PRACTICE",
-        keys: ["days-of-week", "found-in-wild", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
+        keys: ["days-of-week", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
         className: "essentials-deck-option",
+      },
+      {
+        label: "FOUND IN THE WILD · SONGS + OTHER",
+        keys: ["found-in-wild", ...SONG_LYRIC_GROUPS.map(({ key }) => key)],
+        className: "found-deck-option",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {
       if (isHomeLibrary && label) {

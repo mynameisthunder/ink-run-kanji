@@ -1,11 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, itemKey } from "../src/vocabulary.js";
+import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 1493);
+  assert.equal(KANJI.length, 1540);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
+});
+
+test("unknown song vocabulary is split into complete lyric-order decks", () => {
+  const songWords = SONG_LYRIC_GROUPS.flatMap(({ words }) => words);
+  assert.equal(SONG_LYRIC_GROUPS.length, 7);
+  assert.equal(songWords.length, 67);
+  assert.equal(new Set(songWords).size, songWords.length);
+  assert.ok(SONG_LYRIC_GROUPS.every(({ words }) => words.length >= 7 && words.length <= 10));
+  assert.ok(songWords.every((word) => KANJI_BY_WORD.has(word)));
+  assert.ok(songWords.every((word) => !KANJI_BY_WORD.get(word).meaning.startsWith("Japanese word read")));
+  assert.equal(KANJI_BY_WORD.get("song:側").reading, "そば");
+  assert.deepEqual(KANJI_BY_WORD.get("地球").kana, ["ほし", "ちきゅう"]);
+  assert.match(KANJI_BY_WORD.get("地球").memory, /song.*ほし.*ちきゅう/i);
+  assert.equal(BUNDLED_AUDIO_ITEMS.has(KANJI_BY_WORD.get("見下ろす")), false);
 });
 
 test("words found in the wild become complete browser-voiced study cards", () => {

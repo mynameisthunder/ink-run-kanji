@@ -5,6 +5,7 @@ import { JLPT_SAMPLE_GROUPS, JLPT_SAMPLE_IMPORTS } from "../jlpt-sample-data.js"
 import { LEVEL_2_IMPORTS, LEVEL_2_WORDS } from "../level2-data.js";
 import { N5_IMPORTS as REAL_KANA_N5_IMPORTS, N5_WORDS as REAL_KANA_N5_WORDS } from "../n5-data.js";
 import { NUMBER_GROUPS, NUMBER_IMPORTS, NUMBER_WORDS } from "../numbers-data.js";
+import { SONG_LYRIC_GROUPS, SONG_LYRIC_IMPORTS } from "../song-lyrics-data.js";
 
 const KANJI = [
   {
@@ -883,10 +884,11 @@ const FOUND_IN_WILD_WORDS = FOUND_IN_WILD_IMPORTS.map(({ word }) => word);
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 function addImportedItems(items) {
   items.forEach((item) => {
-    const existing = importedItems.get(item.word);
+    const key = item.studyKey ?? item.word;
+    const existing = importedItems.get(key);
     if (existing) return;
     KANJI.push(item);
-    importedItems.set(item.word, item);
+    importedItems.set(key, item);
   });
 }
 
@@ -897,6 +899,7 @@ addImportedItems(FREQUENCY_3_4_IMPORTS);
 addImportedItems(LEVEL_2_IMPORTS);
 addImportedItems(JLPT_SAMPLE_IMPORTS);
 addImportedItems(FOUND_IN_WILD_IMPORTS);
+addImportedItems(SONG_LYRIC_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -1050,6 +1053,12 @@ LOOK_ALIKE_WORDS.forEach((word) => {
   const item = KANJI_BY_WORD.get(word);
   if (item) item.lookAlikeSourceLabel = "ESSENTIALS · LOOK-ALIKE WORDS";
 });
+SONG_LYRIC_GROUPS.forEach((group) => {
+  group.words.forEach((word) => {
+    const item = KANJI_BY_WORD.get(word);
+    if (item) item.songSourceLabel = `HEARTS GROW · そら · ${group.label}`;
+  });
+});
 JLPT_SAMPLE_GROUPS.forEach((group) => {
   group.words.forEach((word, index) => {
     const item = KANJI_BY_WORD.get(word);
@@ -1078,7 +1087,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1177,10 +1186,18 @@ DECKS["days-of-week"] = {
 };
 
 DECKS["found-in-wild"] = {
-  label: `FOUND IN WILD ${FOUND_IN_WILD_WORDS.length}`,
-  setLabel: "ESSENTIALS · FOUND IN THE WILD",
+  label: `MISC ${FOUND_IN_WILD_WORDS.length}`,
+  setLabel: "FOUND IN THE WILD · MISC",
   words: FOUND_IN_WILD_WORDS,
 };
+
+SONG_LYRIC_GROUPS.forEach((group) => {
+  DECKS[group.key] = {
+    label: `${group.label} ${group.words.length}`,
+    setLabel: `FOUND IN THE WILD · HEARTS GROW · そら · ${group.label}`,
+    words: group.words,
+  };
+});
 
 LOOK_ALIKE_DECKS.forEach(({ key, label, words }) => {
   DECKS[key] = {
@@ -1209,6 +1226,7 @@ export {
   LOOK_ALIKE_WORDS,
   NUMBER_GROUPS,
   REAL_KANA_N5_WORDS,
+  SONG_LYRIC_GROUPS,
   itemKey,
   sourceDeckLabel,
 };

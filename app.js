@@ -922,7 +922,7 @@ function appendGeneratedDeckButtons() {
       },
       {
         label: "ESSENTIALS · FOCUSED PRACTICE",
-        keys: ["days-of-week", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
+        keys: ["days-of-week", "found-in-wild", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
         className: "essentials-deck-option",
       },
     ].forEach(({ label, keys, className, guideUrl }) => {

@@ -1,11 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { DAY_OF_WEEK_WORDS, DECKS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, itemKey } from "../src/vocabulary.js";
+import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 1492);
+  assert.equal(KANJI.length, 1493);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
+});
+
+test("words found in the wild become complete browser-voiced study cards", () => {
+  const item = KANJI_BY_WORD.get("私事");
+  assert.deepEqual(FOUND_IN_WILD_WORDS, ["私事"]);
+  assert.deepEqual(DECKS["found-in-wild"].words, ["私事"]);
+  assert.equal(item.reading, "わたくしごと");
+  assert.ok(item.meanings.includes("private matter"));
+  assert.equal(item.breakdown[1][1], "ごと");
+  assert.equal(BUNDLED_AUDIO_ITEMS.has(item), false);
 });
 
 test("counter overview teaches bare suffixes", () => {

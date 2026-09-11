@@ -863,6 +863,23 @@ const KANJI = [
 // including generated number/counter cards, use the browser's Japanese voice.
 const BUNDLED_AUDIO_ITEMS = new Set(KANJI);
 
+const FOUND_IN_WILD_IMPORTS = [
+  {
+    word: "私事",
+    reading: "わたくしごと",
+    romaji: ["watakushigoto"],
+    meaning: "personal matter; private affair; personal business",
+    meanings: ["personal matter", "private matter", "personal affairs", "private affairs", "personal business"],
+    breakdown: [
+      ["私", "わたくし", "I; me; private"],
+      ["事", "ごと", "matter; affair; voiced from こと in this compound"],
+    ],
+    memory: "Read 私 as わたくし + 事 as ごと: わたくしごと. You will often hear 私事で恐縮ですが—‘Sorry to bring up a personal matter, but…’",
+    foundSourceLabel: "FOUND IN THE WILD",
+  },
+];
+const FOUND_IN_WILD_WORDS = FOUND_IN_WILD_IMPORTS.map(({ word }) => word);
+
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 function addImportedItems(items) {
   items.forEach((item) => {
@@ -879,6 +896,7 @@ addImportedItems(FREQUENCY_2_IMPORTS);
 addImportedItems(FREQUENCY_3_4_IMPORTS);
 addImportedItems(LEVEL_2_IMPORTS);
 addImportedItems(JLPT_SAMPLE_IMPORTS);
+addImportedItems(FOUND_IN_WILD_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -1060,7 +1078,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1158,6 +1176,12 @@ DECKS["days-of-week"] = {
   words: DAY_OF_WEEK_WORDS,
 };
 
+DECKS["found-in-wild"] = {
+  label: `FOUND IN WILD ${FOUND_IN_WILD_WORDS.length}`,
+  setLabel: "ESSENTIALS · FOUND IN THE WILD",
+  words: FOUND_IN_WILD_WORDS,
+};
+
 LOOK_ALIKE_DECKS.forEach(({ key, label, words }) => {
   DECKS[key] = {
     label,
@@ -1171,6 +1195,7 @@ export {
   BUNDLED_AUDIO_ITEMS,
   DAY_OF_WEEK_WORDS,
   DECKS,
+  FOUND_IN_WILD_WORDS,
   FREQUENCY_1_WORDS,
   FREQUENCY_2_WORDS,
   FREQUENCY_3_WORDS,

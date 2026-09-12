@@ -398,7 +398,7 @@ main { min-height: calc(100vh - 82px); }
 }
 
 .prompt-zone { position: relative; text-align: center; }
-.question-count { display: block; margin-bottom: 6px; font: 600 11px var(--mono); }
+.question-count { display: block; position: relative; margin-bottom: 6px; font: 600 11px var(--mono); z-index: 2; }
 .kanji-wrap { position: relative; display: inline-grid; place-items: center; min-width: min(38vw, 420px); min-height: min(38vw, 420px); }
 
 .kanji-wrap h2 {
@@ -877,6 +877,30 @@ kbd { font: inherit; color: var(--red); }
 }
 .deck-guide-link:hover,
 .deck-guide-link:focus-visible { opacity: 1; text-decoration: underline; }
+
+.study-guide-dialog {
+  width: min(1480px, calc(100% - 24px));
+  height: min(940px, calc(100dvh - 24px));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  background: #ddd8cf;
+  color: var(--ink);
+  box-shadow: 10px 10px 0 var(--blue);
+}
+.study-guide-dialog::backdrop { background: rgba(23,23,20,.72); backdrop-filter: blur(5px); }
+.study-guide-dialog[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); animation: dialog-in 200ms cubic-bezier(.2,.8,.2,1) both; }
+.study-guide-dialog-head { padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--ink); color: var(--paper); }
+.study-guide-dialog-title { min-width: 0; display: flex; align-items: baseline; gap: 10px; font: 600 10px var(--mono); letter-spacing: .07em; }
+.study-guide-dialog-title strong { color: var(--yellow); }
+.study-guide-dialog-title small { color: rgba(242,237,223,.58); font: inherit; }
+.study-guide-dialog-close { padding: 9px 13px; border: 1px solid var(--paper); background: var(--paper); color: var(--ink); font: 600 10px var(--mono); cursor: pointer; }
+.study-guide-dialog-close span { margin-left: 5px; font-size: 15px; line-height: 0; }
+.study-guide-dialog-close:hover,
+.study-guide-dialog-close:focus-visible { border-color: var(--yellow); background: var(--yellow); outline: none; }
+.study-guide-frame { width: 100%; height: 100%; display: block; border: 0; background: #ddd8cf; }
 
 .account-dialog {
   width: min(620px, calc(100% - 28px));

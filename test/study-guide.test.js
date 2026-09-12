@@ -49,24 +49,24 @@ test("study guide escapes card and heading content", () => {
   assert.doesNotMatch(html, /<Selected>/);
 });
 
-test("screen study guide shows every card without print controls", () => {
+test("embedded study guide shows every card without page-level controls", () => {
   const items = Array.from({ length: CARDS_PER_PAGE + 2 }, (_, index) => item(index + 1));
   const html = createStudyGuideHtml({
     selectionLabel: "LEVEL 1 · ALL",
     deckLabels: ["ALL"],
     items,
-    viewMode: "screen",
+    viewMode: "embedded",
   });
 
-  assert.match(html, /class="study-view"/);
-  assert.match(html, /ALL-CARDS STUDY VIEW/);
+  assert.match(html, /class="study-view embedded-view"/);
   assert.equal((html.match(/<article class="card">/g) ?? []).length, items.length);
   assert.equal((html.match(/class="card-lookup jisho-lookup"/g) ?? []).length, items.length);
   assert.equal((html.match(/class="card-lookup kana-lookup"/g) ?? []).length, items.length);
   assert.match(html, /https:\/\/jisho\.org\/search\//);
   assert.match(html, /https:\/\/www\.romajidesu\.com\/kanji\//);
-  assert.match(html, /window\.location\.reload\(\)/);
+  assert.doesNotMatch(html, /window\.location\.reload\(\)/);
   assert.doesNotMatch(html, /window\.close\(\)/);
+  assert.doesNotMatch(html, /class="print-toolbar"/);
   assert.doesNotMatch(html, /SAVE \/ PRINT PDF/);
 });
 

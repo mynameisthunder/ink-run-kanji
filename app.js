@@ -32,7 +32,7 @@ import {
 import { dungeonUrl, parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
-import { downloadStudyGuidePdf, openStudyGuidePrint, openStudyGuideView } from "./src/study-guide.js?v=all-cards-view-1";
+import { downloadStudyGuidePdf, openStudyGuidePrint, openStudyGuideView } from "./src/study-guide.js?v=all-cards-modal-1";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
@@ -50,6 +50,7 @@ const elements = {
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
   accountEmail: $("#accountEmail"), cloudStatus: $("#cloudStatus"), syncNow: $("#syncNowButton"), signOut: $("#signOutButton"),
   favorite: $("#favoriteButton"),
+  studyGuideDialog: $("#studyGuideDialog"), studyGuideFrame: $("#studyGuideFrame"), closeStudyGuide: $("#closeStudyGuideButton"), studyGuideDialogCount: $("#studyGuideDialogCount"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
@@ -444,7 +445,13 @@ function selectedStudyGuideOptions() {
 function openSelectedStudyGuideView() {
   const options = selectedStudyGuideOptions();
   if (!options) return;
-  openStudyGuideView(options);
+  if (!openStudyGuideView(options, elements.studyGuideFrame)) return;
+  elements.studyGuideDialogCount.textContent = `${options.items.length} ${options.items.length === 1 ? "WORD" : "WORDS"}`;
+  elements.studyGuideDialog.showModal();
+}
+
+function closeStudyGuideView() {
+  if (elements.studyGuideDialog.open) elements.studyGuideDialog.close();
 }
 
 function enterSelectedDungeon() {
@@ -1034,6 +1041,13 @@ elements.signOut.addEventListener("click", async () => {
   }
 });
 elements.dialogStudy.addEventListener("click", startDialogStudy);
+elements.closeStudyGuide.addEventListener("click", closeStudyGuideView);
+elements.studyGuideDialog.addEventListener("click", (event) => {
+  if (event.target === elements.studyGuideDialog) closeStudyGuideView();
+});
+elements.studyGuideDialog.addEventListener("close", () => {
+  elements.studyGuideFrame.removeAttribute("srcdoc");
+});
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {
   if (event.target === elements.deckDialog) elements.deckDialog.close();

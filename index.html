@@ -38,7 +38,7 @@
     <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=home-intro-copy-1" />
+    <link rel="stylesheet" href="styles.css?v=study-guide-modal-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -313,6 +313,18 @@
       <p class="deck-note">Tap anywhere outside this card to close.</p>
     </dialog>
 
+    <dialog class="study-guide-dialog" id="studyGuideDialog" aria-labelledby="studyGuideDialogTitle">
+      <header class="study-guide-dialog-head">
+        <div class="study-guide-dialog-title">
+          <strong>INK RUN</strong>
+          <span id="studyGuideDialogTitle">ALL-CARDS STUDY VIEW</span>
+          <small id="studyGuideDialogCount"></small>
+        </div>
+        <button class="study-guide-dialog-close" id="closeStudyGuideButton" type="button">CLOSE <span aria-hidden="true">×</span></button>
+      </header>
+      <iframe class="study-guide-frame" id="studyGuideFrame" title="All-cards study view" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>
+    </dialog>
+
     <dialog class="account-dialog" id="accountDialog" aria-labelledby="accountDialogTitle">
       <div class="dialog-head account-dialog-head">
         <div>
@@ -349,6 +361,6 @@
     <script src="vendor/ink-run-japanese-font.js?v=1" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=home-library-redesign-1"></script>
+    <script type="module" src="app.js?v=study-guide-modal-1"></script>
   </body>
 </html>

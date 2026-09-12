@@ -310,7 +310,8 @@ export function createStudyGuideHtml({
   generatedLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date()),
   viewMode = "print",
 }) {
-  const screenView = viewMode === "screen";
+  const screenView = viewMode === "screen" || viewMode === "embedded";
+  const embeddedView = viewMode === "embedded";
   const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
   const visibleDeckLabels = condensedDeckLabels(deckLabels);
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
@@ -367,7 +368,7 @@ export function createStudyGuideHtml({
     .kana-lookup:hover span, .kana-lookup:focus-visible span { color: white; }
     .card-top { display: flex; align-items: baseline; gap: 3mm; }
     .number { color: var(--red); font-size: 6.5pt; font-weight: 800; }
-    .word { min-width: 0; font: 800 20pt/1.05 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; overflow-wrap: anywhere; }
+    .word { min-width: 0; font: 600 20pt/1.05 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; overflow-wrap: anywhere; }
     .reading { margin: 1.4mm 0 1.6mm 10mm; color: var(--blue); font: 700 10.5pt/1.2 "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif; }
     .meaning { margin: 0 0 1.5mm 10mm; font: 7.6pt/1.32 ui-sans-serif, system-ui, -apple-system, "Noto Sans JP", sans-serif; }
     .breakdown { margin: 2mm 0 0 10mm; padding-top: 1.2mm; border-top: .25mm solid var(--line); color: var(--ink); }
@@ -417,8 +418,8 @@ export function createStudyGuideHtml({
     }
   </style>
 </head>
-<body class="${screenView ? "study-view" : "print-view"}">
-  ${screenView ? `<nav class="print-toolbar" aria-label="Study view controls">
+<body class="${screenView ? `study-view${embeddedView ? " embedded-view" : ""}` : "print-view"}">
+  ${embeddedView ? "" : screenView ? `<nav class="print-toolbar" aria-label="Study view controls">
     <div class="toolbar-title"><b>INK RUN</b><span>ALL-CARDS STUDY VIEW · ${items.length} ${items.length === 1 ? "WORD" : "WORDS"}</span></div>
     <button type="button" onclick="window.location.reload()">CLOSE</button>
   </nav>` : `<nav class="print-toolbar" aria-label="PDF controls">
@@ -448,10 +449,9 @@ export function openStudyGuidePrint(options) {
   return true;
 }
 
-export function openStudyGuideView(options) {
-  window.document.open();
-  window.document.write(createStudyGuideHtml({ ...options, viewMode: "screen" }));
-  window.document.close();
+export function openStudyGuideView(options, frame) {
+  if (!frame) return false;
+  frame.srcdoc = createStudyGuideHtml({ ...options, viewMode: "embedded" });
   return true;
 }
 

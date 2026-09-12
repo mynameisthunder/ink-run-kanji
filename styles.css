@@ -507,7 +507,7 @@ kbd { font: inherit; color: var(--red); }
 }
 
 .panel-eyebrow { color: var(--blue); font: 600 9px var(--mono); letter-spacing: .08em; }
-.study-reading-row { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.study-reading-row { margin-top: 14px; display: flex; align-items: flex-start; justify-content: end; flex-wrap: wrap; gap: 8px; }
 .study-reading { min-width: 0; font: 800 clamp(34px, 4vw, 54px)/1 var(--jp); white-space: nowrap; }
 .study-tools { display: flex; align-items: center; gap: 8px; }
 .study-lookup-link {

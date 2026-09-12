@@ -805,7 +805,26 @@ kbd { font: inherit; color: var(--red); }
 .deck-favorite-button:hover,
 .deck-favorite-button:focus-visible { opacity: 1; }
 .deck-details { min-width: 0; }
+.deck-reading-row { display: flex; align-items: center; gap: 10px; }
 .deck-reading { display: block; font: 700 16px var(--jp); }
+.deck-lookups { display: inline-flex; align-items: center; gap: 4px; }
+.deck-lookup {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font: 700 11px/1 var(--sans);
+  text-decoration: none;
+  transition: color 120ms ease, background 120ms ease, transform 120ms ease;
+}
+.deck-lookup-jisho { color: var(--blue); }
+.deck-lookup-kana { color: var(--red); }
+.deck-lookup:hover,
+.deck-lookup:focus-visible { background: currentColor; outline: none; transform: translateY(-1px); }
+.deck-lookup:hover span,
+.deck-lookup:focus-visible span { color: var(--paper); }
 .deck-meaning { display: block; margin-top: 3px; color: rgba(23,23,20,.62); font: 500 9px var(--mono); text-transform: uppercase; }
 .deck-item-detailed { min-height: 150px; align-items: start; }
 .deck-breakdown-label { display: block; margin-top: 12px; color: var(--red); font: 600 7px var(--mono); letter-spacing: .08em; }

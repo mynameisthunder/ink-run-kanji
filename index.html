@@ -38,7 +38,18 @@
     <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=study-guide-modal-1" />
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("ink-run-theme");
+        const theme = savedTheme === "light" || savedTheme === "dark"
+          ? savedTheme
+          : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="stylesheet" href="styles.css?v=dark-mode-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -64,6 +75,7 @@
       <div class="top-actions">
         <button class="text-button" id="searchButton" type="button">SEARCH</button>
         <button class="text-button" id="deckButton" type="button">DECK <span>150</span></button>
+        <button class="text-button theme-button" id="themeButton" type="button" aria-pressed="false" title="Use dark mode"><span class="theme-icon" aria-hidden="true">☾</span><span class="theme-label">DARK</span></button>
         <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
         <button class="text-button account-button" id="accountButton" type="button"><i aria-hidden="true"></i><span>SIGN IN</span></button>
       </div>
@@ -361,6 +373,6 @@
     <script src="vendor/ink-run-japanese-font.js?v=1" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=study-guide-modal-1"></script>
+    <script type="module" src="app.js?v=dark-mode-1"></script>
   </body>
 </html>

@@ -309,9 +309,11 @@ export function createStudyGuideHtml({
   sourceLabelFor = () => "",
   generatedLabel = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date()),
   viewMode = "print",
+  theme = "light",
 }) {
   const screenView = viewMode === "screen" || viewMode === "embedded";
   const embeddedView = viewMode === "embedded";
+  const darkView = screenView && theme === "dark";
   const totalPages = Math.max(1, Math.ceil(items.length / CARDS_PER_PAGE));
   const visibleDeckLabels = condensedDeckLabels(deckLabels);
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
@@ -331,13 +333,14 @@ export function createStudyGuideHtml({
   }).join("");
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en"${darkView ? ` class="theme-dark"` : ""}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escapeHtml(printableTitle(selectionLabel))}</title>
   <style>
     :root { color-scheme: light; --ink:#171714; --paper:#f7f2e8; --blue:#2449ff; --red:#f24437; --line:#c9c1b2; }
+    :root.theme-dark { color-scheme: dark; --ink:#f1ecdf; --paper:#1b1d18; --blue:#8298ff; --red:#ff745b; --line:#55584f; }
     * { box-sizing: border-box; }
     html, body { margin: 0; color: var(--ink); background: #ddd8cf; }
     body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
@@ -400,6 +403,13 @@ export function createStudyGuideHtml({
     .study-view .breakdown span { font-size: 14px; }
     .study-view .breakdown b { font-size: 18px; }
     .study-view footer { position: static; margin-top: 20px; padding-top: 12px; }
+    body.theme-dark { background: #0e0f0d; }
+    .theme-dark .card { background: rgba(255,255,255,.025); }
+    .theme-dark .card-lookup { background: #25271f; }
+    .theme-dark .page-meta span,
+    .theme-dark .selection p,
+    .theme-dark .source,
+    .theme-dark footer { color: #aaa69c; }
     @media (max-width: 760px) {
       .study-view .guide-page { width: min(100% - 20px, 560px); margin: 10px auto; padding: 24px 18px; }
       .study-view .page-header { gap: 16px; }
@@ -418,7 +428,7 @@ export function createStudyGuideHtml({
     }
   </style>
 </head>
-<body class="${screenView ? `study-view${embeddedView ? " embedded-view" : ""}` : "print-view"}">
+<body class="${screenView ? `study-view${embeddedView ? " embedded-view" : ""}${darkView ? " theme-dark" : ""}` : "print-view"}">
   ${embeddedView ? "" : screenView ? `<nav class="print-toolbar" aria-label="Study view controls">
     <div class="toolbar-title"><b>INK RUN</b><span>ALL-CARDS STUDY VIEW · ${items.length} ${items.length === 1 ? "WORD" : "WORDS"}</span></div>
     <button type="button" onclick="window.location.reload()">CLOSE</button>

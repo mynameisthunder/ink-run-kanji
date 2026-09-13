@@ -32,11 +32,13 @@ import {
 import { dungeonUrl, parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
+import { nextTheme, THEME_STORAGE_KEY } from "./src/theme.js";
 import { downloadStudyGuidePdf, openStudyGuidePrint, openStudyGuideView } from "./src/study-guide.js?v=all-cards-modal-1";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
 const DYNAMIC_DECK_KEYS = new Set(["favorites", "done", "daily-review", "needs-work"]);
 let restoringRoute = false;
+let activeStudyGuideOptions = null;
 
 const $ = (selector) => document.querySelector(selector);
 const screens = [...document.querySelectorAll(".screen")];
@@ -45,6 +47,7 @@ const elements = {
   home: $("#homeLink"),
   start: $("#startButton"), study: $("#studyButton"), dungeon: $("#dungeonButton"), dialogDungeon: $("#dialogDungeonButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
+  theme: $("#themeButton"), themeIcon: $("#themeButton .theme-icon"), themeLabel: $("#themeButton .theme-label"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
@@ -63,6 +66,23 @@ const elements = {
 };
 
 elements.libraryWordCount.textContent = String(KANJI.length);
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function applyTheme(theme, { persist = true } = {}) {
+  document.documentElement.dataset.theme = theme;
+  elements.theme.setAttribute("aria-pressed", String(theme === "dark"));
+  elements.theme.setAttribute("title", theme === "dark" ? "Use light mode" : "Use dark mode");
+  elements.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
+  elements.themeLabel.textContent = theme === "dark" ? "LIGHT" : "DARK";
+  if (persist) {
+    try { window.localStorage.setItem(THEME_STORAGE_KEY, theme); } catch { /* Storage can be disabled. */ }
+  }
+}
+
+applyTheme(currentTheme(), { persist: false });
 
 const {
   loadCloudProgressSnapshot,
@@ -445,7 +465,8 @@ function selectedStudyGuideOptions() {
 function openSelectedStudyGuideView() {
   const options = selectedStudyGuideOptions();
   if (!options) return;
-  if (!openStudyGuideView(options, elements.studyGuideFrame)) return;
+  activeStudyGuideOptions = options;
+  if (!openStudyGuideView({ ...options, theme: currentTheme() }, elements.studyGuideFrame)) return;
   elements.studyGuideDialogCount.textContent = `${options.items.length} ${options.items.length === 1 ? "WORD" : "WORDS"}`;
   elements.studyGuideDialog.showModal();
 }
@@ -1002,6 +1023,13 @@ elements.favorite.addEventListener("click", () => toggleFavorite(state.current))
 elements.review.addEventListener("click", () => openDeckDialog());
 elements.search.addEventListener("click", () => openDeckDialog(true));
 elements.deckButton.addEventListener("click", () => openDeckDialog());
+elements.theme.addEventListener("click", () => {
+  const theme = nextTheme(currentTheme());
+  applyTheme(theme);
+  if (elements.studyGuideDialog.open && activeStudyGuideOptions) {
+    openStudyGuideView({ ...activeStudyGuideOptions, theme }, elements.studyGuideFrame);
+  }
+});
 elements.deckSearch.addEventListener("input", populateDeck);
 elements.clearDeckSearch.addEventListener("click", () => {
   elements.deckSearch.value = "";
@@ -1047,6 +1075,7 @@ elements.studyGuideDialog.addEventListener("click", (event) => {
 });
 elements.studyGuideDialog.addEventListener("close", () => {
   elements.studyGuideFrame.removeAttribute("srcdoc");
+  activeStudyGuideOptions = null;
 });
 elements.closeDeck.addEventListener("click", () => elements.deckDialog.close());
 elements.deckDialog.addEventListener("click", (event) => {

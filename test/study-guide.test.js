@@ -70,6 +70,19 @@ test("embedded study guide shows every card without page-level controls", () => 
   assert.doesNotMatch(html, /SAVE \/ PRINT PDF/);
 });
 
+test("embedded study guide can inherit the app dark theme", () => {
+  const html = createStudyGuideHtml({
+    selectionLabel: "LEVEL 1 · ALL",
+    deckLabels: ["ALL"],
+    items: [item(1)],
+    viewMode: "embedded",
+    theme: "dark",
+  });
+
+  assert.match(html, /class="study-view embedded-view theme-dark"/);
+  assert.match(html, /color-scheme: dark/);
+});
+
 test("jsPDF study guide contains Japanese cards across numbered pages", () => {
   const items = Array.from({ length: 10 }, (_, index) => item(index + 1));
   const doc = createStudyGuidePdfDocument({

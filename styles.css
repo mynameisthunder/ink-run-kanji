@@ -48,6 +48,8 @@ body {
   transition: background-color 180ms ease, color 180ms ease;
 }
 
+:root[data-theme="dark"] body { background: #05060a; }
+
 button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; font: inherit; }
 

@@ -675,7 +675,13 @@ export const SONG_LYRIC_IMPORTS = [
   },
   {
     "word": "重なる",
-    "meaning": "to be piled up; to lie on top of one another; to come one after another; to happen over and over; to pile up (e.g. stress); to accumulate",
+    "meaning": "to overlap; to coincide; to be piled up; to lie on top of one another; to come one after another; to happen over and over; to pile up (e.g. stress); to accumulate",
+    "meanings": [
+      "overlap",
+      "overlapping",
+      "coincide",
+      "coinciding"
+    ],
     "romaji": [
       "kasanaru"
     ],
@@ -691,7 +697,7 @@ export const SONG_LYRIC_IMPORTS = [
         "kana"
       ]
     ],
-    "memory": "重 (heavy; important; esteem; respect) as かさ + なる (kana) as なる. Together: かさなる — to be piled up.",
+    "memory": "重 (heavy; important; esteem; respect) as かさ + なる (kana) as なる. Together: かさなる — to overlap or coincide.",
     "reading": "かさなる"
   },
   {

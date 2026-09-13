@@ -41,7 +41,7 @@ const newCards = [
   { word: "歩幅", readings: ["ほはば"], annotations: [1, 2], meaning: "stride; step length" },
   { word: "居場所", readings: ["いばしょ"], annotations: [1, 1, 2], meaning: "whereabouts; place where one belongs" },
   { word: "触れ合う", readings: ["ふれあう"], annotations: [1, 1, 1, 1], meaning: "to touch each other; to come into contact; to interact" },
-  { word: "重なる", readings: ["かさなる"], annotations: [2, 1, 1], meaning: "to overlap; to coincide; to pile up" },
+  { word: "重なる", readings: ["かさなる"], annotations: [2, 1, 1], meaning: "to overlap; to coincide; to pile up", meanings: ["overlap", "overlapping", "coincide", "coinciding"] },
   { word: "過ごす", readings: ["すごす"], annotations: [1, 1, 1], meaning: "to spend time; to pass time" },
   { word: "地上", readings: ["ちじょう"], annotations: [1, 3], meaning: "above ground; on the ground; Earth" },
   { word: "華やぐ", readings: ["はなやぐ"], annotations: [2, 1, 1], meaning: "to become brilliant; to brighten up; to become lively" },
@@ -78,6 +78,10 @@ const imports = enriched[0].pages[0].cards.map(({ readings, annotations, ...card
   };
   if (item.word === "地球") {
     item.memory = "In this song, 地球 is sung ほし (a poetic ‘world/star’ reading). Its normal dictionary reading is ちきゅう.";
+  }
+  if (item.word === "重なる") {
+    item.meaning = `to overlap; to coincide; ${item.meaning}`;
+    item.memory = "重 (heavy; important; esteem; respect) as かさ + なる (kana) as なる. Together: かさなる — to overlap or coincide.";
   }
   return item;
 });

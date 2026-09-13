@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { meaningAnswerIsCorrect } from "../src/dungeon-engine.js";
 import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
@@ -19,6 +20,9 @@ test("unknown song vocabulary is split into complete lyric-order decks", () => {
   assert.equal(KANJI_BY_WORD.get("song:側").reading, "そば");
   assert.deepEqual(KANJI_BY_WORD.get("地球").kana, ["ほし", "ちきゅう"]);
   assert.match(KANJI_BY_WORD.get("地球").memory, /song.*ほし.*ちきゅう/i);
+  assert.match(KANJI_BY_WORD.get("重なる").meaning, /^to overlap;/);
+  assert.equal(meaningAnswerIsCorrect("overlap", KANJI_BY_WORD.get("重なる")), true);
+  assert.equal(meaningAnswerIsCorrect("overlapping", KANJI_BY_WORD.get("重なる")), true);
   assert.equal(BUNDLED_AUDIO_ITEMS.has(KANJI_BY_WORD.get("見下ろす")), false);
 });
 

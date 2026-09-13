@@ -488,6 +488,8 @@ main { min-height: calc(100vh - 82px); }
   background: transparent;
   font: 600 10px var(--mono);
   cursor: pointer;
+  z-index: 2;
+  position: relative;
 }
 
 .hint-button:hover { background: var(--ink); color: var(--paper); }

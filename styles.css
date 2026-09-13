@@ -107,10 +107,41 @@ button { color: inherit; font: inherit; }
 
 .text-button:hover { border-bottom-color: var(--ink); }
 .text-button span { color: var(--red); }
-.theme-button { display: inline-flex; align-items: center; gap: 6px; }
-.theme-button .theme-icon { color: var(--yellow); font-size: 15px; line-height: 1; }
-.theme-button .theme-label { color: inherit; }
-:root[data-theme="dark"] .theme-button .theme-icon { text-shadow: 0 0 12px rgb(255 213 61 / .6); }
+.theme-button {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgb(var(--ink-rgb) / .44);
+  border-radius: 999px;
+  background: rgb(var(--ink-rgb) / .08);
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease;
+}
+.theme-button:hover { transform: translateY(-1px); }
+.theme-button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.theme-button .theme-icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 11px/1 var(--sans);
+  transition: transform 180ms cubic-bezier(.2, .8, .2, 1), background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+.theme-button[aria-checked="true"] { border-color: var(--blue); background: rgb(73 108 255 / .2); }
+.theme-button[aria-checked="true"] .theme-icon {
+  transform: translateX(18px);
+  background: var(--yellow);
+  color: #05060a;
+  box-shadow: 0 0 12px rgb(255 213 61 / .52);
+}
 
 .account-button { display: inline-flex; align-items: center; gap: 7px; }
 .account-button i { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--ink-rgb) / .28); }
@@ -988,7 +1019,6 @@ kbd { font: inherit; color: var(--red); }
   .wordmark > span:last-child { display: none; }
   .top-actions { gap: 11px; }
   .text-button { font-size: 10px; }
-  .theme-button .theme-label { display: none; }
   .account-button > span { max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   main, .screen { min-height: calc(100vh - 64px); }
   .screen { padding: 30px 20px; }

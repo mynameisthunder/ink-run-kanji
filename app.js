@@ -47,7 +47,7 @@ const elements = {
   home: $("#homeLink"),
   start: $("#startButton"), study: $("#studyButton"), dungeon: $("#dungeonButton"), dialogDungeon: $("#dialogDungeonButton"), exportGuide: $("#exportGuideButton"), studyGuideView: $("#studyGuideViewButton"), dialogExportGuide: $("#dialogExportGuideButton"), dialogStudyGuideView: $("#dialogStudyGuideViewButton"), replay: $("#replayButton"), review: $("#reviewButton"),
   search: $("#searchButton"), deckButton: $("#deckButton"), deckDialog: $("#deckDialog"), deckList: $("#deckList"), closeDeck: $("#closeDeckButton"),
-  theme: $("#themeButton"), themeIcon: $("#themeButton .theme-icon"), themeLabel: $("#themeButton .theme-label"),
+  theme: $("#themeButton"), themeIcon: $("#themeButton .theme-icon"),
   deckSearch: $("#deckSearchInput"), clearDeckSearch: $("#clearDeckSearchButton"), deckSearchStatus: $("#deckSearchStatus"), libraryWordCount: $("#libraryWordCount"),
   account: $("#accountButton"), accountLabel: $("#accountButton span"), accountDialog: $("#accountDialog"), closeAccount: $("#closeAccountButton"),
   signedOutPanel: $("#signedOutPanel"), signedInPanel: $("#signedInPanel"), signInForm: $("#signInForm"), emailInput: $("#emailInput"),
@@ -74,10 +74,11 @@ function currentTheme() {
 function applyTheme(theme, { persist = true } = {}) {
   document.documentElement.dataset.theme = theme;
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#151612" : "#f2eddf");
-  elements.theme.setAttribute("aria-pressed", String(theme === "dark"));
-  elements.theme.setAttribute("title", theme === "dark" ? "Use light mode" : "Use dark mode");
-  elements.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
-  elements.themeLabel.textContent = theme === "dark" ? "LIGHT" : "DARK";
+  const nextThemeLabel = theme === "dark" ? "light" : "dark";
+  elements.theme.setAttribute("aria-checked", String(theme === "dark"));
+  elements.theme.setAttribute("aria-label", `Switch to ${nextThemeLabel} mode`);
+  elements.theme.setAttribute("title", `Switch to ${nextThemeLabel} mode`);
+  elements.themeIcon.textContent = theme === "dark" ? "☾" : "☀";
   if (persist) {
     try { window.localStorage.setItem(THEME_STORAGE_KEY, theme); } catch { /* Storage can be disabled. */ }
   }

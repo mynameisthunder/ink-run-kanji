@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+JP:wght@500;700;900&family=Space+Grotesk:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+JP:wght@300;500;700;900&family=Space+Grotesk:wght@500;600;700&display=swap");
 
 :root {
   color-scheme: light;
@@ -891,7 +891,7 @@ kbd { font: inherit; color: var(--red); }
 .deck-item-detailed { min-height: 150px; align-items: start; }
 .deck-breakdown-label { display: block; margin-top: 12px; color: var(--red); font: 600 7px var(--mono); letter-spacing: .08em; }
 .deck-breakdown { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
-.deck-breakdown-part { padding: 6px 8px; border: 1px solid var(--line); font: 600 11px var(--jp); }
+.deck-breakdown-part { padding: 6px 8px; border: 1px solid var(--line); font: 300 12px var(--jp); }
 .deck-breakdown-part b { font-size: 15px; }
 .deck-breakdown-part small { display: block; margin-top: 2px; color: rgb(var(--ink-rgb) / .56); font: 500 7px/1.35 var(--mono); text-transform: uppercase; }
 .deck-source {

@@ -73,6 +73,7 @@ function currentTheme() {
 
 function applyTheme(theme, { persist = true } = {}) {
   document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#151612" : "#f2eddf");
   elements.theme.setAttribute("aria-pressed", String(theme === "dark"));
   elements.theme.setAttribute("title", theme === "dark" ? "Use light mode" : "Use dark mode");
   elements.themeIcon.textContent = theme === "dark" ? "☀" : "☾";

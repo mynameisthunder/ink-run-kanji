@@ -1,8 +1,8 @@
 export const THEME_STORAGE_KEY = "ink-run-theme";
 
-export function resolveTheme(storedTheme, prefersDark = false) {
+export function resolveTheme(storedTheme) {
   if (storedTheme === "light" || storedTheme === "dark") return storedTheme;
-  return prefersDark ? "dark" : "light";
+  return "dark";
 }
 
 export function nextTheme(theme) {

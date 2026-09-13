@@ -340,7 +340,7 @@ export function createStudyGuideHtml({
   <title>${escapeHtml(printableTitle(selectionLabel))}</title>
   <style>
     :root { color-scheme: light; --ink:#171714; --paper:#f7f2e8; --blue:#2449ff; --red:#f24437; --line:#c9c1b2; }
-    :root.theme-dark { color-scheme: dark; --ink:#f1ecdf; --paper:#1b1d18; --blue:#8298ff; --red:#ff745b; --line:#55584f; }
+    :root.theme-dark { color-scheme: dark; --ink:#f1ecdf; --paper:#1b1d18; --blue:#496cff; --red:#ff4b32; --line:#55584f; }
     * { box-sizing: border-box; }
     html, body { margin: 0; color: var(--ink); background: #ddd8cf; }
     body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }

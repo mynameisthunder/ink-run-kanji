@@ -26,11 +26,11 @@
   --paper-rgb: 21 22 18;
   --ink: #f1ecdf;
   --ink-rgb: 241 236 223;
-  --red: #ff745b;
-  --blue: #8298ff;
-  --yellow: #f4cb51;
-  --green: #61d66a;
-  --green-rgb: 97 214 106;
+  --red: #ff4b32;
+  --blue: #496cff;
+  --yellow: #ffd53d;
+  --green: #32df55;
+  --green-rgb: 50 223 85;
   --raised-paper: #1c1e18;
   --guide-canvas: #0e0f0d;
 }
@@ -108,6 +108,7 @@ button { color: inherit; font: inherit; }
 .theme-button { display: inline-flex; align-items: center; gap: 6px; }
 .theme-button .theme-icon { color: var(--yellow); font-size: 15px; line-height: 1; }
 .theme-button .theme-label { color: inherit; }
+:root[data-theme="dark"] .theme-button .theme-icon { text-shadow: 0 0 12px rgb(255 213 61 / .6); }
 
 .account-button { display: inline-flex; align-items: center; gap: 7px; }
 .account-button i { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--ink-rgb) / .28); }

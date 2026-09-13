@@ -20,21 +20,6 @@
   --jp: "Noto Sans JP", sans-serif;
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --paper: #151612;
-  --paper-rgb: 21 22 18;
-  --ink: #f1ecdf;
-  --ink-rgb: 241 236 223;
-  --red: #ff4b32;
-  --blue: #496cff;
-  --yellow: #ffd53d;
-  --green: #32df55;
-  --green-rgb: 50 223 85;
-  --raised-paper: #1c1e18;
-  --guide-canvas: #0e0f0d;
-}
-
 * { box-sizing: border-box; }
 
 html, body { min-height: 100%; }
@@ -47,8 +32,6 @@ body {
   overflow-x: hidden;
   transition: background-color 180ms ease, color 180ms ease;
 }
-
-:root[data-theme="dark"] body { background: #05060a; }
 
 button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; font: inherit; }
@@ -107,42 +90,6 @@ button { color: inherit; font: inherit; }
 
 .text-button:hover { border-bottom-color: var(--ink); }
 .text-button span { color: var(--red); }
-.theme-button {
-  position: relative;
-  flex: 0 0 auto;
-  width: 44px;
-  height: 24px;
-  padding: 0;
-  border: 1px solid rgb(var(--ink-rgb) / .44);
-  border-radius: 999px;
-  background: rgb(var(--ink-rgb) / .08);
-  cursor: pointer;
-  transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease;
-}
-.theme-button:hover { transform: translateY(-1px); }
-.theme-button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-.theme-button .theme-icon {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--paper);
-  font: 700 11px/1 var(--sans);
-  transition: transform 180ms cubic-bezier(.2, .8, .2, 1), background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
-}
-.theme-button[aria-checked="true"] { border-color: var(--blue); background: rgb(73 108 255 / .2); }
-.theme-button[aria-checked="true"] .theme-icon {
-  transform: translateX(18px);
-  background: var(--yellow);
-  color: #05060a;
-  box-shadow: 0 0 12px rgb(255 213 61 / .52);
-}
-
 .account-button { display: inline-flex; align-items: center; gap: 7px; }
 .account-button i { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--ink-rgb) / .28); }
 .account-button.syncing i { background: var(--yellow); animation: speaker-pulse 700ms ease-in-out infinite alternate; }

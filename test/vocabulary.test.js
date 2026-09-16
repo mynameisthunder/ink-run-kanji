@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { meaningAnswerIsCorrect } from "../src/dungeon-engine.js";
-import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
+import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, REAL_KANA_N4_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 1540);
+  assert.equal(KANJI.length, 1887);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
 });
 
@@ -87,6 +87,14 @@ test("core generated decks remain complete", () => {
   assert.equal(DECKS["n5-all"].setLabel, "REAL KANA · N5 WORDS · ALL 396");
   assert.equal(DECKS["n5-391-396"].words.length, 6);
   assert.equal(KANJI_BY_WORD.get("女の子").n5SourceLabel, "REAL KANA N5 · 391—396");
+  assert.equal(REAL_KANA_N4_WORDS.length, 499);
+  assert.equal(DECKS["n4-all"].words.length, 499);
+  assert.equal(DECKS["n4-491-499"].words.length, 9);
+  assert.deepEqual([REAL_KANA_N4_WORDS[0], REAL_KANA_N4_WORDS.at(-1)], ["高校生", "花火"]);
+  assert.ok(REAL_KANA_N4_WORDS.every((word) => KANJI_BY_WORD.has(word)));
+  assert.ok(REAL_KANA_N4_WORDS.every((word) => !KANJI_BY_WORD.get(word).meaning.startsWith("Japanese word read")));
+  assert.deepEqual(KANJI_BY_WORD.get("辛い").kana, ["からい", "つらい"]);
+  assert.equal(KANJI_BY_WORD.get("花火").n4SourceLabel, "REAL KANA N4 · 491—499");
   assert.equal(DECKS["frequency-2-all"].words.length, 150);
   assert.equal(DECKS["frequency-3-all"].words.length, 150);
   assert.equal(DECKS["frequency-3-141-150"].words.length, 10);

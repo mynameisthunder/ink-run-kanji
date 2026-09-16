@@ -9,11 +9,12 @@ import {
   JLPT_SAMPLE_GROUPS,
   LOOK_ALIKE_DECKS,
   NUMBER_GROUPS,
+  REAL_KANA_N4_WORDS,
   REAL_KANA_N5_WORDS,
   SONG_LYRIC_GROUPS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=level-2-complete";
+} from "./src/vocabulary.js?v=n4-complete-1";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
@@ -899,6 +900,10 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `n5-${start}-${Math.min(start + 9, REAL_KANA_N5_WORDS.length)}`;
     })];
+    const n4Keys = ["n4-all", ...Array.from({ length: Math.ceil(REAL_KANA_N4_WORDS.length / 10) }, (_, index) => {
+      const start = index * 10 + 1;
+      return `n4-${start}-${Math.min(start + 9, REAL_KANA_N4_WORDS.length)}`;
+    })];
     const frequency2Keys = ["frequency-2-all", ...Array.from({ length: 15 }, (_, index) => {
       const start = index * 10 + 1;
       return `frequency-2-${start}-${start + 9}`;
@@ -922,6 +927,7 @@ function appendGeneratedDeckButtons() {
       { label: "", keys: frequency4Keys, className: "frequency-4-deck-option" },
       { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
       { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option" },
+      { label: `REAL KANA · N4 WORDS · ${REAL_KANA_N4_WORDS.length}`, keys: n4Keys, className: "n4-deck-option" },
       { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },
       {
         label: "REAL KANA · NUMBERS + COUNTERS",

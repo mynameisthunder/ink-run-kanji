@@ -3,6 +3,7 @@ import { FREQUENCY_2_IMPORTS, FREQUENCY_2_WORDS } from "../frequency2-data.js";
 import { FREQUENCY_3_4_IMPORTS, FREQUENCY_3_WORDS, FREQUENCY_4_WORDS } from "../frequency3-4-data.js";
 import { JLPT_SAMPLE_GROUPS, JLPT_SAMPLE_IMPORTS } from "../jlpt-sample-data.js";
 import { LEVEL_2_IMPORTS, LEVEL_2_WORDS } from "../level2-data.js";
+import { LEVEL_3_IMPORTS, LEVEL_3_WORDS } from "../level3-data.js";
 import { N4_IMPORTS, N4_WORDS as REAL_KANA_N4_WORDS } from "../n4-data.js";
 import { N5_IMPORTS as REAL_KANA_N5_IMPORTS, N5_WORDS as REAL_KANA_N5_WORDS } from "../n5-data.js";
 import { NUMBER_GROUPS, NUMBER_IMPORTS, NUMBER_WORDS } from "../numbers-data.js";
@@ -902,6 +903,7 @@ addImportedItems(LEVEL_2_IMPORTS);
 addImportedItems(JLPT_SAMPLE_IMPORTS);
 addImportedItems(FOUND_IN_WILD_IMPORTS);
 addImportedItems(SONG_LYRIC_IMPORTS);
+addImportedItems(LEVEL_3_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -1054,6 +1056,12 @@ LEVEL_2_WORDS.forEach((word, index) => {
   const start = Math.floor(index / 10) * 10 + 1;
   item.level2SourceLabel = `LEVEL 2 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
 });
+LEVEL_3_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  item.level3SourceLabel = `LEVEL 3 · ${String(start).padStart(3, "0")}—${String(start + 9).padStart(3, "0")}`;
+});
 DAY_OF_WEEK_WORDS.forEach((word) => {
   const item = KANJI_BY_WORD.get(word);
   if (item) item.weekdaySourceLabel = "ESSENTIALS · DAYS OF THE WEEK";
@@ -1096,7 +1104,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.level3SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1176,6 +1184,15 @@ for (let index = 0; index < LEVEL_2_WORDS.length; index += 10) {
   DECKS[key] = { label: `L2 ${range}`, setLabel: `FREQUENCY · LEVEL 2 · ${range}`, words: LEVEL_2_WORDS.slice(index, end) };
 }
 
+DECKS["level-3-all"] = { label: `L3 ALL ${LEVEL_3_WORDS.length}`, setLabel: `FREQUENCY · LEVEL 3 · ALL ${LEVEL_3_WORDS.length}`, words: LEVEL_3_WORDS };
+for (let index = 0; index < LEVEL_3_WORDS.length; index += 10) {
+  const start = index + 1;
+  const end = Math.min(index + 10, LEVEL_3_WORDS.length);
+  const key = `level-3-${start}-${end}`;
+  const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  DECKS[key] = { label: `L3 ${range}`, setLabel: `FREQUENCY · LEVEL 3 · ${range}`, words: LEVEL_3_WORDS.slice(index, end) };
+}
+
 JLPT_SAMPLE_GROUPS.forEach((group) => {
   DECKS[group.key] = {
     label: `${group.level} 001—010`,
@@ -1239,6 +1256,7 @@ export {
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
   LEVEL_2_WORDS,
+  LEVEL_3_WORDS,
   LOOK_ALIKE_DECKS,
   LOOK_ALIKE_GROUPS,
   LOOK_ALIKE_WORDS,

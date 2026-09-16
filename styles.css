@@ -264,6 +264,7 @@ main { min-height: calc(100vh - 82px); }
 }
 .n5-deck-option { border-color: var(--blue); }
 .n4-deck-option { border-color: var(--red); }
+.level-3-deck-option { border-color: var(--green); }
 .jlpt-sample-deck-option { border-color: var(--green); }
 .deck-option {
   position: relative;

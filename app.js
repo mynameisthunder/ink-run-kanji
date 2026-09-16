@@ -7,6 +7,7 @@ import {
   KANJI,
   KANJI_BY_WORD,
   JLPT_SAMPLE_GROUPS,
+  LEVEL_3_WORDS,
   LOOK_ALIKE_DECKS,
   NUMBER_GROUPS,
   REAL_KANA_N4_WORDS,
@@ -14,7 +15,7 @@ import {
   SONG_LYRIC_GROUPS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=n4-complete-1";
+} from "./src/vocabulary.js?v=level3-complete-1";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
@@ -920,12 +921,17 @@ function appendGeneratedDeckButtons() {
       const start = index * 10 + 1;
       return `level-2-${start}-${Math.min(start + 9, DECKS["level-2-all"].words.length)}`;
     })];
+    const level3Keys = ["level-3-all", ...Array.from({ length: Math.ceil(LEVEL_3_WORDS.length / 10) }, (_, index) => {
+      const start = index * 10 + 1;
+      return `level-3-${start}-${Math.min(start + 9, LEVEL_3_WORDS.length)}`;
+    })];
     const numberKeys = ["numbers-all", ...NUMBER_GROUPS.map((group) => `numbers-${group.key}`)];
     [
       { label: "", keys: frequency2Keys, className: "frequency-2-deck-option" },
       { label: "", keys: frequency3Keys, className: "frequency-3-deck-option" },
       { label: "", keys: frequency4Keys, className: "frequency-4-deck-option" },
       { label: "REAL KANA · FREQUENCY LEVEL 2", keys: level2Keys, className: "level-2-deck-option" },
+      { label: "REAL KANA · FREQUENCY LEVEL 3", keys: level3Keys, className: "level-3-deck-option" },
       { label: `REAL KANA · N5 WORDS · ${REAL_KANA_N5_WORDS.length}`, keys: n5Keys, className: "n5-deck-option" },
       { label: `REAL KANA · N4 WORDS · ${REAL_KANA_N4_WORDS.length}`, keys: n4Keys, className: "n4-deck-option" },
       { label: "REAL KANA · JLPT N1 / N2 / N3 STARTERS", keys: JLPT_SAMPLE_GROUPS.map((group) => group.key), className: "jlpt-sample-deck-option" },

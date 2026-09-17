@@ -64,6 +64,7 @@
       <div class="top-actions">
         <button class="text-button" id="searchButton" type="button">SEARCH</button>
         <button class="text-button" id="deckButton" type="button">DECK <span>150</span></button>
+        <button class="text-button" id="inputScriptButton" type="button" aria-pressed="false" aria-label="Typing converts to hiragana; switch to katakana" title="Typing converts to hiragana">あ</button>
         <button class="text-button" id="soundButton" type="button" aria-pressed="true">音 ON</button>
         <button class="text-button account-button" id="accountButton" type="button"><i aria-hidden="true"></i><span>SIGN IN</span></button>
       </div>
@@ -206,10 +207,10 @@
             </article>
 
             <form class="recall-form hidden" id="recallForm">
-              <label for="readingInput">TYPE THE READING — ROMAJI AUTO-CONVERTS</label>
+              <label id="readingInputLabel" for="readingInput">TYPE THE READING — ROMAJI → ひらがな</label>
               <input id="readingInput" name="reading" type="text" lang="ja" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="romaji → ひらがな" />
               <button class="check-button" type="submit">CHECK MY RECALL <span>↗</span></button>
-              <p>Type normally: watashi becomes わたし. Japanese keyboard input also works.</p>
+              <p id="readingInputHelp">Type normally: watashi becomes わたし. Japanese keyboard input also works.</p>
             </form>
           </div>
         </div>
@@ -361,6 +362,6 @@
     <script src="vendor/ink-run-japanese-font.js?v=1" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=level3-complete-1"></script>
+    <script type="module" src="app.js?v=input-script-1"></script>
   </body>
 </html>

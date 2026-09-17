@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { answerIsCorrect, romajiToHiragana, toHiragana } from "../src/kana.js";
+import { answerIsCorrect, romajiToHiragana, romajiToKana, toHiragana, toKatakana } from "../src/kana.js";
 
 test("romaji input handles long sounds, doubled consonants, and final n", () => {
   assert.equal(romajiToHiragana("kyou", true), "きょう");
@@ -11,6 +11,8 @@ test("romaji input handles long sounds, doubled consonants, and final n", () => 
 
 test("katakana normalizes to hiragana", () => {
   assert.equal(toHiragana("カタカナ"), "かたかな");
+  assert.equal(toKatakana("ひらがな"), "ヒラガナ");
+  assert.equal(romajiToKana("gakkou", "katakana", true), "ガッコウ");
 });
 
 test("answers accept both kana and romaji", () => {

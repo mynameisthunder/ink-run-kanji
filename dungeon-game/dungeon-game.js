@@ -8,10 +8,10 @@ import {
   restartDungeon,
   useDungeonHint,
 } from "../src/dungeon-engine.js?v=numeric-meaning-answers";
-import { romajiToHiragana } from "../src/kana.js";
+import { KATAKANA_INPUT, convertReadingInput as convertInputScript, loadInputScript, saveInputScript, toggleInputScript } from "../src/input-script.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";
-import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level-2-complete";
+import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level3-complete-1";
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD
@@ -88,6 +88,7 @@ const elements = {
   finalMisses: $("#finalMisses"),
   restart: $("#restartButton"),
   sound: $("#soundToggle"),
+  inputScript: $("#inputScriptToggle"),
   showRecap: $("#showRecapToggle"),
   exitLinks: [$("#exitLink"), $("#topExitLink"), $("#endExitLink")],
 };
@@ -101,6 +102,7 @@ let dungeonItems = [];
 let selectedDeckKeys = [];
 let locked = false;
 let soundEnabled = true;
+let inputScript = loadInputScript();
 let showVictoryCards = loadShowRecapPreference();
 let recapStage = 0;
 let recapNextState = null;
@@ -317,7 +319,9 @@ function renderEnemy({ preserveFeedback = false } = {}) {
   const misses = dungeon.misses[dungeonWordKey(item)] ?? 0;
   elements.enemyRank.textContent = misses ? `DANGER ×${misses}` : "UNMARKED";
   elements.phaseLabel.textContent = dungeon.phase === "reading" ? "READING ATTACK" : "MEANING FINISHER";
-  elements.input.placeholder = dungeon.phase === "reading" ? "type reading" : "type meaning";
+  elements.input.placeholder = dungeon.phase === "reading"
+    ? `romaji → ${inputScript === KATAKANA_INPUT ? "カタカナ" : "ひらがな"}`
+    : "type meaning";
   elements.input.lang = dungeon.phase === "reading" ? "ja" : "en";
   elements.input.value = "";
   elements.hintPanel.hidden = !dungeon.hintRevealed;
@@ -498,10 +502,33 @@ function restart() {
 
 function convertReadingInput(event) {
   if (event.isComposing || dungeon?.phase !== "reading") return;
-  const converted = romajiToHiragana(elements.input.value);
+  const converted = convertInputScript(elements.input.value, inputScript);
   if (converted === elements.input.value) return;
   elements.input.value = converted;
   elements.input.setSelectionRange(converted.length, converted.length);
+}
+
+function renderInputScriptPreference() {
+  const katakana = inputScript === KATAKANA_INPUT;
+  const currentName = katakana ? "katakana" : "hiragana";
+  const nextName = katakana ? "hiragana" : "katakana";
+  elements.inputScript.textContent = katakana ? "ア" : "あ";
+  elements.inputScript.setAttribute("aria-pressed", String(katakana));
+  elements.inputScript.setAttribute("aria-label", `Typing converts to ${currentName}; switch to ${nextName}`);
+  elements.inputScript.title = `Typing converts to ${currentName}`;
+  if (dungeon?.phase === "reading") {
+    elements.input.placeholder = `romaji → ${katakana ? "カタカナ" : "ひらがな"}`;
+  }
+}
+
+function changeInputScript() {
+  inputScript = toggleInputScript(inputScript);
+  saveInputScript(inputScript);
+  if (dungeon?.phase === "reading") {
+    elements.input.value = convertInputScript(elements.input.value, inputScript);
+  }
+  renderInputScriptPreference();
+  if (dungeon?.status === "playing" && !locked) elements.input.focus();
 }
 
 async function boot() {
@@ -514,12 +541,14 @@ async function boot() {
   updateExitLinks();
   dungeon = createDungeonState(dungeonItems);
   elements.showRecap.checked = showVictoryCards;
+  renderInputScriptPreference();
   render();
   if (dungeon.status === "playing") animate("is-entering");
 }
 
 elements.form.addEventListener("submit", submitAttack);
 elements.input.addEventListener("input", convertReadingInput);
+elements.inputScript.addEventListener("click", changeInputScript);
 elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
 elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);

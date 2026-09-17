@@ -36,3 +36,10 @@ test("the dungeon recap can be enabled or skipped from the top bar", () => {
   assert.match(script, /showRecap\.addEventListener\("change"/);
   assert.match(script, /SHOW_RECAP_STORAGE_KEY/);
 });
+
+test("the dungeon shares the saved hiragana or katakana typing preference", () => {
+  assert.match(html, /id="inputScriptToggle"[^>]+aria-pressed="false"/);
+  assert.match(script, /loadInputScript\(\)/);
+  assert.match(script, /saveInputScript\(inputScript\)/);
+  assert.match(script, /convertInputScript\(elements\.input\.value, inputScript\)/);
+});

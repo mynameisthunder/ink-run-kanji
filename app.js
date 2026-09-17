@@ -20,7 +20,8 @@ import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
 import { burst } from "./src/effects.js";
-import { answerIsCorrect, romajiToHiragana } from "./src/kana.js";
+import { answerIsCorrect } from "./src/kana.js";
+import { KATAKANA_INPUT, convertReadingInput as convertInputScript, loadInputScript, saveInputScript, toggleInputScript } from "./src/input-script.js";
 import {
   NEEDS_WORK_ENTRY_ACCURACY,
   RECALLS_PER_WORD,
@@ -55,10 +56,10 @@ const elements = {
   studyGuideDialog: $("#studyGuideDialog"), studyGuideFrame: $("#studyGuideFrame"), closeStudyGuide: $("#closeStudyGuideButton"), studyGuideDialogCount: $("#studyGuideDialogCount"),
   dialogStudy: $("#dialogStudyButton"), deckDialogTitle: $("#deckDialogTitle"), introSetLabel: $("#introSetLabel"),
   selectedDeckSummary: $("#selectedDeckSummary"),
-  sound: $("#soundButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
+  sound: $("#soundButton"), inputScript: $("#inputScriptButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
   studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
-  memoryHook: $("#memoryHook"), studyPrevious: $("#studyPreviousButton"), studyNext: $("#studyNextButton"), studyNextLabel: $("#studyNextLabel"), studyNextIcon: $("#studyNextIcon"), recallForm: $("#recallForm"), readingInput: $("#readingInput"),
+  memoryHook: $("#memoryHook"), studyPrevious: $("#studyPreviousButton"), studyNext: $("#studyNextButton"), studyNextLabel: $("#studyNextLabel"), studyNextIcon: $("#studyNextIcon"), recallForm: $("#recallForm"), readingInput: $("#readingInput"), readingInputLabel: $("#readingInputLabel"), readingInputHelp: $("#readingInputHelp"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
@@ -98,6 +99,7 @@ const state = {
   reteaches: 0,
   locked: false,
   sound: true,
+  inputScript: loadInputScript(),
   cloudUser: null,
   studyLabel: "L1 ALL 150",
   sharedWordView: false,
@@ -702,7 +704,7 @@ function nextRecall() {
   elements.meaning.textContent = "";
   elements.readingInput.value = "";
   elements.readingInput.classList.remove("input-wrong", "input-correct");
-  elements.readingInput.placeholder = "romaji → ひらがな";
+  elements.readingInput.placeholder = `romaji → ${state.inputScript === KATAKANA_INPUT ? "カタカナ" : "ひらがな"}`;
 
   if (state.mode === "batchRecall") {
     elements.roundLabel.textContent = `PROVE ${state.batchIndex + 1}/${TOTAL_BATCHES}`;
@@ -718,7 +720,7 @@ function nextRecall() {
 
 function convertReadingInput(event) {
   if (event.isComposing) return;
-  const converted = romajiToHiragana(elements.readingInput.value);
+  const converted = convertInputScript(elements.readingInput.value, state.inputScript);
   if (converted !== elements.readingInput.value) {
     elements.readingInput.value = converted;
     elements.readingInput.setSelectionRange(converted.length, converted.length);
@@ -729,7 +731,7 @@ function convertReadingInput(event) {
 function checkRecall(event) {
   event.preventDefault();
   if (state.locked || !["batchRecall", "finalRecall"].includes(state.mode)) return;
-  const value = romajiToHiragana(elements.readingInput.value, true);
+  const value = convertInputScript(elements.readingInput.value, state.inputScript, true);
   elements.readingInput.value = value;
   if (!value.trim()) {
     elements.readingInput.placeholder = "try a reading — or press H";
@@ -738,6 +740,29 @@ function checkRecall(event) {
   }
   if (answerIsCorrect(value, state.current)) recordCorrectRecall();
   else reteachCurrent();
+}
+
+function renderInputScriptPreference() {
+  const katakana = state.inputScript === KATAKANA_INPUT;
+  const currentName = katakana ? "katakana" : "hiragana";
+  const nextName = katakana ? "hiragana" : "katakana";
+  const kanaName = katakana ? "カタカナ" : "ひらがな";
+  const example = katakana ? "ワタシ" : "わたし";
+  elements.inputScript.textContent = katakana ? "ア" : "あ";
+  elements.inputScript.setAttribute("aria-pressed", String(katakana));
+  elements.inputScript.setAttribute("aria-label", `Typing converts to ${currentName}; switch to ${nextName}`);
+  elements.inputScript.title = `Typing converts to ${currentName}`;
+  elements.readingInputLabel.textContent = `TYPE THE READING — ROMAJI → ${kanaName}`;
+  elements.readingInputHelp.textContent = `Type normally: watashi becomes ${example}. Japanese keyboard input also works.`;
+  elements.readingInput.placeholder = `romaji → ${kanaName}`;
+}
+
+function changeInputScript() {
+  state.inputScript = toggleInputScript(state.inputScript);
+  saveInputScript(state.inputScript);
+  elements.readingInput.value = convertInputScript(elements.readingInput.value, state.inputScript);
+  renderInputScriptPreference();
+  if (!elements.recallForm.classList.contains("hidden")) elements.readingInput.focus();
 }
 
 function recordCorrectRecall() {
@@ -985,6 +1010,7 @@ function appendGeneratedDeckButtons() {
 }
 
 appendGeneratedDeckButtons();
+renderInputScriptPreference();
 
 document.querySelectorAll("[data-deck-choice]").forEach((button) => button.addEventListener("click", () => toggleDeckSelection(button.dataset.deckChoice)));
 elements.home.addEventListener("click", returnHome);
@@ -1005,6 +1031,7 @@ elements.replay.addEventListener("click", () => {
 elements.studyNext.addEventListener("click", advanceStudy);
 elements.studyPrevious.addEventListener("click", retreatStudy);
 elements.readingInput.addEventListener("input", convertReadingInput);
+elements.inputScript.addEventListener("click", changeInputScript);
 elements.recallForm.addEventListener("submit", checkRecall);
 elements.hint.addEventListener("click", reteachCurrent);
 elements.next.addEventListener("click", nextRecall);

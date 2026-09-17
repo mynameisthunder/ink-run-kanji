@@ -5,6 +5,13 @@ function toHiragana(value) {
   }).join("");
 }
 
+function toKatakana(value) {
+  return [...value].map((character) => {
+    const code = character.charCodeAt(0);
+    return code >= 0x3041 && code <= 0x3096 ? String.fromCharCode(code + 0x60) : character;
+  }).join("");
+}
+
 const ROMAJI_TO_HIRAGANA = {
   kya: "きゃ", kyu: "きゅ", kyo: "きょ", gya: "ぎゃ", gyu: "ぎゅ", gyo: "ぎょ",
   sha: "しゃ", shu: "しゅ", sho: "しょ", sya: "しゃ", syu: "しゅ", syo: "しょ",
@@ -89,6 +96,11 @@ function romajiToHiragana(value, finalize = false) {
   return result;
 }
 
+function romajiToKana(value, script = "hiragana", finalize = false) {
+  const hiragana = toHiragana(romajiToHiragana(value, finalize));
+  return script === "katakana" ? toKatakana(hiragana) : hiragana;
+}
+
 function normalizeAnswer(value) {
   return toHiragana(value.normalize("NFKC").toLowerCase())
     .normalize("NFD")
@@ -103,4 +115,4 @@ function answerIsCorrect(value, item) {
     || item.romaji.some((version) => answer === normalizeAnswer(romajiToHiragana(version, true)));
 }
 
-export { answerIsCorrect, normalizeAnswer, romajiToHiragana, toHiragana };
+export { answerIsCorrect, normalizeAnswer, romajiToHiragana, romajiToKana, toHiragana, toKatakana };

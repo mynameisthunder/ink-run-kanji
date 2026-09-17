@@ -98,7 +98,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .victory-recap { position: absolute; z-index: 10; inset: 0; padding: clamp(18px, 5vw, 62px); display: grid; place-items: center; background: rgba(23, 23, 20, .56); }
 .victory-recap[hidden] { display: none; }
-.victory-recap-card { position: relative; width: min(650px, 100%); max-height: 100%; padding: clamp(20px, 3vw, 32px); overflow-y: auto; border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 7px 7px 0 var(--blue); animation: recap-enter 160ms cubic-bezier(.2,.8,.2,1) both; }
+.victory-recap-card { position: relative; width: min(650px, 100%); max-height: 100%; padding: clamp(20px, 3vw, 32px); border: 1px solid rgba(23,23,20,.2); background: var(--paper); color: var(--ink); box-shadow: 7px 7px 0 var(--blue); animation: recap-enter 160ms cubic-bezier(.2,.8,.2,1) both; }
 .victory-recap-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--red); font: 800 9px var(--mono); letter-spacing: .13em; }
 .victory-recap-main { margin-top: 15px; display: flex; align-items: end; flex-flow: row wrap; gap: clamp(18px, 4vw, 42px); }
 .victory-recap-main h2 { margin: 0; font: 600 clamp(48px, 7vw, 76px)/.9 var(--sans); letter-spacing: -.07em; overflow-wrap: anywhere; }

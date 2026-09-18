@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { meaningAnswerIsCorrect } from "../src/dungeon-engine.js";
-import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LEVEL_3_WORDS, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, REAL_KANA_N4_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
+import { BUNDLED_AUDIO_ITEMS, DAY_OF_WEEK_WORDS, DECKS, DIRECTION_WORDS, FOUND_IN_WILD_WORDS, FREQUENCY_1_WORDS, JLPT_SAMPLE_GROUPS, KANJI, KANJI_BY_WORD, LEVEL_3_WORDS, LOOK_ALIKE_DECKS, LOOK_ALIKE_GROUPS, LOOK_ALIKE_WORDS, REAL_KANA_N4_WORDS, SONG_LYRIC_GROUPS, itemKey } from "../src/vocabulary.js";
 
 test("the assembled library keeps every unique study card", () => {
-  assert.equal(KANJI.length, 2304);
+  assert.equal(KANJI.length, 2306);
   assert.equal(new Set(KANJI.map(itemKey)).size, KANJI.length);
 });
 
@@ -55,6 +55,18 @@ test("days of the week are available as one ordered deck", () => {
   assert.equal(DECKS["days-of-week"].setLabel, "ESSENTIALS · DAYS OF THE WEEK");
   assert.ok(DAY_OF_WEEK_WORDS.every((word) => KANJI_BY_WORD.has(word)));
   assert.equal(KANJI_BY_WORD.get("木曜日").reading, "もくようび");
+});
+
+test("directions are available as one practical navigation deck", () => {
+  assert.equal(DIRECTION_WORDS.length, 24);
+  assert.deepEqual(DIRECTION_WORDS.slice(0, 9), ["方向", "左", "右", "上", "下", "前", "後ろ", "中", "外"]);
+  assert.deepEqual(DIRECTION_WORDS.slice(14, 22), ["東", "西", "南", "北", "北東", "南東", "北西", "南西"]);
+  assert.deepEqual(DIRECTION_WORDS.slice(-2), ["真っ直ぐ", "曲がる"]);
+  assert.deepEqual(DECKS.directions.words, DIRECTION_WORDS);
+  assert.equal(DECKS.directions.setLabel, "ESSENTIALS · DIRECTIONS");
+  assert.ok(DIRECTION_WORDS.every((word) => KANJI_BY_WORD.has(word)));
+  assert.equal(KANJI_BY_WORD.get("方向").reading, "ほうこう");
+  assert.equal(KANJI_BY_WORD.get("隣").reading, "となり");
 });
 
 test("look-alike practice is split into small thematic decks without duplicate cards", () => {

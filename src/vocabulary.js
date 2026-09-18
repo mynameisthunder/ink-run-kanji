@@ -883,6 +883,27 @@ const FOUND_IN_WILD_IMPORTS = [
 ];
 const FOUND_IN_WILD_WORDS = FOUND_IN_WILD_IMPORTS.map(({ word }) => word);
 
+const DIRECTION_IMPORTS = [
+  {
+    word: "方向",
+    reading: "ほうこう",
+    romaji: ["houkou", "hoko", "hokou"],
+    meaning: "direction; orientation; bearing; way; course",
+    meanings: ["direction", "orientation", "bearing", "way", "course"],
+    breakdown: [["方", "ほう", "direction; way"], ["向", "こう", "facing; beyond; direction"]],
+    memory: "方 is ほう and 向 is こう: ほう + こう = ほうこう, direction.",
+  },
+  {
+    word: "隣",
+    reading: "となり",
+    romaji: ["tonari"],
+    meaning: "next to; next door; neighboring place or person",
+    meanings: ["next to", "next door", "neighbor", "neighbour", "adjacent"],
+    breakdown: [["隣", "となり", "neighbor; neighboring; adjacent"]],
+    memory: "The place or person right next to you is 隣, となり.",
+  },
+];
+
 const importedItems = new Map(KANJI.map((item) => [item.word, item]));
 function addImportedItems(items) {
   items.forEach((item) => {
@@ -904,6 +925,7 @@ addImportedItems(JLPT_SAMPLE_IMPORTS);
 addImportedItems(FOUND_IN_WILD_IMPORTS);
 addImportedItems(SONG_LYRIC_IMPORTS);
 addImportedItems(LEVEL_3_IMPORTS);
+addImportedItems(DIRECTION_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -937,6 +959,18 @@ const DAY_OF_WEEK_WORDS = [
   "金曜日",
   "土曜日",
   "日曜日",
+];
+const DIRECTION_WORDS = [
+  "方向",
+  "左", "右",
+  "上", "下",
+  "前", "後ろ",
+  "中", "外",
+  "横", "隣", "間",
+  "近く", "向こう",
+  "東", "西", "南", "北",
+  "北東", "南東", "北西", "南西",
+  "真っ直ぐ", "曲がる",
 ];
 const LOOK_ALIKE_GROUPS = [
   ["意味", "意見", "意識"],
@@ -1066,6 +1100,10 @@ DAY_OF_WEEK_WORDS.forEach((word) => {
   const item = KANJI_BY_WORD.get(word);
   if (item) item.weekdaySourceLabel = "ESSENTIALS · DAYS OF THE WEEK";
 });
+DIRECTION_WORDS.forEach((word) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (item) item.directionSourceLabel = "ESSENTIALS · DIRECTIONS";
+});
 LOOK_ALIKE_WORDS.forEach((word) => {
   const item = KANJI_BY_WORD.get(word);
   if (item) item.lookAlikeSourceLabel = "ESSENTIALS · LOOK-ALIKE WORDS";
@@ -1104,7 +1142,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.level3SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.level3SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.directionSourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1220,6 +1258,12 @@ DECKS["days-of-week"] = {
   words: DAY_OF_WEEK_WORDS,
 };
 
+DECKS.directions = {
+  label: `DIRECTIONS ${DIRECTION_WORDS.length}`,
+  setLabel: "ESSENTIALS · DIRECTIONS",
+  words: DIRECTION_WORDS,
+};
+
 DECKS["found-in-wild"] = {
   label: `MISC ${FOUND_IN_WILD_WORDS.length}`,
   setLabel: "FOUND IN THE WILD · MISC",
@@ -1246,6 +1290,7 @@ LOOK_ALIKE_DECKS.forEach(({ key, label, words }) => {
 export {
   BUNDLED_AUDIO_ITEMS,
   DAY_OF_WEEK_WORDS,
+  DIRECTION_WORDS,
   DECKS,
   FOUND_IN_WILD_WORDS,
   FREQUENCY_1_WORDS,

@@ -11,7 +11,7 @@ import {
 import { KATAKANA_INPUT, convertReadingInput as convertInputScript, loadInputScript, saveInputScript, toggleInputScript } from "../src/input-script.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";
-import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=level3-complete-1";
+import { BUNDLED_AUDIO_ITEMS, DECKS, KANJI, KANJI_BY_WORD, itemKey } from "../src/vocabulary.js?v=directions-1";
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD

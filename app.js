@@ -15,7 +15,7 @@ import {
   SONG_LYRIC_GROUPS,
   itemKey,
   sourceDeckLabel,
-} from "./src/vocabulary.js?v=level3-complete-1";
+} from "./src/vocabulary.js?v=directions-1";
 import { createAudio } from "./src/audio.js";
 import { createCloudSync } from "./src/cloud-sync.js";
 import { dynamicDeckIsDisabled } from "./src/deck-selection.js";
@@ -968,7 +968,7 @@ function appendGeneratedDeckButtons() {
       },
       {
         label: "ESSENTIALS · FOCUSED PRACTICE",
-        keys: ["days-of-week", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
+        keys: ["days-of-week", "directions", ...LOOK_ALIKE_DECKS.map(({ key }) => key)],
         className: "essentials-deck-option",
       },
       {

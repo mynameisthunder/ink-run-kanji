@@ -56,6 +56,18 @@ test("meaning matching accepts common synonyms and specific parts of qualified d
   assert.equal(meaningAnswerIsCorrect("person", { meaning: "person in charge" }), false);
 });
 
+test("meaning matching tolerates natural paraphrases, verb forms, and small typos", () => {
+  assert.equal(meaningAnswerIsCorrect("it means security", { meaning: "protection" }), true);
+  assert.equal(meaningAnswerIsCorrect("guarentee", { meaning: "guarantee; assurance" }), true);
+  assert.equal(meaningAnswerIsCorrect("protecting", { meaning: "to protect" }), true);
+  assert.equal(meaningAnswerIsCorrect("situation", { meaning: "condition; circumstances" }), true);
+  assert.equal(meaningAnswerIsCorrect("economic", { meaning: "economy; economics" }), true);
+  assert.equal(meaningAnswerIsCorrect("government", { meaning: "economy; economics" }), false);
+  assert.equal(meaningAnswerIsCorrect("money", { meaning: "economy; economics" }), false);
+  assert.equal(meaningAnswerIsCorrect("action", { meaning: "faction; group" }), false);
+  assert.equal(meaningAnswerIsCorrect("problem", { meaning: "matter; material" }), false);
+});
+
 test("meaning matching accepts expanded counter and calendar aliases", () => {
   const counter = { word: "三本", meaning: "3 long or cylindrical objects", meanings: ["three bottles", "3 long objects"] };
   const day = { word: "二日", meaning: "second day of the month; two days", meanings: ["second", "2nd", "second day"] };

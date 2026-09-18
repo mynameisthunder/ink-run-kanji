@@ -7,7 +7,7 @@ import {
   fleeDungeon,
   restartDungeon,
   useDungeonHint,
-} from "../src/dungeon-engine.js?v=numeric-meaning-answers";
+} from "../src/dungeon-engine.js?v=flexible-meaning-1";
 import { KATAKANA_INPUT, convertReadingInput as convertInputScript, loadInputScript, saveInputScript, toggleInputScript } from "../src/input-script.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";

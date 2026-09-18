@@ -5,6 +5,7 @@ export const MAX_ENEMY_HP = 2;
 
 const ARTICLES = /^(?:(?:a|an|the|one's)\s+)+/;
 const LEADING_INFINITIVE = /^to\s+/;
+const META_ANSWER_PREFIX = /^(?:(?:i\s+(?:think|believe)\s+)?(?:it|this|that)\s+(?:means|is)|(?:the\s+)?meaning\s+is|means)\s+/;
 const PARENTHETICAL = /\(([^()]*)\)/g;
 const PARENTHETICAL_ALIAS = /^(?:(?:i\.e|esp|especially|lit|literally)\.?\s+)(.+)$/i;
 const IRREGULAR_NOUNS = new Map([
@@ -16,34 +17,72 @@ const UNCOUNTABLE_OR_SINGULAR_S = new Set([
   "means", "news", "series", "species", "status",
 ]);
 const TOO_BROAD_FOR_PARTIAL_MATCH = new Set([
-  "act", "action", "bad", "come", "do", "get", "go", "good", "kind", "make",
-  "counter", "part", "person", "place", "state", "thing", "type", "use", "way", "work",
+  "act", "action", "bad", "care", "come", "do", "get", "go", "good", "high", "kind", "make",
+  "counter", "part", "person", "place", "right", "state", "thing", "type", "use", "way", "work",
+]);
+const MEANING_FILLER_WORDS = new Set([
+  "a", "an", "as", "at", "be", "being", "by", "for", "from", "in", "into", "of", "on", "the", "to", "with",
 ]);
 const MEANING_EQUIVALENTS = [
   ["aid", "assist", "help"],
-  ["automobile", "car"],
+  ["answer", "reply", "response"],
+  ["area", "region"],
+  ["automobile", "car", "vehicle"],
   ["begin", "start"],
   ["big", "large"],
+  ["build", "construct"],
   ["buy", "purchase"],
+  ["cause", "reason"],
+  ["chance", "opportunity"],
   ["child", "kid"],
-  ["choose", "select"],
-  ["correct", "right"],
+  ["choose", "pick", "select"],
+  ["circumstance", "condition", "situation"],
+  ["complete", "end", "finish"],
+  ["correct", "right", "accurate"],
   ["create", "make", "produce"],
-  ["difficult", "hard"],
+  ["danger", "hazard", "risk"],
+  ["decrease", "decline", "reduce"],
+  ["decide", "determine"],
+  ["difficult", "hard", "tough"],
   ["easy", "simple"],
-  ["end", "finish"],
+  ["economy", "economic", "economics"],
+  ["effect", "impact"],
+  ["employment", "job", "labor", "labour", "occupation", "work"],
+  ["error", "mistake"],
   ["fast", "quick", "rapid"],
   ["fix", "repair"],
+  ["goal", "aim", "purpose"],
+  ["guarantee", "assure", "ensure"],
+  ["happen", "occur"],
+  ["idea", "opinion", "view"],
   ["ill", "sick"],
-  ["job", "occupation", "employment"],
-  ["labor", "labour", "work"],
+  ["important", "significant"],
+  ["increase", "grow", "rise"],
+  ["information", "data"],
+  ["issue", "problem"],
+  ["limit", "boundary", "restriction"],
+  ["method", "way"],
+  ["obtain", "acquire", "get"],
+  ["permit", "allow"],
   ["physician", "doctor"],
-  ["pretty", "beautiful"],
-  ["reside", "live"],
+  ["possible", "feasible"],
+  ["practice", "exercise", "training"],
+  ["pretty", "beautiful", "lovely"],
+  ["price", "cost"],
+  ["protect", "defend", "guard"],
+  ["protection", "safety", "security"],
+  ["remain", "stay"],
+  ["reside", "dwell", "live"],
+  ["result", "consequence", "outcome"],
+  ["rule", "regulation"],
   ["shop", "store"],
-  ["show", "display"],
-  ["tell", "inform"],
+  ["show", "display", "reveal"],
+  ["speak", "talk"],
+  ["tell", "inform", "notify"],
+  ["truth", "fact"],
+  ["understand", "comprehend"],
   ["use", "utilize", "utilise"],
+  ["value", "worth"],
   ["wrong", "incorrect"],
 ];
 const CANONICAL_EQUIVALENT = new Map(MEANING_EQUIVALENTS.flatMap((group) => group.map((word) => [word, group[0]])));
@@ -88,6 +127,7 @@ export function normalizeMeaningAnswer(value) {
     .replace(/[^\p{Letter}\p{Number}'\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim()
+    .replace(META_ANSWER_PREFIX, "")
     .replace(ARTICLES, "")
     .replace(LEADING_INFINITIVE, "");
 }
@@ -116,6 +156,78 @@ function canonicalMeaning(value) {
     .map(singularizeWord)
     .map((word) => CANONICAL_EQUIVALENT.get(word) ?? word)
     .join(" ");
+}
+
+function editDistance(left, right) {
+  let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+  for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
+    const current = [leftIndex];
+    for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
+      current[rightIndex] = Math.min(
+        current[rightIndex - 1] + 1,
+        previous[rightIndex] + 1,
+        previous[rightIndex - 1] + (left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1),
+      );
+    }
+    previous = current;
+  }
+  return previous[right.length];
+}
+
+function isMinorTypoMatch(answer, variant) {
+  if (answer.includes(" ") !== variant.includes(" ")) return false;
+  const shortest = Math.min(answer.length, variant.length);
+  if (shortest < 6) return false;
+  if (answer[0] !== variant[0]) return false;
+  const allowedDistance = Math.max(answer.length, variant.length) >= 16 ? 2 : 1;
+  return editDistance(answer, variant) <= allowedDistance;
+}
+
+function wordForms(word) {
+  const forms = new Set([word, singularizeWord(word)]);
+  if (word.length >= 6 && word.endsWith("ing")) {
+    const stem = word.slice(0, -3);
+    forms.add(stem);
+    forms.add(`${stem}e`);
+    if (stem.at(-1) === stem.at(-2)) forms.add(stem.slice(0, -1));
+  }
+  if (word.length >= 5 && word.endsWith("ed")) {
+    const stem = word.slice(0, -2);
+    forms.add(stem);
+    forms.add(`${stem}e`);
+    if (stem.at(-1) === stem.at(-2)) forms.add(stem.slice(0, -1));
+  }
+  if (word.length >= 6 && word.endsWith("ly")) forms.add(word.slice(0, -2));
+  return new Set([...forms]
+    .map((form) => SPELLING_EQUIVALENTS.get(form) ?? form)
+    .map((form) => CANONICAL_EQUIVALENT.get(form) ?? form));
+}
+
+function wordsAreEquivalent(left, right) {
+  const leftForms = wordForms(left);
+  const rightForms = wordForms(right);
+  return [...leftForms].some((form) => rightForms.has(form)
+    || [...rightForms].some((candidate) => isMinorTypoMatch(form, candidate)));
+}
+
+function contentWords(value) {
+  return canonicalMeaning(value).split(" ").filter((word) => word && !MEANING_FILLER_WORDS.has(word));
+}
+
+function isFlexiblePhraseMatch(answer, variant) {
+  const answerWords = contentWords(answer);
+  const variantWords = contentWords(variant);
+  if (!answerWords.length || !variantWords.length) return false;
+
+  if (answerWords.length === variantWords.length
+    && answerWords.every((word, index) => wordsAreEquivalent(word, variantWords[index]))) return true;
+
+  if (answerWords.length >= variantWords.length) return false;
+  const isLeadingConcept = answerWords.every((word, index) => wordsAreEquivalent(word, variantWords[index]));
+  if (!isLeadingConcept) return false;
+  if (answerWords.length > 1) return true;
+  const [word] = answerWords;
+  return word.length >= 5 && !TOO_BROAD_FOR_PARTIAL_MATCH.has(word);
 }
 
 function japaneseNumeralValue(word) {
@@ -214,7 +326,9 @@ export function meaningAnswerIsCorrect(value, item) {
     const variants = meaningVariants(meaning);
     const partialVariants = meaningVariants(meaning.replace(PARENTHETICAL, ""));
     return [...answerForms].some((form) => variants.has(form)
-      || [...partialVariants].some((variant) => isQualifiedDefinitionMatch(canonicalMeaning(form), canonicalMeaning(variant))));
+      || [...variants].some((variant) => isMinorTypoMatch(canonicalMeaning(form), canonicalMeaning(variant)))
+      || [...partialVariants].some((variant) => isQualifiedDefinitionMatch(canonicalMeaning(form), canonicalMeaning(variant))
+        || isFlexiblePhraseMatch(form, variant)));
   });
 }
 

@@ -14,6 +14,7 @@
     "data:song-lyrics": "node scripts/generate-song-lyrics-data.mjs",
     "data:n5": "node scripts/generate-complete-n5-data.mjs",
     "data:n4": "node scripts/generate-n4-data.mjs",
+    "data:n2": "node scripts/generate-n2-data.mjs",
     "qa:study-guide": "node scripts/generate-study-guide-preview.mjs",
     "dev": "node server.mjs",
     "start": "node server.mjs",

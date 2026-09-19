@@ -4,6 +4,7 @@ import { FREQUENCY_3_4_IMPORTS, FREQUENCY_3_WORDS, FREQUENCY_4_WORDS } from "../
 import { JLPT_SAMPLE_GROUPS, JLPT_SAMPLE_IMPORTS } from "../jlpt-sample-data.js";
 import { LEVEL_2_IMPORTS, LEVEL_2_WORDS } from "../level2-data.js";
 import { LEVEL_3_IMPORTS, LEVEL_3_WORDS } from "../level3-data.js";
+import { N2_IMPORTS, N2_WORDS as REAL_KANA_N2_WORDS } from "../n2-data.js";
 import { N4_IMPORTS, N4_WORDS as REAL_KANA_N4_WORDS } from "../n4-data.js";
 import { N5_IMPORTS as REAL_KANA_N5_IMPORTS, N5_WORDS as REAL_KANA_N5_WORDS } from "../n5-data.js";
 import { NUMBER_GROUPS, NUMBER_IMPORTS, NUMBER_WORDS } from "../numbers-data.js";
@@ -926,6 +927,7 @@ addImportedItems(FOUND_IN_WILD_IMPORTS);
 addImportedItems(SONG_LYRIC_IMPORTS);
 addImportedItems(LEVEL_3_IMPORTS);
 addImportedItems(DIRECTION_IMPORTS);
+addImportedItems(N2_IMPORTS);
 const NUMBER_DECK_KEYS = new Map();
 NUMBER_IMPORTS.forEach((item) => {
   if (item.studyKey) {
@@ -1066,6 +1068,13 @@ REAL_KANA_N4_WORDS.forEach((word, index) => {
   const end = Math.min(start + 9, REAL_KANA_N4_WORDS.length);
   item.n4SourceLabel = `REAL KANA N4 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
 });
+REAL_KANA_N2_WORDS.forEach((word, index) => {
+  const item = KANJI_BY_WORD.get(word);
+  if (!item) return;
+  const start = Math.floor(index / 10) * 10 + 1;
+  const end = Math.min(start + 9, REAL_KANA_N2_WORDS.length);
+  item.n2SourceLabel = `REAL KANA N2 · ${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+});
 FREQUENCY_2_WORDS.forEach((word, index) => {
   const item = KANJI_BY_WORD.get(word);
   if (!item) return;
@@ -1142,7 +1151,7 @@ function sourceDeckLabel(item) {
     const start = 1 + Math.floor((index - 110) / 10) * 10;
     originalLabel = `EXTRA 1 · ${String(start).padStart(2, "0")}—${String(start + 9).padStart(2, "0")}`;
   }
-  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.level3SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.directionSourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
+  return [item.frequency1SourceLabel, originalLabel, item.n5SourceLabel, item.n4SourceLabel, item.n2SourceLabel, item.jlptSampleSourceLabel, item.frequency2SourceLabel, item.frequency3SourceLabel, item.frequency4SourceLabel, item.level2SourceLabel, item.level3SourceLabel, item.numberSourceLabel, item.weekdaySourceLabel, item.directionSourceLabel, item.lookAlikeSourceLabel, item.foundSourceLabel, item.songSourceLabel]
     .filter(Boolean)
     .join(" · ");
 }
@@ -1184,6 +1193,15 @@ for (let index = 0; index < REAL_KANA_N4_WORDS.length; index += 10) {
   const key = `n4-${start}-${end}`;
   const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
   DECKS[key] = { label: `N4 ${range}`, setLabel: `REAL KANA · N4 WORDS · ${range}`, words: REAL_KANA_N4_WORDS.slice(index, end) };
+}
+
+DECKS["n2-all"] = { label: `N2 ALL ${REAL_KANA_N2_WORDS.length}`, setLabel: `REAL KANA · N2 WORDS · ALL ${REAL_KANA_N2_WORDS.length}`, words: REAL_KANA_N2_WORDS };
+for (let index = 0; index < REAL_KANA_N2_WORDS.length; index += 10) {
+  const start = index + 1;
+  const end = Math.min(index + 10, REAL_KANA_N2_WORDS.length);
+  const key = `n2-${start}-${end}`;
+  const range = `${String(start).padStart(3, "0")}—${String(end).padStart(3, "0")}`;
+  DECKS[key] = { label: `N2 ${range}`, setLabel: `REAL KANA · N2 WORDS · ${range}`, words: REAL_KANA_N2_WORDS.slice(index, end) };
 }
 
 DECKS["frequency-2-all"] = { label: "L1:2 ALL 150", setLabel: "FREQUENCY · LEVEL 1:2 · ALL 150", words: FREQUENCY_2_WORDS };
@@ -1306,6 +1324,7 @@ export {
   LOOK_ALIKE_GROUPS,
   LOOK_ALIKE_WORDS,
   NUMBER_GROUPS,
+  REAL_KANA_N2_WORDS,
   REAL_KANA_N4_WORDS,
   REAL_KANA_N5_WORDS,
   SONG_LYRIC_GROUPS,

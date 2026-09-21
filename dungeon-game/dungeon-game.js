@@ -7,7 +7,7 @@ import {
   fleeDungeon,
   restartDungeon,
   useDungeonHint,
-} from "../src/dungeon-engine.js?v=flexible-meaning-1";
+} from "../src/dungeon-engine.js?v=hint-miss-1";
 import { KATAKANA_INPUT, convertReadingInput as convertInputScript, loadInputScript, saveInputScript, toggleInputScript } from "../src/input-script.js";
 import { NEEDS_WORK_ENTRY_ACCURACY, applyAttempt, emptyProgress, needsDailyReview, needsWork } from "../src/progress.js";
 import { createStorage } from "../src/storage.js";
@@ -466,9 +466,11 @@ function submitAttack(event) {
 
 function useHint() {
   if (locked) return;
+  const enemy = dungeon.currentWord;
   const result = useDungeonHint(dungeon);
   if (result.event.kind === "ignored") return;
   dungeon = result.state;
+  recordProgress(enemy, false);
   playTone("wrong");
   renderEnemy({ preserveFeedback: true });
   setFeedback("The enemy anatomy is exposed. Your combo is broken.", "miss");

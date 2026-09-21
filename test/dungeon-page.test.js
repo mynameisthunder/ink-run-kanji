@@ -12,6 +12,7 @@ test("dungeon hints expose dictionary and kana lookup icons", () => {
   assert.match(html, /Kana and reading lookup/);
   assert.match(script, /jisho\.org\/search\/\$\{encodedWord\}/);
   assert.match(script, /romajidesu\.com\/kanji\/\$\{encodedWord\}/);
+  assert.match(script, /function useHint\(\)[\s\S]*recordProgress\(enemy, false\)/);
 });
 
 test("a defeated enemy reveals its complete study card until Next is clicked", () => {

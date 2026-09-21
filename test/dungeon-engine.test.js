@@ -116,12 +116,14 @@ test("a wrong answer costs HP, forces correction, and adds a weighted repeat", (
   assert.equal(state.misses[current.word], 1);
 });
 
-test("hint costs HP without counting as a miss", () => {
+test("hint costs HP without changing the dungeon miss queue", () => {
   const state = createDungeonState(words, noShuffle);
   const result = useDungeonHint(state);
   assert.equal(result.state.playerHp, 4);
   assert.equal(result.state.hintRevealed, true);
   assert.equal(result.state.totalMisses, 0);
+  assert.deepEqual(result.state.misses, {});
+  assert.equal(result.state.queue.length, state.queue.length);
 });
 
 test("flee costs HP, counts as a miss, and loads another enemy", () => {

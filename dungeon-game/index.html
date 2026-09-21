@@ -66,7 +66,7 @@
             <button id="attackButton" type="submit"><span>ATTACK</span><b aria-hidden="true">↗</b></button>
           </form>
           <div class="combat-actions">
-            <button class="cost-button" id="hintButton" type="button"><span>HINT</span><b>-1 HP</b></button>
+            <button class="cost-button" id="hintButton" type="button"><span>HINT</span><b>-1 HP · MISS</b></button>
             <button class="cost-button flee-button" id="fleeButton" type="button"><span>FLEE</span><b>-1 HP</b></button>
           </div>
           <div class="hint-panel" id="hintPanel" hidden>
@@ -140,6 +140,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="../cloud-config.js?v=cloud-1" defer></script>
     <script src="../cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="dungeon-game.js?v=n2-1"></script>
+    <script type="module" src="dungeon-game.js?v=hint-miss-1"></script>
   </body>
 </html>

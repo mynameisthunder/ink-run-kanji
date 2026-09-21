@@ -432,7 +432,7 @@ export function useDungeonHint(state) {
   if (state.status !== "playing" || !state.currentWord || state.hintRevealed) {
     return { state, event: { kind: "ignored" } };
   }
-  const next = loseHp({ ...state, hintRevealed: true });
+  const next = loseHp(recordMiss({ ...state, hintRevealed: true }));
   return { state: next, event: { kind: "hint", lost: next.status === "lost" } };
 }
 

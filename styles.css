@@ -803,7 +803,7 @@ kbd { font: inherit; color: var(--red); }
 }
 
 .deck-item:nth-child(odd) { border-right: 1px solid var(--line); }
-.deck-kanji { font: 700 38px var(--jp); letter-spacing: -.12em; }
+.deck-kanji { font: 400 38px var(--jp); letter-spacing: -.12em; }
 .deck-favorite-button {
   position: absolute;
   top: 12px;

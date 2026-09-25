@@ -38,7 +38,7 @@
     <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=light-only-1" />
+    <link rel="stylesheet" href="styles.css?v=study-four-up-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -178,6 +178,14 @@
           </div>
 
           <div class="interaction-panel" id="answers">
+            <div class="study-view-control" id="studyViewControl">
+              <span class="study-view-label">CARDS AT ONCE</span>
+              <span class="study-view-range" id="studyViewRange">1 CARD</span>
+              <button class="study-page-size-toggle" id="studyPageSizeToggle" type="button" aria-pressed="false" aria-label="Show four study cards at a time" title="Show four cards at once">
+                <span data-study-size="1">1</span>
+                <span data-study-size="4">4</span>
+              </button>
+            </div>
             <article class="study-card" id="studyCard">
               <span class="panel-eyebrow">FIRST, MAKE A MEMORY</span>
               <div class="study-reading-row">
@@ -205,6 +213,17 @@
                 </button>
               </nav>
             </article>
+
+            <section class="study-grid hidden" id="studyGrid" aria-label="Four study cards"></section>
+            <nav class="study-navigation study-grid-navigation hidden" id="studyGridNavigation" aria-label="Study card group navigation">
+              <button class="study-previous" id="studyGridPreviousButton" type="button" aria-label="Previous group of study cards" title="Previous cards (←)" disabled>
+                <span aria-hidden="true">←</span>
+              </button>
+              <button class="study-next" id="studyGridNextButton" type="button" aria-label="Next group of study cards" title="Next cards (→)">
+                <span id="studyGridNextLabel">NEXT 4 CARDS</span>
+                <span id="studyGridNextIcon" aria-hidden="true">→</span>
+              </button>
+            </nav>
 
             <form class="recall-form hidden" id="recallForm">
               <label id="readingInputLabel" for="readingInput">TYPE THE READING — ROMAJI → ひらがな</label>
@@ -362,6 +381,6 @@
     <script src="vendor/ink-run-japanese-font.js?v=1" defer></script>
     <script src="cloud-config.js?v=cloud-1" defer></script>
     <script src="cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="app.js?v=n2-1"></script>
+    <script type="module" src="app.js?v=study-four-up-1"></script>
   </body>
 </html>

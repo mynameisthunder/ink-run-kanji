@@ -36,6 +36,7 @@ import {
 import { dungeonUrl, parseRoute, selectionUrl, studyUrl } from "./src/routes.js";
 import { isNeedsWorkOnlySelection, shouldRequeueMiss } from "./src/review-run.js";
 import { createStorage } from "./src/storage.js";
+import { FOUR_CARD_STUDY, SINGLE_CARD_STUDY, alignStudyIndex, studyPage } from "./src/study-layout.js";
 import { downloadStudyGuidePdf, openStudyGuidePrint, openStudyGuideView } from "./src/study-guide.js?v=all-cards-modal-1";
 const BATCH_SIZE = 3;
 const TOTAL_BATCHES = Math.ceil(KANJI.length / BATCH_SIZE);
@@ -59,8 +60,10 @@ const elements = {
   selectedDeckSummary: $("#selectedDeckSummary"),
   sound: $("#soundButton"), inputScript: $("#inputScriptButton"), score: $("#score"), streak: $("#streak"), roundLabel: $("#roundLabel"), progress: $("#progressBar"),
   questionCount: $("#questionCount"), kanji: $("#kanjiPrompt"), jishoLink: $("#jishoLink"), hint: $("#hintButton"), meaning: $("#meaning"),
-  studyCard: $("#studyCard"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
+  playfield: $("#playfield"), studyViewControl: $("#studyViewControl"), studyViewRange: $("#studyViewRange"), studyPageSizeToggle: $("#studyPageSizeToggle"),
+  studyCard: $("#studyCard"), studyGrid: $("#studyGrid"), studyReading: $("#studyReading"), studyLookup: $("#romajiDesuLink"), studyPronounce: $("#studyPronounceButton"), studyMeaning: $("#studyMeaning"), studyBreakdown: $("#studyBreakdown"),
   memoryHook: $("#memoryHook"), studyPrevious: $("#studyPreviousButton"), studyNext: $("#studyNextButton"), studyNextLabel: $("#studyNextLabel"), studyNextIcon: $("#studyNextIcon"), recallForm: $("#recallForm"), readingInput: $("#readingInput"), readingInputLabel: $("#readingInputLabel"), readingInputHelp: $("#readingInputHelp"),
+  studyGridNavigation: $("#studyGridNavigation"), studyGridPrevious: $("#studyGridPreviousButton"), studyGridNext: $("#studyGridNextButton"), studyGridNextLabel: $("#studyGridNextLabel"), studyGridNextIcon: $("#studyGridNextIcon"),
   feedback: $("#feedback"), feedbackTitle: $("#feedbackTitle"), feedbackReading: $("#feedbackReading"), feedbackLookup: $("#feedbackRomajiDesuLink"),
   pronounce: $("#pronounceButton"), feedbackMeaning: $("#feedbackMeaning"), feedbackBreakdown: $("#feedbackBreakdown"), next: $("#nextButton"),
   finalScore: $("#finalScore"), accuracy: $("#accuracy"), bestStreak: $("#bestStreak"), hintsUsed: $("#hintsUsed"),
@@ -72,10 +75,12 @@ const {
   loadCloudProgressSnapshot,
   loadCloudSnapshot,
   loadFavoriteWords,
+  loadStudyPageSize,
   loadWordProgress,
   saveCloudProgressSnapshot,
   saveCloudSnapshot,
   saveFavoriteWords,
+  saveStudyPageSize,
   saveWordProgress,
   updateCloudProgressSnapshot,
 } = createStorage({ KANJI, itemKey, NEEDS_WORK_ENTRY_ACCURACY });
@@ -88,6 +93,7 @@ const state = {
   mode: "study",
   batchIndex: 0,
   studyIndex: 0,
+  studyPageSize: loadStudyPageSize(),
   batch: [],
   queue: [],
   current: null,
@@ -619,20 +625,119 @@ function buildParts(item, target, className) {
   }));
 }
 
+function effectiveStudyPageSize() {
+  return state.deck.length > 1 ? state.studyPageSize : SINGLE_CARD_STUDY;
+}
+
+function createStudyGridCard(item, index) {
+  const card = document.createElement("article");
+  card.className = "study-grid-card";
+  card.innerHTML = `
+    <header class="study-grid-card-head">
+      <span class="study-grid-index"></span>
+      <button class="favorite-button study-grid-favorite" type="button">☆</button>
+    </header>
+    <div class="study-grid-word-row">
+      <a class="study-grid-word-link" target="_blank" rel="noopener noreferrer"><h3 class="study-grid-word"></h3></a>
+      <div class="study-grid-tools">
+        <a class="study-grid-lookup-link" target="_blank" rel="noopener noreferrer" title="Get a second opinion on RomajiDesu">↗</a>
+        <button class="study-grid-pronounce" type="button" title="Hear the Japanese pronunciation">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+            <path d="M16 8.2a5 5 0 0 1 0 7.6M18.7 5.5a9 9 0 0 1 0 13"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="study-grid-reading"></p>
+    <p class="study-grid-meaning"></p>
+    <div class="study-grid-breakdown"></div>
+    <p class="study-grid-memory"></p>
+  `;
+
+  card.querySelector(".study-grid-index").textContent = `CARD ${String(index + 1).padStart(2, "0")}`;
+  const wordLink = card.querySelector(".study-grid-word-link");
+  wordLink.href = `https://jisho.org/search/${encodeURIComponent(item.word)}`;
+  wordLink.setAttribute("aria-label", `Look up ${item.word} on Jisho`);
+  card.querySelector(".study-grid-word").textContent = item.word;
+  card.querySelector(".study-grid-reading").textContent = item.reading;
+  card.querySelector(".study-grid-meaning").textContent = item.meaning;
+  card.querySelector(".study-grid-memory").textContent = item.memory;
+  buildParts(item, card.querySelector(".study-grid-breakdown"), "study-grid-part");
+
+  const lookup = card.querySelector(".study-grid-lookup-link");
+  lookup.href = `https://www.romajidesu.com/kanji/${encodeURIComponent(item.word)}`;
+  lookup.setAttribute("aria-label", `Look up ${item.word} on RomajiDesu`);
+
+  const pronounce = card.querySelector(".study-grid-pronounce");
+  pronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
+  pronounce.addEventListener("click", () => pronounceItem(item, pronounce));
+
+  const favorite = card.querySelector(".study-grid-favorite");
+  updateFavoriteButton(favorite, item);
+  favorite.addEventListener("click", () => {
+    toggleFavorite(item);
+    updateFavoriteButton(favorite, item);
+  });
+  return card;
+}
+
+function renderStudyGrid(items, start) {
+  elements.studyGrid.replaceChildren(...items.map((item, offset) => createStudyGridCard(item, start + offset)));
+}
+
+function renderStudyPageControl(start, end, pageSize) {
+  const fourUp = pageSize === FOUR_CARD_STUDY;
+  elements.studyViewControl.classList.toggle("hidden", state.deck.length <= 1);
+  elements.studyPageSizeToggle.classList.toggle("is-four", fourUp);
+  elements.studyPageSizeToggle.setAttribute("aria-pressed", String(fourUp));
+  elements.studyPageSizeToggle.setAttribute("aria-label", fourUp ? "Show one study card at a time" : "Show four study cards at a time");
+  elements.studyPageSizeToggle.title = fourUp ? "Show one card at a time" : "Show four cards at once";
+  elements.studyViewRange.textContent = fourUp
+    ? `CARDS ${String(start + 1).padStart(2, "0")}—${String(end + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`
+    : "1 CARD VIEW";
+}
+
 function showStudyCard({ trackSeen = true } = {}) {
-  const item = state.deck[state.studyIndex];
+  const pageSize = effectiveStudyPageSize();
+  const page = studyPage(state.deck, state.studyIndex, pageSize);
+  const [item] = page.items;
   if (!item) return;
-  const isFirstCard = state.studyIndex === 0;
-  const isLastCard = state.studyIndex === state.deck.length - 1;
-  if (trackSeen) markWordSeen(itemKey(item));
+  state.studyIndex = page.start;
+  const end = page.start + page.items.length - 1;
+  const isFirstPage = page.start === 0;
+  const isLastPage = end === state.deck.length - 1;
+  if (trackSeen) page.items.forEach((visibleItem) => markWordSeen(itemKey(visibleItem)));
   renderWord(item);
   elements.feedback.classList.remove("show");
-  elements.studyCard.classList.remove("hidden");
+  const fourUp = pageSize === FOUR_CARD_STUDY;
+  elements.playfield.classList.toggle("study-four-up", fourUp);
+  elements.studyViewControl.classList.remove("hidden");
+  elements.studyCard.classList.toggle("hidden", fourUp);
+  elements.studyGrid.classList.toggle("hidden", !fourUp);
+  elements.studyGridNavigation.classList.toggle("hidden", !fourUp);
   elements.recallForm.classList.add("hidden");
   elements.hint.classList.add("hidden");
   elements.meaning.textContent = "";
   elements.roundLabel.textContent = `STUDY ${state.studyLabel}`;
-  elements.questionCount.textContent = `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
+  elements.questionCount.textContent = fourUp
+    ? `CARDS ${String(page.start + 1).padStart(2, "0")}—${String(end + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`
+    : `CARD ${String(state.studyIndex + 1).padStart(2, "0")} / ${String(state.deck.length).padStart(2, "0")}`;
+  renderStudyPageControl(page.start, end, pageSize);
+
+  if (fourUp) {
+    renderStudyGrid(page.items, page.start);
+    elements.studyGridPrevious.disabled = isFirstPage;
+    elements.studyGridPrevious.setAttribute("aria-label", isFirstPage ? "Previous study cards, unavailable on the first group" : `Previous study cards, ending with card ${page.start}`);
+    elements.studyGridNextLabel.textContent = isLastPage ? "START RECALL" : "NEXT 4 CARDS";
+    elements.studyGridNextIcon.textContent = isLastPage ? "↗" : "→";
+    elements.studyGridNext.setAttribute("aria-label", isLastPage ? "Start recall run" : `Next study cards, starting with card ${end + 2}`);
+    elements.studyGridNext.title = isLastPage ? "Start recall run (→)" : "Next four cards (→)";
+    if (state.routeStudy) writeStudyRoute();
+    updateStatus();
+    return;
+  }
+
   elements.studyReading.textContent = item.reading;
   elements.studyLookup.href = `https://www.romajidesu.com/kanji/${encodeURIComponent(item.word)}`;
   elements.studyLookup.setAttribute("aria-label", `Look up ${item.word} on RomajiDesu`);
@@ -640,27 +745,36 @@ function showStudyCard({ trackSeen = true } = {}) {
   elements.studyMeaning.textContent = item.meaning;
   elements.memoryHook.textContent = item.memory;
   buildParts(item, elements.studyBreakdown, "study-part");
-  elements.studyPrevious.disabled = isFirstCard;
-  elements.studyPrevious.setAttribute("aria-label", isFirstCard ? "Previous study card, unavailable on the first card" : `Previous study card, card ${state.studyIndex}`);
-  elements.studyNextLabel.textContent = isLastCard ? "START RECALL" : "NEXT STUDY CARD";
-  elements.studyNextIcon.textContent = isLastCard ? "↗" : "→";
-  elements.studyNext.setAttribute("aria-label", isLastCard ? "Start recall run" : `Next study card, card ${state.studyIndex + 2}`);
-  elements.studyNext.title = isLastCard ? "Start recall run (→)" : "Next card (→)";
+  elements.studyPrevious.disabled = isFirstPage;
+  elements.studyPrevious.setAttribute("aria-label", isFirstPage ? "Previous study card, unavailable on the first card" : `Previous study card, card ${state.studyIndex}`);
+  elements.studyNextLabel.textContent = isLastPage ? "START RECALL" : "NEXT STUDY CARD";
+  elements.studyNextIcon.textContent = isLastPage ? "↗" : "→";
+  elements.studyNext.setAttribute("aria-label", isLastPage ? "Start recall run" : `Next study card, card ${state.studyIndex + 2}`);
+  elements.studyNext.title = isLastPage ? "Start recall run (→)" : "Next card (→)";
   if (state.routeStudy) writeStudyRoute();
   updateStatus();
 }
 
 function advanceStudy() {
   if (state.mode !== "study") return;
-  state.studyIndex += 1;
+  state.studyIndex += effectiveStudyPageSize();
   if (state.studyIndex < state.deck.length) showStudyCard();
   else beginFinalRecall();
 }
 
 function retreatStudy() {
   if (state.mode !== "study" || state.studyIndex === 0) return;
-  state.studyIndex -= 1;
+  state.studyIndex = Math.max(0, state.studyIndex - effectiveStudyPageSize());
   showStudyCard();
+}
+
+function toggleStudyPageSize() {
+  if (state.mode !== "study" || state.deck.length <= 1) return;
+  state.studyPageSize = state.studyPageSize === FOUR_CARD_STUDY ? SINGLE_CARD_STUDY : FOUR_CARD_STUDY;
+  state.studyIndex = alignStudyIndex(state.studyIndex, state.studyPageSize);
+  saveStudyPageSize(state.studyPageSize);
+  showStudyCard();
+  elements.studyPageSizeToggle.focus({ preventScroll: true });
 }
 
 function beginBatchRecall() {
@@ -698,7 +812,11 @@ function nextRecall() {
 
   const item = state.queue.shift();
   renderWord(item);
+  elements.playfield.classList.remove("study-four-up");
+  elements.studyViewControl.classList.add("hidden");
   elements.studyCard.classList.add("hidden");
+  elements.studyGrid.classList.add("hidden");
+  elements.studyGridNavigation.classList.add("hidden");
   elements.recallForm.classList.remove("hidden");
   elements.hint.classList.remove("hidden");
   elements.hint.disabled = false;
@@ -1036,6 +1154,9 @@ elements.replay.addEventListener("click", () => {
 });
 elements.studyNext.addEventListener("click", advanceStudy);
 elements.studyPrevious.addEventListener("click", retreatStudy);
+elements.studyGridNext.addEventListener("click", advanceStudy);
+elements.studyGridPrevious.addEventListener("click", retreatStudy);
+elements.studyPageSizeToggle.addEventListener("click", toggleStudyPageSize);
 elements.readingInput.addEventListener("input", convertReadingInput);
 elements.inputScript.addEventListener("click", changeInputScript);
 elements.recallForm.addEventListener("submit", checkRecall);

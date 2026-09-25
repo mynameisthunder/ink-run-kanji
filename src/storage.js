@@ -3,6 +3,7 @@ export function createStorage({ KANJI, itemKey, NEEDS_WORK_ENTRY_ACCURACY }) {
   const WORD_PROGRESS_STORAGE_KEY = "ink-run-word-progress-v1";
   const CLOUD_SNAPSHOT_PREFIX = "ink-run-cloud-snapshot-v1:";
   const CLOUD_PROGRESS_SNAPSHOT_PREFIX = "ink-run-cloud-progress-snapshot-v2:";
+  const STUDY_PAGE_SIZE_STORAGE_KEY = "ink-run-study-page-size-v1";
   const LEGACY_PROGRESS_MIGRATION_TIME = new Date().toISOString();
   
   function loadFavoriteWords() {
@@ -60,6 +61,22 @@ export function createStorage({ KANJI, itemKey, NEEDS_WORK_ENTRY_ACCURACY }) {
       // Recall tracking still works for this session when storage is unavailable.
     }
   }
+
+  function loadStudyPageSize() {
+    try {
+      return window.localStorage.getItem(STUDY_PAGE_SIZE_STORAGE_KEY) === "4" ? 4 : 1;
+    } catch {
+      return 1;
+    }
+  }
+
+  function saveStudyPageSize(pageSize) {
+    try {
+      window.localStorage.setItem(STUDY_PAGE_SIZE_STORAGE_KEY, pageSize === 4 ? "4" : "1");
+    } catch {
+      // The selected layout still works for this session when storage is unavailable.
+    }
+  }
   
   function loadCloudSnapshot(userId) {
     try {
@@ -115,10 +132,12 @@ export function createStorage({ KANJI, itemKey, NEEDS_WORK_ENTRY_ACCURACY }) {
     loadCloudProgressSnapshot,
     loadCloudSnapshot,
     loadFavoriteWords,
+    loadStudyPageSize,
     loadWordProgress,
     saveCloudProgressSnapshot,
     saveCloudSnapshot,
     saveFavoriteWords,
+    saveStudyPageSize,
     saveWordProgress,
     updateCloudProgressSnapshot,
   };

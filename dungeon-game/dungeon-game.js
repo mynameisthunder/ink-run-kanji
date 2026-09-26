@@ -71,6 +71,7 @@ const elements = {
   victoryRecapMeaning: $("#victoryRecapMeaning"),
   victoryRecapJisho: $("#victoryRecapJishoLink"),
   victoryRecapKana: $("#victoryRecapKanaLink"),
+  victoryRecapPronounce: $("#victoryRecapPronounceButton"),
   victoryRecapBreakdown: $("#victoryRecapBreakdown"),
   victoryRecapMemory: $("#victoryRecapMemory"),
   victoryRecapContinue: $("#victoryRecapContinue"),
@@ -106,8 +107,9 @@ let inputScript = loadInputScript();
 let showVictoryCards = loadShowRecapPreference();
 let recapStage = 0;
 let recapNextState = null;
+let recapItem = null;
 
-const { playTone } = createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled: () => soundEnabled });
+const { cancelPronunciation, playTone, pronounceItem } = createAudio({ KANJI, BUNDLED_AUDIO_ITEMS, isSoundEnabled: () => soundEnabled });
 
 function loadShowRecapPreference() {
   try {
@@ -243,10 +245,15 @@ function setRecapStage(stage) {
   recapStage = stage;
   elements.victoryRecap.hidden = stage === 0;
   elements.victoryRecap.dataset.stage = String(stage);
+  if (stage === 0) {
+    cancelPronunciation();
+    recapItem = null;
+  }
 }
 
 function renderVictoryRecap(item) {
   const encodedWord = encodeURIComponent(item.word);
+  recapItem = item;
   elements.victoryRecapTitle.textContent = item.word;
   elements.victoryRecapReading.textContent = readingAnswer(item);
   elements.victoryRecapMeaning.textContent = item.meaning;
@@ -254,6 +261,7 @@ function renderVictoryRecap(item) {
   elements.victoryRecapKana.href = `https://www.romajidesu.com/kanji/${encodedWord}`;
   elements.victoryRecapJisho.setAttribute("aria-label", `Look up ${item.word} definition on Jisho`);
   elements.victoryRecapKana.setAttribute("aria-label", `Look up ${item.word} kanji and reading on RomajiDesu`);
+  elements.victoryRecapPronounce.setAttribute("aria-label", `Pronounce ${item.word}: ${(item.kana ?? [item.reading])[0]}`);
   elements.victoryRecapMemory.textContent = item.memory ?? "";
   elements.victoryRecapMemory.hidden = !item.memory;
   renderBreakdownParts(item, elements.victoryRecapBreakdown, "victory-recap-part");
@@ -554,6 +562,7 @@ elements.inputScript.addEventListener("click", changeInputScript);
 elements.hint.addEventListener("click", useHint);
 elements.flee.addEventListener("click", flee);
 elements.victoryRecapContinue.addEventListener("click", finishVictoryRecap);
+elements.victoryRecapPronounce.addEventListener("click", () => pronounceItem(recapItem, elements.victoryRecapPronounce));
 elements.restart.addEventListener("click", restart);
 elements.showRecap.addEventListener("change", () => {
   showVictoryCards = elements.showRecap.checked;

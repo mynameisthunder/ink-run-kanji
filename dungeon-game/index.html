@@ -8,7 +8,7 @@
     <meta name="description" content="Fight through your Ink Run kanji decks with reading and meaning recall." />
     <title>Kanji Dungeon - Ink Run</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="dungeon.css?v=recap-lookups" />
+    <link rel="stylesheet" href="dungeon.css?v=recap-sound-1" />
   </head>
   <body>
     <div class="dungeon-noise" aria-hidden="true"></div>
@@ -88,6 +88,12 @@
               <nav class="hint-lookups" aria-label="Defeated word lookup links">
                 <a class="hint-lookup jisho-lookup" id="victoryRecapJishoLink" href="https://jisho.org/search/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word on Jisho" title="Jisho definition"><span aria-hidden="true">辞</span></a>
                 <a class="hint-lookup kana-lookup" id="victoryRecapKanaLink" href="https://www.romajidesu.com/kanji/" target="_blank" rel="noopener noreferrer" aria-label="Look up this word's kanji and reading on RomajiDesu" title="Kanji and reading lookup"><span aria-hidden="true">あ</span></a>
+                <button class="hint-lookup pronunciation-lookup" id="victoryRecapPronounceButton" type="button" aria-label="Pronounce this word in Japanese" title="Hear the Japanese pronunciation">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+                    <path d="M16 8.2a5 5 0 0 1 0 7.6M18.7 5.5a9 9 0 0 1 0 13"></path>
+                  </svg>
+                </button>
               </nav>
             </div>
             <div class="victory-recap-main">
@@ -140,6 +146,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <script src="../cloud-config.js?v=cloud-1" defer></script>
     <script src="../cloud.js?v=needs-work-sync-1" defer></script>
-    <script type="module" src="dungeon-game.js?v=hint-miss-1"></script>
+    <script type="module" src="dungeon-game.js?v=recap-sound-1"></script>
   </body>
 </html>

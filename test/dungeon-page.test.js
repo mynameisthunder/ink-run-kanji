@@ -21,8 +21,10 @@ test("a defeated enemy reveals its complete study card until Next is clicked", (
   assert.match(html, /id="victoryRecapMeaning"/);
   assert.match(html, /id="victoryRecapJishoLink"[^>]+jisho\.org\/search\//);
   assert.match(html, /id="victoryRecapKanaLink"[^>]+romajidesu\.com\/kanji\//);
+  assert.match(html, /id="victoryRecapPronounceButton"[^>]+aria-label="Pronounce this word in Japanese"/);
   assert.match(script, /victoryRecapJisho\.href = `https:\/\/jisho\.org\/search\/\$\{encodedWord\}`/);
   assert.match(script, /victoryRecapKana\.href = `https:\/\/www\.romajidesu\.com\/kanji\/\$\{encodedWord\}`/);
+  assert.match(script, /victoryRecapPronounce\.addEventListener\("click", \(\) => pronounceItem\(recapItem, elements\.victoryRecapPronounce\)\)/);
   assert.match(html, /id="victoryRecapBreakdown"/);
   assert.match(html, /id="victoryRecapMemory"/);
   assert.match(html, /id="victoryRecapContinue"[^>]*>NEXT/);
